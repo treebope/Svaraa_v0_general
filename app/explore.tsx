@@ -1,12 +1,14 @@
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { usePageWidth } from '@/features/main/Columns';
 import { Button, Screen, Text } from '@/ui';
 
 export default function Explore() {
   const { t } = useTranslation();
   const router = useRouter();
+  const pageWidth = usePageWidth();
   return (
-    <Screen>
+    <Screen maxWidth={pageWidth}>
       <Button
         label={t('common.back')}
         variant="tertiary"

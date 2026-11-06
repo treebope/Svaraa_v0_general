@@ -1,6 +1,8 @@
 import { Redirect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useGreetingName } from '@/features/home/useGreetingName';
+import { Columns, usePageWidth } from '@/features/main/Columns';
+import { useWide } from '@/features/main/useWide';
 import { ProductCard } from '@/features/home/ProductCard';
 import { nextSetupRoute, useHousehold } from '@/features/household/store';
 import { useWearer } from '@/features/wearer/store';
@@ -15,6 +17,8 @@ export default function Home() {
   const router = useRouter();
   const name = useGreetingName();
   const { setupStep, totalSteps, hasActiveDevice, role, notificationsDone } = useHousehold();
+  const pageWidth = usePageWidth();
+  const wide = useWide();
   const paired = useWearer((s) => !!s.pendantId);
   const started = setupStep > 0;
   // Continues from what was saved: role first, then that role's next step.
@@ -23,32 +27,55 @@ export default function Home() {
   // Setup is finished: the main app (Apps first, then Chat and My Profile) takes over.
   if (hasActiveDevice) return <Redirect href="/apps" />;
 
+  const setup = (
+    <>
+      <AttentionCard
+        severity="attention"
+        title={t('home.setup.title')}
+        detail={
+          started
+            ? t('home.setup.saved', { current: setupStep, total: totalSteps })
+            : t('home.setup.notStarted')
+        }
+        action={started ? t('home.setup.continue') : t('home.setup.start')}
+        onAction={openSetup}
+      />
+      {/* Shown while nothing is claimed: covers people who skipped the intro. */}
+      <ListRow title={t('home.haveSvaraa')} actionLabel={t('home.start')} onPress={openSetup} />
+    </>
+  );
+  // Product story: the pendant, from the marketing site. Opens Explore.
+  const product = <ProductCard onPress={() => router.navigate('/explore')} />;
+  const links = (
+    <>
+      <ListRow title={t('home.explore')} onPress={() => router.navigate('/explore')} />
+      <ListRow title={t('home.buying')} onPress={() => router.navigate('/explore')} />
+    </>
+  );
+
   return (
-    <Screen>
+    <Screen maxWidth={pageWidth}>
       <Text variant="title1" tone="heading" accessibilityRole="header">
         {name ? t('home.greeting', { name }) : t('home.greetingNoName')}
       </Text>
-
-      <>
-        <AttentionCard
-          severity="attention"
-          title={t('home.setup.title')}
-          detail={
-            started
-              ? t('home.setup.saved', { current: setupStep, total: totalSteps })
-              : t('home.setup.notStarted')
+      {wide ? (
+        // Wide web: the setup steps and links on the left, the pendant picture on the right.
+        <Columns
+          left={
+            <>
+              {setup}
+              {links}
+            </>
           }
-          action={started ? t('home.setup.continue') : t('home.setup.start')}
-          onAction={openSetup}
+          right={product}
         />
-        {/* Shown while nothing is claimed: covers people who skipped the intro. */}
-        <ListRow title={t('home.haveSvaraa')} actionLabel={t('home.start')} onPress={openSetup} />
-      </>
-
-      {/* Product story: the pendant, from the marketing site. Opens Explore. */}
-      <ProductCard onPress={() => router.navigate('/explore')} />
-      <ListRow title={t('home.explore')} onPress={() => router.navigate('/explore')} />
-      <ListRow title={t('home.buying')} onPress={() => router.navigate('/explore')} />
+      ) : (
+        <>
+          {setup}
+          {product}
+          {links}
+        </>
+      )}
     </Screen>
   );
 }

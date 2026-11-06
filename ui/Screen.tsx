@@ -12,6 +12,7 @@ export function Screen({
   footer,
   bottomInset = true,
   transparent = false,
+  maxWidth = 520,
 }: {
   children: ReactNode;
   footer?: ReactNode;
@@ -19,6 +20,8 @@ export function Screen({
   bottomInset?: boolean;
   /** Let the parent's background show through (the main app's soft gradient). */
   transparent?: boolean;
+  /** Widest the content gets, in dp. 520 is the phone-sized column; wide web pages pass more. */
+  maxWidth?: number;
 }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -35,7 +38,7 @@ export function Screen({
           paddingTop: theme.space[4] + insets.top,
           paddingBottom: theme.space[4] + (footer || !bottomInset ? 0 : insets.bottom),
           gap: theme.space[4],
-          maxWidth: 520,
+          maxWidth,
           width: '100%',
           alignSelf: 'center',
         }}
@@ -49,7 +52,7 @@ export function Screen({
             paddingTop: theme.space[3],
             paddingBottom: theme.space[4] + (bottomInset ? insets.bottom : 0),
             gap: theme.space[2],
-            maxWidth: 520,
+            maxWidth,
             width: '100%',
             alignSelf: 'center',
           }}
