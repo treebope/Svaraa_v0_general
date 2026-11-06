@@ -20,6 +20,7 @@ import { renderApp } from '@/test-utils/render';
 const mockReplace = jest.fn();
 const mockPush = jest.fn();
 let mockParams: Record<string, string> = {};
+let mockCanGrant = true;
 jest.mock('expo-router', () => ({
   useRouter: () => ({
     replace: mockReplace,
@@ -45,6 +46,9 @@ jest.mock('@/services/permissions/wearerPermissions', () => ({
   requestWearerPermission: jest.fn(),
   openAppSettings: jest.fn(),
   canAskBatteryExemption: false,
+  get canGrantPermissions() {
+    return mockCanGrant;
+  },
   openBatterySettings: jest.fn(),
 }));
 const permissions = perms as unknown as {
@@ -59,6 +63,7 @@ beforeEach(async () => {
   mockReplace.mockClear();
   mockPush.mockClear();
   mockParams = {};
+  mockCanGrant = true;
   permissions.getWearerPermission.mockReset().mockResolvedValue('undetermined');
   permissions.requestWearerPermission.mockReset().mockResolvedValue('granted');
   await i18n.changeLanguage('en');
@@ -98,6 +103,18 @@ describe('B2 · Permissions for wearers', () => {
       'notifications',
     ]);
     expect(calls('/api/v1/devices/push-token')).toBe(1);
+    expect(useHousehold.getState().setupStep).toBe(2);
+    expect(mockReplace).toHaveBeenCalledWith('/wearer/about');
+  });
+
+  it('on the web: nothing is asked, Continue goes on and the phone asks later', async () => {
+    mockCanGrant = false;
+    permissions.getWearerPermission.mockResolvedValue('denied');
+    await renderApp(<WearerPermissions />);
+    expect(await screen.findAllByText('Later, on your phone')).toHaveLength(3);
+    expect(screen.queryByText('Something is turned off')).toBeNull();
+    await act(async () => await fireEvent.press(screen.getByRole('button', { name: 'Continue' })));
+    expect(permissions.requestWearerPermission).not.toHaveBeenCalled();
     expect(useHousehold.getState().setupStep).toBe(2);
     expect(mockReplace).toHaveBeenCalledWith('/wearer/about');
   });

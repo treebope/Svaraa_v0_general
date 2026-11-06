@@ -1,33 +1,50 @@
+import { View } from 'react-native';
 import { Tabs } from 'expo-router';
-import { useTranslation } from 'react-i18next';
-import { useTheme } from '@/ui';
+import { MainNav } from '@/features/main/MainTabBar';
+import { pageBackground, useMainPalette } from '@/features/main/palette';
+import { WebHeader } from '@/features/main/TopBar';
+import { WebSidebar } from '@/features/main/WebSidebar';
+import { useWide } from '@/features/main/useWide';
+import { useReconnect } from '@/features/pendant/store';
+import { useWearer } from '@/features/wearer/store';
 
-/** Home, Explore, Alerts, Profile (wireframe A4). */
+/** The main app opens on Apps. */
+export const unstable_settings = { anchor: 'apps' };
+
+/**
+ * The main app (wireframe D): Chat, Apps, My Profile. Alerts are the bell in the top bar. "Chats" is a page of Chat
+ * that keeps the sidebar. On a wide web window the header runs across the top and the chat history is a sidebar.
+ */
 export default function TabsLayout() {
-  const theme = useTheme();
-  const { t } = useTranslation();
-  const c = theme.colors;
-  const tab = (title: string) => ({
-    title,
-    tabBarIcon: () => null,
-    tabBarIconStyle: { display: 'none' as const },
-  });
-  return (
+  const p = useMainPalette();
+  const wide = useWide();
+  const pendantId = useWearer((s) => s.pendantId);
+  useReconnect(pendantId);
+  const tabs = (
     <Tabs
-      screenOptions={{
-        headerShown: false,
-        sceneStyle: { backgroundColor: c.canvas },
-        tabBarActiveTintColor: c.action,
-        tabBarInactiveTintColor: c.textSecondary,
-        tabBarStyle: { backgroundColor: c.surfaceSolid, borderTopColor: c.border },
-        tabBarItemStyle: { minHeight: theme.minTarget, justifyContent: 'center' },
-        tabBarLabelStyle: { fontSize: 11 * theme.fontScale, fontWeight: '500' },
-      }}
+      tabBar={() => null}
+      backBehavior="initialRoute"
+      screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: 'transparent' } }}
     >
-      <Tabs.Screen name="home" options={tab(t('tabs.home'))} />
-      <Tabs.Screen name="explore" options={tab(t('tabs.explore'))} />
-      <Tabs.Screen name="alerts" options={tab(t('tabs.alerts'))} />
-      <Tabs.Screen name="profile" options={tab(t('tabs.profile'))} />
+      <Tabs.Screen name="chat" />
+      <Tabs.Screen name="apps" />
+      <Tabs.Screen name="profile" />
+      <Tabs.Screen name="chats" />
     </Tabs>
+  );
+  return wide ? (
+    <View style={{ flex: 1, ...pageBackground(p) }}>
+      <WebHeader />
+      <View style={{ flex: 1, flexDirection: 'row', minHeight: 0 }}>
+        <WebSidebar />
+        <View style={{ flex: 1, minWidth: 0 }}>{tabs}</View>
+      </View>
+      <MainNav />
+    </View>
+  ) : (
+    <View style={{ flex: 1, ...pageBackground(p) }}>
+      <View style={{ flex: 1 }}>{tabs}</View>
+      <MainNav />
+    </View>
   );
 }

@@ -21,3 +21,22 @@ export function Logo({ height = 64 }: { height?: number }) {
     />
   );
 }
+
+const MARKS = {
+  light: require('../assets/brand/mark-light.png'),
+  dark: require('../assets/brand/mark-dark.png'),
+} as const;
+
+/** The lotus on its own, cropped from the brand logo (plum with a gold centre in light, gold in dark). `size` is in dp. */
+export function LogoMark({ size = 26 }: { size?: number }) {
+  const theme = useTheme();
+  return (
+    <Image
+      source={MARKS[theme.scheme]}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+      resizeMode="contain"
+      style={{ width: size, height: size }}
+    />
+  );
+}

@@ -88,6 +88,7 @@ export default function CheckPendant() {
           }}
         >
           <Checkbox
+            actionAtEnd
             label={t(`wearer.check.${c}`)}
             checked={ticked[c]}
             onChange={(on) => setTicked((s) => ({ ...s, [c]: on }))}

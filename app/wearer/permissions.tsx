@@ -9,6 +9,7 @@ import { savePushToken } from '@/services/notifications/notificationsApi';
 import {
   WEARER_PERMISSIONS,
   canAskBatteryExemption,
+  canGrantPermissions,
   getWearerPermission,
   openAppSettings,
   openBatterySettings,
@@ -51,12 +52,25 @@ export default function WearerPermissions() {
   }, [refresh]);
 
   const finish = async () => {
-    await savePushToken();
+    // On the web nothing can be granted yet: carry on, and the phone asks later. A missing push token must not block that.
+    if (canGrantPermissions) await savePushToken();
+    else await savePushToken().catch(() => undefined);
     await useHousehold.getState().reachStep(WEARER_STEP.permissions);
     router.replace('/wearer/about');
   };
 
   const allow = async () => {
+    if (!canGrantPermissions) {
+      setBusy(true);
+      try {
+        await finish();
+      } catch (e) {
+        setError(errorText(e));
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
     if (!status) return;
     setBusy(true);
     setError(null);
@@ -76,8 +90,10 @@ export default function WearerPermissions() {
     }
   };
 
-  const denied = status ? WEARER_PERMISSIONS.some((p) => status[p] === 'denied') : false;
+  const denied =
+    canGrantPermissions && status ? WEARER_PERMISSIONS.some((p) => status[p] === 'denied') : false;
   const chip = (p: WearerPermission) => {
+    if (!canGrantPermissions) return <Chip label={t('permissions.state.later')} tone="neutral" />;
     const s = status?.[p];
     if (s === 'granted') return <Chip label={t('permissions.state.granted')} tone="good" />;
     if (s === 'denied') return <Chip label={t('permissions.state.denied')} tone="safety" />;
@@ -88,7 +104,14 @@ export default function WearerPermissions() {
     <Screen
       footer={
         <>
-          {denied ? (
+          {!canGrantPermissions ? (
+            <Button
+              label={t('wearer.permissions.continueWeb')}
+              onPress={() => void allow()}
+              loading={busy}
+              fullWidth
+            />
+          ) : denied ? (
             <Button label={t('permissions.openSettings')} onPress={() => void openAppSettings()} fullWidth />
           ) : (
             <Button
@@ -108,6 +131,11 @@ export default function WearerPermissions() {
         {t('wearer.permissions.title')}
       </Text>
       <Text tone="secondary">{t('wearer.permissions.body')}</Text>
+      {canGrantPermissions ? null : (
+        <Card style={{ gap: theme.space[2] }}>
+          <Text tone="secondary">{t('wearer.permissions.webNote')}</Text>
+        </Card>
+      )}
       {WEARER_PERMISSIONS.map((p) => (
         <Card key={p} style={{ gap: theme.space[2] }}>
           <Text variant="heading">{t(`wearer.permissions.${p}.title`)}</Text>

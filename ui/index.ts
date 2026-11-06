@@ -6,10 +6,11 @@ export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from '.
 export { Input, type InputProps } from './Input';
 export { OTPInput } from './OTPInput';
 export { Card, AttentionCard } from './Card';
+export { Icon, type IconName } from './Icon';
 export { Chip, type ChipTone } from './Chip';
 export { Steps, type Step } from './Steps';
 export { Sheet } from './Sheet';
-export { Logo } from './Logo';
+export { Logo, LogoMark } from './Logo';
 export { Choice } from './Choice';
 export { Option } from './Option';
 export { Screen } from './Screen';

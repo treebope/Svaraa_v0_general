@@ -3,17 +3,17 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useErrorText } from '@/features/auth/useErrorText';
 import { useHousehold } from '@/features/household/store';
-import { createHousehold, type Role } from '@/services/household/householdApi';
-import { Button, Card, Option, Screen, Text, useTheme } from '@/ui';
+import { createHousehold } from '@/services/household/householdApi';
+import { Button, Option, Screen, Text } from '@/ui';
 
-type Pick = Role | 'unsure';
+type Pick = 'wearer' | 'unsure';
 
 /**
- * B1 · Who are you? Wearer or caregiver. The choice creates the household with that role.
+ * B1 · Who are you? "I'll wear Svaraa" or "Not sure yet". Caregivers join later by the wearer's invite, so there is no caregiver option here.
+ * Choosing wearer creates the household with that role.
  * "Not sure" creates nothing: the setup card on Home stays at "not started".
  */
 export default function RoleChoice() {
-  const theme = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
   const errorText = useErrorText();
@@ -63,22 +63,11 @@ export default function RoleChoice() {
         onPress={() => setPick('wearer')}
       />
       <Option
-        title={t('role.caregiver.title')}
-        detail={t('role.caregiver.detail')}
-        selected={pick === 'caregiver'}
-        onPress={() => setPick('caregiver')}
-      />
-      <Option
         title={t('role.unsure.title')}
         detail={t('role.unsure.detail')}
         selected={pick === 'unsure'}
         onPress={() => setPick('unsure')}
       />
-      {pick === 'caregiver' ? (
-        <Card style={{ gap: theme.space[2] }}>
-          <Text tone="secondary">{t('role.caregiver.hint')}</Text>
-        </Card>
-      ) : null}
       {error ? (
         <Text tone="safety" accessibilityRole="alert">
           {error}

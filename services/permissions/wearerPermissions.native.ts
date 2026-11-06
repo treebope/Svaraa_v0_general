@@ -64,3 +64,5 @@ export const openBatterySettings = () =>
   Linking.sendIntent('android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS').catch(() =>
     Linking.openSettings(),
   );
+
+export const canGrantPermissions = true;

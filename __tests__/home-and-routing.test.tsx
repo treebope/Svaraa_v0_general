@@ -1,7 +1,7 @@
 import { act, fireEvent, screen } from '@testing-library/react-native';
 import i18n from '@/i18n';
 import { useHousehold } from '@/features/household/store';
-import Home from '@/app/(tabs)/home';
+import Home from '@/app/home';
 import Index from '@/app/index';
 import {
   getGoogleCredential,

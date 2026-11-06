@@ -13,7 +13,7 @@
     "title": "Components",
     "kicker": "Design system",
     "intro": "Every component, in both themes and both languages.",
-    "headline": "Care, in harmony.",
+    "headline": "A World of Care,",
     "section": {
       "settings": "Settings",
       "buttons": "Buttons",
@@ -70,7 +70,7 @@
       "title": "Add a contact",
       "body": "They will get an alert if you press SOS."
     },
-    "headlineAccent": "Life, on their terms.",
+    "headlineAccent": "Just a Word Away.",
     "tabs": {
       "today": "Today",
       "people": "People",
@@ -128,15 +128,15 @@
     "pendant_not_connected": "Your pendant is not connected. Keep it close to the phone and try again."
   },
   "tabs": {
-    "home": "Home",
-    "explore": "Explore",
     "alerts": "Alerts",
-    "profile": "Profile"
+    "profile": "My Profile",
+    "chat": "Chat",
+    "apps": "Apps"
   },
   "auth": {
     "welcome": {
-      "line1": "Care, in harmony.",
-      "line2": "Life, on their terms.",
+      "line1": "A World of Care,",
+      "line2": "Just a Word Away.",
       "google": "Continue with Google",
       "phone": "Continue with phone number",
       "terms": "By continuing you accept the Terms and Privacy Policy.",
@@ -225,7 +225,10 @@
     "scheme": "Colours",
     "language": "Language",
     "dev": "Components demo",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "aboutWearer": "About the wearer",
+    "contacts": "Emergency contacts",
+    "laterNote": "Address, more emergency contacts, caregivers and ownership will be added here."
   },
   "countries": {
     "IN": "India",
@@ -245,11 +248,6 @@
     "wearer": {
       "title": "I'll wear Svaraa",
       "detail": "Setting up my own pendant"
-    },
-    "caregiver": {
-      "title": "I'm a caregiver",
-      "detail": "Setting up for a family member",
-      "hint": "The person who wears Svaraa will need their own smartphone."
     },
     "unsure": {
       "title": "Not sure yet / it's a gift",
@@ -271,7 +269,8 @@
     "state": {
       "required": "Required",
       "granted": "Allowed",
-      "denied": "Not allowed"
+      "denied": "Not allowed",
+      "later": "Later, on your phone"
     },
     "denied": {
       "title": "Notifications are off",
@@ -307,7 +306,9 @@
       "denied": {
         "title": "Something is turned off",
         "body": "Open Settings, allow what is marked \"Not allowed\" for Svaraa, then come back here."
-      }
+      },
+      "webNote": "A web browser can't give Svaraa Bluetooth, location or notifications. You can continue now. Svaraa will ask for these on your phone later, before you pair the pendant.",
+      "continueWeb": "Continue"
     },
     "about": {
       "title": "About you",
@@ -450,5 +451,135 @@
     "listeningDetail": "Only when you say \"Svaraa\".",
     "people": "My people",
     "noPeople": "No emergency contacts yet."
+  },
+  "main": {
+    "menu": "Chat history",
+    "alerts": "Alerts",
+    "account": "Account",
+    "sidebar": "Show or hide chat history",
+    "widen": "Widen chat",
+    "narrow": "Narrow chat",
+    "openFull": "Open full",
+    "divider": "Resize chat",
+    "status": {
+      "connectedBattery": "Connected · {{battery}}%"
+    },
+    "wearerOwner": "Wearer · Owner",
+    "expand": "Expand sidebar",
+    "collapse": "Collapse sidebar"
+  },
+  "chat": {
+    "emptyTitle": "Svaraa",
+    "working": "Working on {{count}} things",
+    "working_one": "Working on {{count}} thing",
+    "emptyHelp": "Ask anything, or switch to Do to propose actions for confirmation.",
+    "suggest": {
+      "walk": "Remind me to walk at 7 AM",
+      "bhajans": "Play my morning bhajans"
+    },
+    "placeholder": "Say something",
+    "message": "Message",
+    "mode": "Mode",
+    "ask": "Ask",
+    "do": "Do",
+    "doHint": "Do mode: Svaraa proposes an action and waits for you to confirm.",
+    "speak": "Speak",
+    "send": "Send",
+    "reply": "I'm here. This is a sample reply until Svaraa's chat is connected.",
+    "proposal": {
+      "label": "Proposed action",
+      "title": "Do this?",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "done": "✓ Done",
+      "cancelled": "Cancelled"
+    },
+    "new": "New chat",
+    "all": "Chats",
+    "recents": "Recents",
+    "search": "Search chats",
+    "noMatches": "No chats found.",
+    "group": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "week": "Previous 7 days",
+      "older": "Older"
+    },
+    "time": {
+      "justNow": "just now",
+      "minutes": "{{count}} minutes ago",
+      "minutes_one": "{{count}} minute ago",
+      "hours": "{{count}} hours ago",
+      "hours_one": "{{count}} hour ago",
+      "days": "{{count}} days ago",
+      "days_one": "{{count}} day ago"
+    },
+    "lastMessage": "Last message {{time}}",
+    "yourChats": "Your chats",
+    "count": "{{count}} chats",
+    "count_one": "{{count}} chat",
+    "searchYours": "Search your chats",
+    "noMatchesFor": "No chats match “{{q}}”.",
+    "newTitle": "New chat"
+  },
+  "apps": {
+    "name": {
+      "music": "Music",
+      "reminders": "Reminders",
+      "responses": "Responses",
+      "pendant": "Pendant",
+      "contacts": "Contacts",
+      "settings": "Settings",
+      "profile": "My Profile"
+    },
+    "music": {
+      "now": "Morning bhajans",
+      "nowDetail": "Paused · plays on your pendant",
+      "lists": "Your lists",
+      "list": {
+        "bhajans": "Morning bhajans",
+        "film": "Old film songs",
+        "carnatic": "Carnatic evenings"
+      },
+      "count": {
+        "bhajans": "24 songs",
+        "film": "41 songs",
+        "carnatic": "18 songs"
+      }
+    },
+    "reminders": {
+      "daily": "Daily",
+      "once": "Once",
+      "hint": "Say “Svaraa, remind me…” or use Do in chat to add one.",
+      "bp": {
+        "title": "Take BP tablet",
+        "when": "Every day · 8:00 PM"
+      },
+      "doctor": {
+        "title": "Doctor visit, Dr Iyer",
+        "when": "Friday · 11:00 AM"
+      },
+      "ravi": {
+        "title": "Call Ravi",
+        "when": "Sunday · 6:00 PM"
+      }
+    },
+    "responses": {
+      "intro": "Quick replies Svaraa can send for you.",
+      "fine": "“I'm fine, will call you later.”",
+      "call": "“Please call me when you're free.”",
+      "medicine": "“I've taken my medicine.”"
+    },
+    "pendant": {
+      "name": "Svaraa pendant"
+    },
+    "contacts": {
+      "order": "Emergency contacts, alerted in this order"
+    },
+    "settings": {
+      "language": "Language",
+      "languageDetail": "Language and display, in My Profile"
+    },
+    "back": "Back to apps"
   }
 }

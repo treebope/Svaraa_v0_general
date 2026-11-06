@@ -4,7 +4,7 @@ import * as Notifications from 'expo-notifications';
 import i18n from '@/i18n';
 import { flags } from '@/config/flags';
 import { isMocked } from '@/config/env';
-import Home from '@/app/(tabs)/home';
+import Home from '@/app/home';
 import CaregiverPermissions from '@/app/caregiver-permissions';
 import RoleChoice from '@/app/role';
 import { nextSetupRoute, useHousehold } from '@/features/household/store';
@@ -87,15 +87,10 @@ describe('B1 · Who are you?', () => {
     expect(calls('/api/v1/households')).toBe(0);
   });
 
-  it('caregiver: creates the household, saves the role, goes to B3, shows the smartphone hint', async () => {
+  it('has no caregiver option: only wearer and not sure', async () => {
     await renderApp(<RoleChoice />);
-    expect(screen.queryByText(/own smartphone/)).toBeNull();
-    await fireEvent.press(screen.getByRole('radio', { name: /I'm a caregiver/ }));
-    expect(screen.getByText(/own smartphone/)).toBeTruthy();
-    await act(async () => await fireEvent.press(screen.getByRole('button', { name: 'Continue' })));
-    expect(mockHouseholdOf(userId())?.role).toBe('caregiver');
-    expect(useHousehold.getState()).toMatchObject({ role: 'caregiver', setupStep: 1 });
-    expect(mockReplace).toHaveBeenCalledWith('/caregiver-permissions');
+    expect(screen.queryByRole('radio', { name: /caregiver/i })).toBeNull();
+    expect(screen.getAllByRole('radio')).toHaveLength(2);
   });
 
   it('wearer: creates the household and hands off to the wearer placeholder (B2)', async () => {
@@ -118,7 +113,7 @@ describe('B1 · Who are you?', () => {
   it('shows our own message when saving fails, and does not save the role', async () => {
     await useSession.getState().clear(); // no token: the mock answers missing_token
     await renderApp(<RoleChoice />);
-    await fireEvent.press(screen.getByRole('radio', { name: /I'm a caregiver/ }));
+    await fireEvent.press(screen.getByRole('radio', { name: /I'll wear Svaraa/ }));
     await act(async () => await fireEvent.press(screen.getByRole('button', { name: 'Continue' })));
     expect(await screen.findByRole('alert')).toBeTruthy();
     expect(useHousehold.getState().role).toBeUndefined();
@@ -130,7 +125,7 @@ describe('B1 · Who are you?', () => {
     useSettings.setState({ themeMode: 'wearer' });
     await renderApp(<RoleChoice />);
     expect(screen.getByText('आप कौन हैं?')).toBeTruthy();
-    expect(screen.getAllByRole('radio')).toHaveLength(3);
+    expect(screen.getAllByRole('radio')).toHaveLength(2);
   });
 });
 

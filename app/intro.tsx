@@ -64,11 +64,7 @@ export default function Intro() {
     <Screen
       footer={
         <>
-          <Button
-            label={t('intro.haveSvaraa')}
-            onPress={() => leave(() => router.push('/setup'))}
-            fullWidth
-          />
+          <Button label={t('intro.haveSvaraa')} onPress={() => leave(() => undefined)} fullWidth />
           <Button
             label={t('intro.explore')}
             variant="secondary"

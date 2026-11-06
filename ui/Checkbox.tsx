@@ -10,6 +10,7 @@ export function Checkbox({
   onChange,
   disabled,
   children,
+  actionAtEnd,
 }: {
   /** Already-translated text. */
   label: string;
@@ -17,11 +18,20 @@ export function Checkbox({
   onChange: (checked: boolean) => void;
   disabled?: boolean;
   children?: ReactNode;
+  /** Keep `children` (a small button) on the same line, pinned to the right, and let the label wrap instead. */
+  actionAtEnd?: boolean;
 }) {
   const theme = useTheme();
   const c = theme.colors;
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.space[2], flexWrap: 'wrap' }}>
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.space[2],
+        flexWrap: actionAtEnd ? 'nowrap' : 'wrap',
+      }}
+    >
       <Pressable
         accessibilityRole="checkbox"
         accessibilityState={{ checked, disabled: !!disabled }}
@@ -34,6 +44,7 @@ export function Checkbox({
           alignItems: 'center',
           gap: theme.space[3],
           flexShrink: 1,
+          flexGrow: actionAtEnd ? 1 : 0,
           opacity: disabled ? 0.45 : 1,
         }}
       >
@@ -57,7 +68,7 @@ export function Checkbox({
         </View>
         <Text style={{ flexShrink: 1 }}>{label}</Text>
       </Pressable>
-      {children}
+      {actionAtEnd && children ? <View style={{ flexShrink: 0 }}>{children}</View> : children}
     </View>
   );
 }

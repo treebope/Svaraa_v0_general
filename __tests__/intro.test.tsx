@@ -65,12 +65,12 @@ describe('Intro (A3): how setup works', () => {
     expect(screen.getByText('बॉक्स का कोड स्कैन करें')).toBeTruthy();
   });
 
-  it('I have a Svaraa ends the intro and starts setup', async () => {
+  it('I have a Svaraa ends the intro and opens Home, where the setup card is', async () => {
     await renderApp(<Intro />);
     await fireEvent.press(screen.getByRole('button', { name: 'I have a Svaraa' }));
     expect(useSession.getState().showIntro).toBe(false);
     expect(mockReplace).toHaveBeenCalledWith('/home');
-    expect(mockPush).toHaveBeenCalledWith('/setup');
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it('Skip for now goes to Home', async () => {

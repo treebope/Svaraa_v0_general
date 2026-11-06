@@ -11,17 +11,20 @@ export function Screen({
   children,
   footer,
   bottomInset = true,
+  transparent = false,
 }: {
   children: ReactNode;
   footer?: ReactNode;
   /** Set false when a tab bar already covers the bottom edge. */
   bottomInset?: boolean;
+  /** Let the parent's background show through (the main app's soft gradient). */
+  transparent?: boolean;
 }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: theme.colors.canvas }}
+      style={{ flex: 1, backgroundColor: transparent ? 'transparent' : theme.colors.canvas }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
