@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { SearchBox, useTimeAgo } from '@/features/chat/ChatHistory';
 import { useChat } from '@/features/chat/store';
+import { useNewChat } from '@/features/main/useNewChat';
 import { MainTop } from '@/features/main/TopBar';
 import { useMainPalette } from '@/features/main/palette';
 import { Text, useTheme } from '@/ui';
@@ -14,6 +15,7 @@ export default function AllChats() {
   const theme = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
+  const newChat = useNewChat();
   const p = useMainPalette();
   const ago = useTimeAgo();
   const [q, setQ] = useState('');
@@ -34,10 +36,7 @@ export default function AllChats() {
           </Text>
           <Pressable
             accessibilityRole="button"
-            onPress={() => {
-              useChat.getState().newChat();
-              router.navigate('/chat');
-            }}
+            onPress={newChat}
             style={{
               minHeight: 40,
               justifyContent: 'center',

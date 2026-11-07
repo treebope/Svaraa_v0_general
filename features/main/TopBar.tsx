@@ -3,12 +3,12 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { useChat } from '@/features/chat/store';
 import { useGreetingName } from '@/features/home/useGreetingName';
 import { usePendantStatus } from '@/features/pendant/store';
 import { useWearer } from '@/features/wearer/store';
 import { Logo, Text, useTheme } from '@/ui';
 import { Avatar, DotPill, IconButton, NewChatButton, useMainPalette } from './palette';
+import { useNewChat } from './useNewChat';
 import { useWide } from './useWide';
 
 /** The letter in the round avatar: the wearer's name, otherwise the name from sign-in. */
@@ -74,10 +74,7 @@ function useBarParts() {
   const router = useRouter();
   const wide = useWide();
   const initial = useInitial();
-  const newChat = () => {
-    useChat.getState().newChat();
-    router.navigate(wide ? '/apps' : '/chat');
-  };
+  const newChat = useNewChat();
   return {
     t,
     newChat,

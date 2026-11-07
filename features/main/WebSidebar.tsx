@@ -6,6 +6,7 @@ import { ChatHistory } from '@/features/chat/ChatHistory';
 import { useChat } from '@/features/chat/store';
 import { Icon, useTheme } from '@/ui';
 import { Avatar, IconButton, useMainPalette } from './palette';
+import { useNewChat } from './useNewChat';
 import { useInitial } from './TopBar';
 
 /**
@@ -23,10 +24,7 @@ export function WebSidebar() {
   const [manual, setManual] = useState<{ path: string; open: boolean } | undefined>();
   const open = manual && manual.path === path ? manual.open : onChat;
   const toggle = () => setManual({ path, open: !open });
-  const newChat = () => {
-    useChat.getState().newChat();
-    router.navigate('/apps');
-  };
+  const newChat = useNewChat();
 
   return (
     <View
