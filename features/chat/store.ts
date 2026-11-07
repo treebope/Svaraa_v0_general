@@ -88,6 +88,11 @@ type ChatState = {
   currentId: string | undefined;
   draft: string;
   mode: ChatMode;
+  /** The voice view (call button) is open. */
+  voiceOpen: boolean;
+  setVoiceOpen: (open: boolean) => void;
+  /** Put what was said in a voice session into the open chat, or a new chat, so it stays in the history. */
+  addTranscript: (turns: { role: 'user' | 'assistant'; text: string }[]) => void;
   setDraft: (d: string) => void;
   setMode: (m: ChatMode) => void;
   newChat: () => void;
@@ -98,16 +103,42 @@ type ChatState = {
   reset: () => void;
 };
 
-const fresh = (): Pick<ChatState, 'conversations' | 'currentId' | 'draft' | 'mode'> => ({
+const fresh = (): Pick<ChatState, 'conversations' | 'currentId' | 'draft' | 'mode' | 'voiceOpen'> => ({
   conversations: SEED.map((c) => ({ ...c, messages: [...c.messages] })),
   currentId: undefined,
   draft: '',
   mode: 'ask',
+  voiceOpen: false,
 });
 
 export const useChat = create<ChatState>((set, get) => ({
   ...fresh(),
   setDraft: (draft) => set({ draft }),
+  setVoiceOpen: (voiceOpen) => set({ voiceOpen }),
+  addTranscript: (turns) => {
+    if (!turns.length) return;
+    const added: ChatMessage[] = turns.map((t) =>
+      t.role === 'user' ? { role: 'user', text: t.text } : { role: 'assistant', kind: 'text', text: t.text },
+    );
+    const { conversations, currentId } = get();
+    if (conversations.some((c) => c.id === currentId)) {
+      set({
+        conversations: conversations.map((c) =>
+          c.id === currentId ? { ...c, updatedAt: Date.now(), messages: [...c.messages, ...added] } : c,
+        ),
+      });
+      return;
+    }
+    const id = `c${Date.now()}`;
+    const first = turns.find((t) => t.role === 'user')?.text ?? turns[0]?.text ?? '';
+    set({
+      currentId: id,
+      conversations: [
+        { id, title: first.slice(0, 48), updatedAt: Date.now(), messages: added },
+        ...conversations,
+      ],
+    });
+  },
   setMode: (mode) => set({ mode }),
   newChat: () => set({ currentId: undefined, draft: '' }),
   open: (id) => set({ currentId: id }),

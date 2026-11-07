@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import { Tabs } from 'expo-router';
+import { VoiceOverlay } from '@/features/chat/VoiceView';
 import { MainNav } from '@/features/main/MainTabBar';
 import { pageBackground, useMainPalette } from '@/features/main/palette';
 import { WebHeader } from '@/features/main/TopBar';
@@ -45,6 +46,7 @@ export default function TabsLayout() {
     <View style={{ flex: 1, ...pageBackground(p) }}>
       <View style={{ flex: 1 }}>{tabs}</View>
       <MainNav />
+      <VoiceOverlay where="screen" />
     </View>
   );
 }

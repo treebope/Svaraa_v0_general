@@ -4,18 +4,28 @@ import { useTranslation } from 'react-i18next';
 import { COUNTRIES, DEFAULT_COUNTRY, dialCode, type CountryId } from '@/features/auth/countries';
 import { countryOfDial, mobileProblem, onlyDigits } from '@/features/wearer/phone';
 import { useWearer, type EmergencyContact } from '@/features/wearer/store';
+import { useErrorText } from '@/features/auth/useErrorText';
+import { useHousehold } from '@/features/household/store';
 import { useSession } from '@/services/auth/session';
+import { saveContacts, toContactIn } from '@/services/household/wearerApi';
 import { Button, Input, Screen, Select, Text } from '@/ui';
 
 /**
  * C6 · Add (or change) an emergency contact. The number is checked for the chosen country; there is no code to
  * confirm it. No channel choice: Svaraa calls them, and also sends a push if the number belongs to an app member.
  * Opened with `?index=n` it edits contact n and offers Remove.
+ * Opened with `?from=profile` (from My Profile) a change is saved to the household straight away; in setup the list
+ * is saved by C5's Continue.
  */
 export default function AddContact() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { index } = useLocalSearchParams<{ index?: string }>();
+  const { index, from } = useLocalSearchParams<{ index?: string; from?: string }>();
+  const fromProfile = from === 'profile';
+  const errorText = useErrorText();
+  const householdId = useHousehold((s) => s.householdId);
+  const [busy, setBusy] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const contacts = useWearer((s) => s.contacts);
   const ownMobile = useSession((s) => s.mobile);
   const at = index !== undefined ? Number(index) : -1;
@@ -51,12 +61,28 @@ export default function AddContact() {
     const list = [...contacts];
     if (editing) list[at] = contact;
     else list.push(contact);
-    await useWearer.getState().save({ contacts: list });
-    router.back();
+    await commit(list);
   };
 
   const remove = async () => {
-    await useWearer.getState().save({ contacts: contacts.filter((_, i) => i !== at) });
+    await commit(contacts.filter((_, i) => i !== at));
+  };
+
+  /** Keep the list on this phone; from My Profile also send it to the household first. */
+  const commit = async (list: EmergencyContact[]) => {
+    setSaveError(null);
+    if (fromProfile && householdId) {
+      setBusy(true);
+      try {
+        await saveContacts(householdId, list.map(toContactIn));
+      } catch (e) {
+        setSaveError(errorText(e));
+        setBusy(false);
+        return;
+      }
+      setBusy(false);
+    }
+    await useWearer.getState().save({ contacts: list });
     router.back();
   };
 
@@ -68,9 +94,10 @@ export default function AddContact() {
             label={t('wearer.contact.save')}
             onPress={() => void save()}
             disabled={!name.trim() || !mobile.trim()}
+            loading={busy}
             fullWidth
           />
-          {editing ? (
+          {editing && !(fromProfile && contacts.length <= 1) ? (
             <Button label={t('wearer.contact.remove')} variant="tertiary" onPress={() => void remove()} />
           ) : null}
         </>
@@ -112,6 +139,16 @@ export default function AddContact() {
       <Text variant="bodySm" tone="tertiary">
         {t('wearer.contact.howAlerted')}
       </Text>
+      {fromProfile && editing && contacts.length <= 1 ? (
+        <Text variant="bodySm" tone="tertiary">
+          {t('profile.lastContact')}
+        </Text>
+      ) : null}
+      {saveError ? (
+        <Text tone="safety" accessibilityRole="alert">
+          {saveError}
+        </Text>
+      ) : null}
     </Screen>
   );
 }

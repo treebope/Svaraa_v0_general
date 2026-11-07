@@ -59,6 +59,7 @@ function Screens() {
           <Stack.Screen name="home" />
           <Stack.Screen name="explore" />
           <Stack.Screen name="alerts" />
+          <Stack.Screen name="edit-profile" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="role" />
           <Stack.Screen name="caregiver-permissions" />

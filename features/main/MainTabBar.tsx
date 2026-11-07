@@ -6,16 +6,16 @@ import { Icon, Text, type IconName } from '@/ui';
 import { useMainPalette } from './palette';
 import { useWide } from './useWide';
 
-const TABS: { name: 'chat' | 'apps' | 'profile'; icon: IconName }[] = [
+const TABS: { name: 'chat' | 'apps'; icon: IconName }[] = [
   { name: 'chat', icon: 'chat' },
   { name: 'apps', icon: 'apps' },
-  { name: 'profile', icon: 'user' },
 ];
 
 /**
- * Bottom nav (wireframe `.a-nav`): Chat, Apps, My Profile, across the whole width under the sidebar and the page.
+ * Bottom nav (wireframe `.a-nav`): Chat and Apps, across the whole width under the sidebar and the page.
  * The phone shows an icon above each label; the web shows the words only. The chosen tab sits on a soft pill.
- * "Chats" (All chats) is a page of Chat, so it keeps Chat selected.
+ * "Chats" (All chats) is a page of Chat, so it keeps Chat selected. My Profile is not in the nav: it opens from the
+ * avatar (top bar, sidebar, drawer) and the My Profile tile in Apps, and then no tab is selected.
  */
 export function MainNav() {
   const { t } = useTranslation();
@@ -24,7 +24,7 @@ export function MainNav() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const path = usePathname();
-  const active = path.startsWith('/chat') ? 'chat' : path.startsWith('/profile') ? 'profile' : 'apps';
+  const active = path.startsWith('/chat') ? 'chat' : path.startsWith('/profile') ? undefined : 'apps';
   return (
     <View
       accessibilityRole="tablist"

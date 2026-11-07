@@ -16,6 +16,8 @@ export type PushTokenIn = { token: string; platform: 'ios' | 'android' | 'web' }
 export type WearerProfileIn = {
   name: string;
   call_as?: string | null;
+  /** ISO date, YYYY-MM-DD. Required. */
+  date_of_birth: string;
   /** Language ids, e.g. ['en', 'ta']. */
   languages: string[];
   health_notes?: string | null;

@@ -7,7 +7,7 @@ import { useHousehold } from '@/features/household/store';
 import { StepHeader } from '@/features/wearer/StepHeader';
 import { WEARER_STEP } from '@/features/wearer/steps';
 import { useWearer } from '@/features/wearer/store';
-import { MAX_SETUP_CONTACTS, saveContacts } from '@/services/household/wearerApi';
+import { MAX_SETUP_CONTACTS, saveContacts, toContactIn } from '@/services/household/wearerApi';
 import { Button, ListRow, Screen, Text, useTheme } from '@/ui';
 
 /**
@@ -30,15 +30,7 @@ export default function EmergencyContacts() {
     setBusy(true);
     setError(null);
     try {
-      await saveContacts(
-        householdId,
-        contacts.map((c) => ({
-          name: c.name,
-          relationship: c.relationship || null,
-          country_code: c.countryCode,
-          mobile_number: c.mobile,
-        })),
-      );
+      await saveContacts(householdId, contacts.map(toContactIn));
       await useHousehold.getState().reachStep(WEARER_STEP.contacts);
       router.push('/wearer/invite');
     } catch (e) {

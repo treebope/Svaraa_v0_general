@@ -7,7 +7,8 @@
     "close": "Close",
     "language": "Language",
     "english": "English",
-    "hindi": "हिन्दी"
+    "hindi": "हिन्दी",
+    "save": "Save"
   },
   "demo": {
     "title": "Components",
@@ -214,7 +215,7 @@
     "comingSoon": "This part is coming soon."
   },
   "profile": {
-    "title": "Profile",
+    "title": "My Profile",
     "account": "Account",
     "signedInWith": "Signed in with",
     "google": "Google",
@@ -222,13 +223,32 @@
     "mobile": "Mobile number",
     "mobileNone": "Not added",
     "display": "Display",
-    "scheme": "Colours",
+    "scheme": "Display",
     "language": "Language",
     "dev": "Components demo",
     "signOut": "Sign out",
-    "aboutWearer": "About the wearer",
-    "contacts": "Emergency contacts",
-    "laterNote": "Address, more emergency contacts, caregivers and ownership will be added here."
+    "contacts": "Emergency (SOS) contacts",
+    "settings": "Settings",
+    "languageHint": "The language of the app.",
+    "aboutYou": "About you",
+    "name": "Name",
+    "callAs": "Svaraa calls you",
+    "dob": "Date of birth",
+    "age": "{{count}} years old",
+    "age_one": "{{count}} year old",
+    "voiceLanguages": "Languages Svaraa speaks with you",
+    "notes": "Health notes",
+    "pacemaker": "Pacemaker or ICD",
+    "yes": "Yes",
+    "no": "No",
+    "notAdded": "Not added",
+    "pendant": "Pendant",
+    "edit": "Edit",
+    "editTitle": "Edit your details",
+    "editContacts": "Change",
+    "addContact": "Add a contact",
+    "contactsLimit": "Up to {{max}} contacts. Svaraa alerts them in this order.",
+    "lastContact": "Keep at least one emergency contact."
   },
   "countries": {
     "IN": "India",
@@ -313,6 +333,15 @@
     "about": {
       "title": "About you",
       "name": "Your name",
+      "dob": "Date of birth",
+      "dobHint": "Day, month and year, like 05/07/1950.",
+      "dobPlaceholder": "DD/MM/YYYY",
+      "dobError": {
+        "incomplete": "Enter your date of birth.",
+        "invalid": "That date does not exist. Check the day and month.",
+        "future": "The date of birth can't be in the future.",
+        "tooOld": "Check the year. It is more than 120 years ago."
+      },
       "callAs": "What should Svaraa call you? (optional)",
       "callAsHint": "Only changes how the voice assistant speaks to you.",
       "languages": "Preferred languages",
@@ -520,7 +549,8 @@
     "count_one": "{{count}} chat",
     "searchYours": "Search your chats",
     "noMatchesFor": "No chats match “{{q}}”.",
-    "newTitle": "New chat"
+    "newTitle": "New chat",
+    "call": "Talk to Svaraa"
   },
   "apps": {
     "name": {
@@ -529,7 +559,6 @@
       "responses": "Responses",
       "pendant": "Pendant",
       "contacts": "Contacts",
-      "settings": "Settings",
       "profile": "My Profile"
     },
     "music": {
@@ -576,10 +605,29 @@
     "contacts": {
       "order": "Emergency contacts, alerted in this order"
     },
-    "settings": {
-      "language": "Language",
-      "languageDetail": "Language and display, in My Profile"
-    },
     "back": "Back to apps"
+  },
+  "voice": {
+    "title": "Voice with Svaraa",
+    "state": {
+      "listening": "Listening…",
+      "hearing": "Hearing you…",
+      "thinking": "Thinking…",
+      "speaking": "Svaraa is speaking",
+      "muted": "Muted. Tap the microphone to talk again."
+    },
+    "you": "You",
+    "svaraa": "Svaraa",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "toChat": "Switch to chat",
+    "end": "End",
+    "hint": "Just talk. Your words are kept in this chat when you finish.",
+    "demo": {
+      "ask1": "Will it rain tomorrow?",
+      "answer1": "Light showers are likely after 3 PM. Take an umbrella if you go out in the evening.",
+      "ask2": "Remind me to take my tablet at 8.",
+      "answer2": "Done. I will remind you every evening at 8 PM. This is a sample conversation until Svaraa's voice is connected."
+    }
   }
 }

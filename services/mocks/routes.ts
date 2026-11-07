@@ -285,10 +285,20 @@ export const routes: MockRoute[] = [
       if ('error' in h) return h.error;
       const p = (ctx.body ?? {}) as Partial<WearerProfileIn>;
       const name = typeof p.name === 'string' ? p.name.trim() : '';
-      if (!name || name.length > 100 || !Array.isArray(p.languages) || typeof p.pacemaker !== 'boolean')
+      const dob = typeof p.date_of_birth === 'string' ? p.date_of_birth : '';
+      if (
+        !name ||
+        name.length > 100 ||
+        !/^\d{4}-\d{2}-\d{2}$/.test(dob) ||
+        Number.isNaN(Date.parse(dob)) ||
+        Date.parse(dob) > Date.now() ||
+        !Array.isArray(p.languages) ||
+        typeof p.pacemaker !== 'boolean'
+      )
         return fail(422, 'validation_error', 'Invalid request');
       const wearer: WearerProfileIn = {
         name,
+        date_of_birth: dob,
         call_as: p.call_as?.trim() || null,
         languages: p.languages,
         health_notes: p.health_notes?.trim() || null,

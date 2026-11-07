@@ -4,6 +4,7 @@ import Home from '@/app/home';
 import Apps from '@/app/(tabs)/apps';
 import Chat from '@/app/(tabs)/chat';
 import AllChats from '@/app/(tabs)/chats';
+import Profile from '@/app/(tabs)/profile';
 import { useChat } from '@/features/chat/store';
 import { useHousehold } from '@/features/household/store';
 import { usePendant } from '@/features/pendant/store';
@@ -53,7 +54,13 @@ beforeEach(async () => {
   await useWearer.getState().load(userId);
   await useHousehold.getState().chooseRole('wearer', 'h1');
   await useWearer.getState().save({
-    profile: { name: 'Asha Rao', call_as: 'Amma', languages: ['ta'], pacemaker: false },
+    profile: {
+      name: 'Asha Rao',
+      date_of_birth: '1950-07-05',
+      call_as: 'Amma',
+      languages: ['ta'],
+      pacemaker: false,
+    },
     pendantId: SIMULATED_PENDANT.id,
     contacts: [
       { name: 'Meera', countryCode: '+91', mobile: '9812344410' },
@@ -122,8 +129,9 @@ describe('All chats', () => {
 describe('Apps tab', () => {
   it('shows the apps, opens one with a back button, and lists the emergency contacts', async () => {
     await renderApp(<Apps />);
-    for (const n of ['Music', 'Reminders', 'Responses', 'Pendant', 'Contacts', 'Settings'])
+    for (const n of ['Music', 'Reminders', 'Responses', 'Pendant', 'Contacts'])
       expect(screen.getByRole('button', { name: n })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Settings' })).toBeNull();
     // The My Profile tile, and the avatar in the top bar.
     expect(screen.getAllByRole('button', { name: 'My Profile' })).toHaveLength(2);
     await fireEvent.press(screen.getByRole('button', { name: 'Contacts' }));
@@ -139,5 +147,27 @@ describe('Apps tab', () => {
     await flush();
     await fireEvent.press(screen.getByRole('button', { name: 'Run SOS drill' }));
     expect(mockPush).toHaveBeenCalledWith('/wearer/drill');
+  });
+});
+
+describe('My Profile tab', () => {
+  it('keeps the details, contacts, sign-in and Settings together', async () => {
+    await renderApp(<Profile />);
+    expect(screen.getByText('Asha Rao')).toBeTruthy();
+    expect(screen.getByText('Amma')).toBeTruthy();
+    expect(screen.getByText(/^05\/07\/1950 · \d+ years old$/)).toBeTruthy();
+    expect(screen.getByText('Tamil')).toBeTruthy();
+    expect(screen.getByText('1 · Meera')).toBeTruthy();
+    expect(screen.getByText('+91 9812344410')).toBeTruthy();
+    expect(screen.getByText('Signed in with')).toBeTruthy();
+    expect(screen.getByText('Settings')).toBeTruthy();
+    expect(screen.getByText('Language')).toBeTruthy();
+  });
+
+  it('Display has Light, Dark and System, and choosing one changes the scheme', async () => {
+    await renderApp(<Profile />);
+    for (const n of ['Light', 'Dark', 'System']) expect(screen.getByRole('radio', { name: n })).toBeTruthy();
+    await fireEvent.press(screen.getByRole('radio', { name: 'Dark' }));
+    expect(useSettings.getState().scheme).toBe('dark');
   });
 });

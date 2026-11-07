@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { DotPill, RoundButton, Segmented, useMainPalette } from '@/features/main/palette';
 import { Logo, LogoMark, Text, fontFamily, useTheme } from '@/ui';
 import { useChat, usePendingCount, type ChatMessage, type ChatMode } from './store';
+import { VoiceOverlay } from './VoiceView';
 
 /**
  * The conversation and the composer (wireframe D, web pins 8 and 9, phone pin 4). Ask answers straight away;
@@ -14,7 +15,7 @@ export function ChatView({ compact, centered }: { compact?: boolean; centered?: 
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const p = useMainPalette();
-  const { conversations, currentId, draft, mode, setDraft, setMode, send, decide } = useChat();
+  const { conversations, currentId, draft, mode, setDraft, setMode, setVoiceOpen, send, decide } = useChat();
   const pending = usePendingCount();
   const chat = conversations.find((x) => x.id === currentId);
   const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
@@ -104,6 +105,7 @@ export function ChatView({ compact, centered }: { compact?: boolean; centered?: 
 
   return (
     <View style={{ flex: 1, minHeight: 0 }}>
+      <VoiceOverlay where="pane" />
       <ScrollView
         ref={scroll}
         keyboardShouldPersistTaps="handled"
@@ -214,6 +216,12 @@ export function ChatView({ compact, centered }: { compact?: boolean; centered?: 
           </View>
           {/* PENDING FE-14: voice input arrives with the voice relay. */}
           <RoundButton icon="mic" label={t('chat.speak')} disabled size={compact ? 40 : 44} />
+          <RoundButton
+            icon="call"
+            label={t('chat.call')}
+            onPress={() => setVoiceOpen(true)}
+            size={compact ? 40 : 44}
+          />
           <RoundButton
             icon="send"
             label={t('chat.send')}

@@ -77,6 +77,21 @@ export const activatePendant = (
 
 /** Most emergency contacts setup takes. More can be added later in My Profile. */
 export const MAX_SETUP_CONTACTS = 2;
+/** Most emergency contacts in My Profile. PENDING BACKEND: confirm the real limit. */
+export const MAX_CONTACTS = 5;
+
+/** An emergency contact as the API takes it. */
+export const toContactIn = (c: {
+  name: string;
+  relationship?: string;
+  countryCode: string;
+  mobile: string;
+}): ContactIn => ({
+  name: c.name,
+  relationship: c.relationship || null,
+  country_code: c.countryCode,
+  mobile_number: c.mobile,
+});
 
 /**
  * C5: save the emergency contacts, in alert order. Replaces the whole list.

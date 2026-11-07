@@ -7,10 +7,10 @@ import { useWearer } from '@/features/wearer/store';
 import { InfoRow, Pill, useMainPalette } from '@/features/main/palette';
 import { Button, Text, useTheme } from '@/ui';
 
-export type AppId = 'music' | 'reminders' | 'responses' | 'pendant' | 'contacts' | 'settings';
+export type AppId = 'music' | 'reminders' | 'responses' | 'pendant' | 'contacts';
 
 /** Apps in the grid, in wireframe order. "My Profile" is the seventh tile and opens the Profile tab. */
-export const APP_IDS: AppId[] = ['music', 'reminders', 'responses', 'pendant', 'contacts', 'settings'];
+export const APP_IDS: AppId[] = ['music', 'reminders', 'responses', 'pendant', 'contacts'];
 
 const Row = InfoRow;
 
@@ -127,27 +127,12 @@ function Contacts() {
   );
 }
 
-function Settings() {
-  const { t } = useTranslation();
-  const router = useRouter();
-  return (
-    <>
-      <InfoRow
-        title={t('apps.settings.language')}
-        detail={t('apps.settings.languageDetail')}
-        onPress={() => router.navigate('/profile')}
-      />
-    </>
-  );
-}
-
 const VIEWS: Record<AppId, () => ReactNode> = {
   music: Music,
   reminders: Reminders,
   responses: Responses,
   pendant: Pendant,
   contacts: Contacts,
-  settings: Settings,
 };
 
 export function AppView({ id }: { id: AppId }) {

@@ -135,19 +135,34 @@ describe('B2 · Permissions for wearers', () => {
 });
 
 describe('C1 · About you + consent', () => {
-  it('keeps Continue off until the name and consent are given', async () => {
+  it('keeps Continue off until the name, date of birth and consent are given', async () => {
     await renderApp(<AboutYou />);
     const go = () => screen.getByRole('button', { name: 'Continue' });
     expect(go()).toBeDisabled();
     await fireEvent.changeText(screen.getByLabelText('Your name'), 'Asha Rao');
-    expect(go()).toBeDisabled();
     await fireEvent.press(screen.getByRole('checkbox', { name: /I agree/ }));
+    expect(go()).toBeDisabled();
+    await fireEvent.changeText(screen.getByLabelText('Date of birth'), '05071950');
     expect(go()).toBeEnabled();
+  });
+
+  it('formats the date of birth and rejects dates that cannot be right', async () => {
+    await renderApp(<AboutYou />);
+    const field = () => screen.getByLabelText('Date of birth');
+    await fireEvent.changeText(field(), '05071950');
+    expect(field().props.value).toBe('05/07/1950');
+    await fireEvent.changeText(field(), '31022000');
+    expect(screen.getByText(/does not exist/)).toBeTruthy();
+    await fireEvent.changeText(field(), '01012999');
+    expect(screen.getByText(/in the future/)).toBeTruthy();
+    await fireEvent.changeText(field(), '01011850');
+    expect(screen.getByText(/more than 120 years/)).toBeTruthy();
   });
 
   it('saves the profile and a versioned consent record, then goes to C2', async () => {
     await renderApp(<AboutYou />);
     await fireEvent.changeText(screen.getByLabelText('Your name'), 'Asha Rao');
+    await fireEvent.changeText(screen.getByLabelText('Date of birth'), '05071950');
     await fireEvent.changeText(screen.getByLabelText(/What should Svaraa call you/), 'Amma');
     await fireEvent.press(screen.getByRole('checkbox', { name: 'Tamil' }));
     await fireEvent.press(screen.getByRole('checkbox', { name: /pacemaker/ }));
@@ -156,6 +171,7 @@ describe('C1 · About you + consent', () => {
     const saved = mockSetupOf(householdId);
     expect(saved?.wearer).toMatchObject({
       name: 'Asha Rao',
+      date_of_birth: '1950-07-05',
       call_as: 'Amma',
       languages: ['en', 'ta'],
       pacemaker: true,

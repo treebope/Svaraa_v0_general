@@ -17,7 +17,6 @@ export const APP_ICON: Record<AppId | 'profile', IconName> = {
   responses: 'resp',
   pendant: 'pendant',
   contacts: 'contacts',
-  settings: 'settings',
   profile: 'user',
 };
 const MIN_SPLIT = 1 / 3;
