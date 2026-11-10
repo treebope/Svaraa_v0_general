@@ -15,6 +15,7 @@ For the person who connects the app to the server. Simple steps, no coding knowl
 | A1 Sign in (Google)       | Google token, then `/auth/google`                                                     | `services/auth/authApi.ts`                   | `flags.googleSignIn`  | Mock        |
 | A2 Add your phone         | `/auth/mobile/request`, `/mobile/verify`                                              | `services/auth/authApi.ts`                   | `flags.auth`          | Draft ready |
 | A4 Home (name)            | `GET` and `PATCH /users/me`                                                           | `services/auth/authApi.ts`                   | `flags.auth`          | Draft ready |
+| News (top 5)              | `GET /news/{region}` (world, IN, US, CA): top five stories found by an AI search      | `services/news/newsApi.ts`                   | (mock only)           | Mock        |
 | B1 Who are you?           | `POST /households` (not in the API yet)                                               | `services/household/householdApi.ts`         | `flags.household`     | Mock        |
 | B3 Caregiver alerts       | `POST /devices/push-token` (not in API)                                               | `services/notifications/notificationsApi.ts` | `flags.notifications` | Mock        |
 | B2 Wearer permissions     | `POST /devices/push-token` (not in API)                                               | `services/notifications/notificationsApi.ts` | `flags.notifications` | Mock        |

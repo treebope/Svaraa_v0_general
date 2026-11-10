@@ -607,7 +607,8 @@
       "responses": "Responses",
       "pendant": "Pendant",
       "contacts": "Contacts",
-      "profile": "My Profile"
+      "profile": "My Profile",
+      "news": "News"
     },
     "music": {
       "now": "Morning bhajans",
@@ -703,5 +704,18 @@
       "reached": "{{name}} reached you",
       "someone": "Someone"
     }
+  },
+  "news": {
+    "region": {
+      "label": "News region",
+      "world": "World wide",
+      "IN": "India",
+      "US": "US",
+      "CA": "Canada"
+    },
+    "searching": "Finding today's top stories…",
+    "retry": "Try again",
+    "refresh": "Refresh",
+    "footer": "Top 5 stories, found with AI search. Updated {{time}}."
   }
 }

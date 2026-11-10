@@ -15,6 +15,7 @@ export const APP_ICON: Record<AppId | 'profile', IconName> = {
   music: 'music',
   reminders: 'remind',
   responses: 'resp',
+  news: 'news',
   pendant: 'pendant',
   contacts: 'contacts',
   profile: 'user',

@@ -49,6 +49,21 @@ export type ContactsOut = ContactsIn;
 export type InviteRole = 'admin' | 'viewer';
 export type InviteIn = { role: InviteRole };
 export type InviteOut = { code: string; url: string; role: InviteRole; expires_at: string };
+/** News: the top five stories for a region, found by an AI web search on the backend. */
+export type NewsRegion = 'world' | 'IN' | 'US' | 'CA';
+export type NewsItem = {
+  id: string;
+  /** 1 to 5, most important first. */
+  rank: number;
+  title: string;
+  /** Two or three plain sentences, in the language the app is in. */
+  summary: string;
+  source: string;
+  url: string;
+  published_at: string;
+};
+export type NewsOut = { region: NewsRegion; generated_at: string; items: NewsItem[] };
+
 /** C8: an SOS drill. Alerts go to the emergency contacts marked DRILL; it passes when one of them answers. */
 export type DrillStatus = 'waiting' | 'passed' | 'expired';
 export type DrillOut = {
@@ -72,6 +87,7 @@ type WithPath<P> = { query?: never; header?: never; path: P; cookie?: never };
 type HouseholdPath = { household_id: string };
 type DevicePath = { household_id: string; device_id: string };
 type DrillPath = { household_id: string; drill_id: string };
+type NewsPath = { region: NewsRegion };
 type Empty = { headers: NoHeaders; content?: never };
 /** An operation on a path with parameters. `In = void` means no body; `Out = void` means 204 No Content. */
 type PathOperation<P, In, Out> = {
@@ -141,6 +157,7 @@ export type PendingPaths = {
     HouseholdPath,
     { post: PathOperation<HouseholdPath, InviteIn, InviteOut> }
   >;
+  '/api/v1/news/{region}': PathItem<NewsPath, { get: PathOperation<NewsPath, void, NewsOut> }>;
   '/api/v1/households/{household_id}/drills': PathItem<
     HouseholdPath,
     { post: PathOperation<HouseholdPath, void, DrillOut> }

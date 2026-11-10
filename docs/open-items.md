@@ -82,3 +82,9 @@ After setting `EXPO_PUBLIC_API_URL` to the Railway dev URL, switch one area at a
 
 - PENDING BACKEND: an SOS history endpoint. Each event needs the outcome (resolved, false alarm, no answer so 112 called, drill), the contacts called in order with their result, when it was acknowledged and by whom, who reached the person (where and when) and when it closed. The two real events in `services/sos/sosHistory.ts` are sample data.
 - Drills are kept on this device only (`features/wearer/drillRecords.ts`) until that endpoint exists.
+
+## News (FE-07)
+
+- PENDING BACKEND: `GET /api/v1/news/{region}` (world, IN, US, CA) returning the top five stories (rank, title, two or three plain sentences in the app's language, source, link, published time). The backend should do the AI web search and cache the result (about 15 minutes), so the app holds no search key and every user does not trigger a search. The stories in `services/mocks/news.ts` are made-up placeholders.
+- Decide: should the News app be read aloud through the pendant, and should the region follow the person's country by default? It starts on World wide.
+- The News app is a tile in Apps. The bottom bar stays Chat and Apps only.
