@@ -71,3 +71,14 @@ After setting `EXPO_PUBLIC_API_URL` to the Railway dev URL, switch one area at a
 3. Test the backend alone first, with its `/dev/google-login` page.
 4. Make a development build (EAS, needs the Expo login): Google sign-in cannot run in Expo Go.
 5. Add native Google sign-in in `services/auth/google.native.ts` with a `.web.ts` stub, and set `flags.googleSignIn = 'native'`. The app already saves the Google name as the profile name after sign-in.
+
+## SOS calls (FE-06)
+
+- The app only opens the phone's dialer (`tel:`); iPhone always asks for a tap and the app cannot tell if a call was answered. "Call them yourself" asks the person instead (`features/wearer/useCallChain.ts`).
+- PENDING BACKEND: automatic calling in order (contact 1, then 2, then 112) through a telephony service, with per-contact status (ringing, answered, no answer) and the real ring time. The drill tracker guesses 30 seconds per contact (`RING_SECONDS`).
+- 112 is never dialled in a drill. A real SOS screen that uses `CallChain` with `drill={false}` does not exist yet.
+
+## SOS history (FE-06)
+
+- PENDING BACKEND: an SOS history endpoint. Each event needs the outcome (resolved, false alarm, no answer so 112 called, drill), the contacts called in order with their result, when it was acknowledged and by whom, who reached the person (where and when) and when it closed. The two real events in `services/sos/sosHistory.ts` are sample data.
+- Drills are kept on this device only (`features/wearer/drillRecords.ts`) until that endpoint exists.
