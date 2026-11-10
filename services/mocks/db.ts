@@ -107,8 +107,36 @@ export function authenticate(
   const token = /^Bearer (.+)$/i.exec(headers.get('authorization') ?? '')?.[1];
   if (!token) return { code: 'missing_token' };
   const id = db.access.get(token);
-  const user = id ? userById(id) : undefined;
+  const user = id ? userById(id) : (userFromRealToken(token) ?? undefined);
   return user ? { user } : { code: 'invalid_token' };
+}
+
+/**
+ * Sign-in can be real (flags.auth) while household setup is still mocked. Then the mock gets the real
+ * server's access token (a JWT): it takes the user id from it (`sub`, not checked: this is a mock) so the
+ * mocked setup steps work for the real account. PENDING BACKEND: remove once household is real.
+ */
+function userFromRealToken(token: string): MockUser | null {
+  const part = token.split('.')[1];
+  if (!part) return null;
+  try {
+    const { sub } = JSON.parse(atob(part.replace(/-/g, '+').replace(/_/g, '/'))) as { sub?: unknown };
+    if (typeof sub !== 'string' || !sub) return null;
+    const key = `real:${sub}`;
+    const found = db.users.get(key);
+    if (found) return found;
+    const user: MockUser = {
+      key,
+      id: sub,
+      display_name: null,
+      avatar_url: null,
+      profile_status: 'pending',
+    };
+    db.users.set(key, user);
+    return user;
+  } catch {
+    return null;
+  }
 }
 
 export function refreshAccess(

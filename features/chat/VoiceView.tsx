@@ -6,7 +6,9 @@ import { useTranslation } from 'react-i18next';
 import { pageBackground, RoundButton, useMainPalette } from '@/features/main/palette';
 import { useWide } from '@/features/main/useWide';
 import {
+  isVoiceLive,
   startVoiceSession,
+  type VoiceError,
   type VoiceSession,
   type VoiceState,
   type VoiceTurn,
@@ -17,6 +19,7 @@ import { useChat } from './store';
 const ORB = 150;
 /** How the orb moves in each state: how far the rings spread and how long one pulse takes. */
 const MOTION: Record<VoiceState, { spread: number; ms: number }> = {
+  connecting: { spread: 0.12, ms: 1400 },
   listening: { spread: 0.35, ms: 2000 },
   hearing: { spread: 0.7, ms: 700 },
   thinking: { spread: 0.18, ms: 900 },
@@ -102,6 +105,8 @@ function VoiceView({ active = true }: { active?: boolean }) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [state, setState] = useState<VoiceState>('listening');
+  const [error, setError] = useState<VoiceError>();
+  const [live] = useState(isVoiceLive);
   const [turns, setTurns] = useState<VoiceTurn[]>([]);
   const turnsRef = useRef<VoiceTurn[]>([]);
   const session = useRef<VoiceSession | null>(null);
@@ -122,6 +127,10 @@ function VoiceView({ active = true }: { active?: boolean }) {
         onTurn: (turn) => {
           turnsRef.current = [...turnsRef.current, turn];
           setTurns(turnsRef.current);
+        },
+        onError: (e) => {
+          setError(e);
+          setState('muted');
         },
       },
     );
@@ -201,9 +210,19 @@ function VoiceView({ active = true }: { active?: boolean }) {
           <Orb state={state} />
         </View>
         <View accessibilityLiveRegion="polite" style={{ marginTop: -8 }}>
-          <Text variant="heading" style={{ color: p.ink, textAlign: 'center' }}>
-            {t(`voice.state.${state}`)}
-          </Text>
+          {error ? (
+            <Text
+              accessibilityRole="alert"
+              tone="safety"
+              style={{ textAlign: 'center', maxWidth: 420, fontWeight: '600' }}
+            >
+              {t(`voice.error.${error}`)}
+            </Text>
+          ) : (
+            <Text variant="heading" style={{ color: p.ink, textAlign: 'center' }}>
+              {t(`voice.state.${state}`)}
+            </Text>
+          )}
         </View>
         <ScrollView
           ref={scroll}
@@ -232,7 +251,9 @@ function VoiceView({ active = true }: { active?: boolean }) {
               </View>
             ))
           ) : (
-            <Text style={{ color: p.muted, textAlign: 'center' }}>{t('voice.hint')}</Text>
+            <Text style={{ color: p.muted, textAlign: 'center' }}>
+              {t(live ? 'voice.hintLive' : 'voice.hint')}
+            </Text>
           )}
         </ScrollView>
       </View>
@@ -250,6 +271,7 @@ function VoiceView({ active = true }: { active?: boolean }) {
           icon={muted ? 'micoff' : 'mic'}
           label={t(muted ? 'voice.unmute' : 'voice.mute')}
           filled={muted}
+          disabled={!!error}
           onPress={() => session.current?.setMuted(!muted)}
           size={52}
         />

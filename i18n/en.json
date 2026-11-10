@@ -513,8 +513,14 @@
     "do": "Do",
     "doHint": "Do mode: Svaraa proposes an action and waits for you to confirm.",
     "speak": "Speak",
+    "stopListening": "Stop listening",
+    "listening": "Listening… speak now. Tap the mic again to stop.",
+    "micBlocked": "The microphone is blocked. Allow it for this site in the browser settings, then try again.",
+    "micFailed": "Couldn't hear that. Try again, or type your message.",
     "send": "Send",
     "reply": "I'm here. This is a sample reply until Svaraa's chat is connected.",
+    "thinking": "Svaraa is typing…",
+    "failed": "Svaraa couldn't reply. Check your connection and send it again.",
     "proposal": {
       "label": "Proposed action",
       "title": "Do this?",
@@ -610,6 +616,7 @@
   "voice": {
     "title": "Voice with Svaraa",
     "state": {
+      "connecting": "Connecting to Svaraa…",
       "listening": "Listening…",
       "hearing": "Hearing you…",
       "thinking": "Thinking…",
@@ -628,6 +635,11 @@
       "answer1": "Light showers are likely after 3 PM. Take an umbrella if you go out in the evening.",
       "ask2": "Remind me to take my tablet at 8.",
       "answer2": "Done. I will remind you every evening at 8 PM. This is a sample conversation until Svaraa's voice is connected."
+    },
+    "hintLive": "Just talk, and Svaraa answers out loud. For now Svaraa understands Hindi best, and the call is not saved in the chat.",
+    "error": {
+      "blocked": "The microphone is blocked. Allow it for this site in the browser settings, then start the call again.",
+      "failed": "Couldn't connect to Svaraa's voice. Check your connection and start the call again."
     }
   }
 }

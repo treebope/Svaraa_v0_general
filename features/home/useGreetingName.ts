@@ -14,6 +14,9 @@ export function useGreetingName(): string | undefined {
     queryFn: getProfile,
     enabled: !!userId,
     retry: false,
+    // The name rarely changes: avoid a call on every screen and focus. If a screen saves the name with
+    // PATCH /users/me, it must invalidate ['profile'] (none does today).
+    staleTime: 5 * 60_000,
   });
   const name = profile.data?.display_name?.trim() || googleName?.trim();
   return name ? name.split(/\s+/)[0] : undefined; // first name only

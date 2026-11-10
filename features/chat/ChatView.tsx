@@ -1,4 +1,10 @@
-import { useEffect, useRef, type ComponentRef } from 'react';
+import { useEffect, useRef, useState, type ComponentRef } from 'react';
+import {
+  isDictationAvailable,
+  startDictation,
+  type Dictation,
+  type DictationError,
+} from '@/services/voice/dictation';
 import { Platform, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { DotPill, RoundButton, Segmented, useMainPalette } from '@/features/main/palette';
@@ -15,16 +21,47 @@ export function ChatView({ compact, centered }: { compact?: boolean; centered?: 
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const p = useMainPalette();
-  const { conversations, currentId, draft, mode, setDraft, setMode, setVoiceOpen, send, decide } = useChat();
+  const { conversations, currentId, draft, mode, waitingId, setDraft, setMode, setVoiceOpen, send, decide } =
+    useChat();
   const pending = usePendingCount();
   const chat = conversations.find((x) => x.id === currentId);
+  const waiting = !!chat && waitingId === chat.id;
   const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
 
   useEffect(() => {
     scroll.current?.scrollToEnd({ animated: true });
-  }, [chat?.messages.length, currentId]);
+  }, [chat?.messages.length, currentId, waiting]);
 
-  const submit = () => send(draft, { reply: t('chat.reply'), proposalTitle: t('chat.proposal.title') });
+  // Mic: speak, and the words fill the message box (added after anything already typed). Send stays a tap.
+  const [micAvailable] = useState(isDictationAvailable);
+  const [listening, setListening] = useState(false);
+  const [micError, setMicError] = useState<DictationError>();
+  const dictation = useRef<Dictation | undefined>(undefined);
+  useEffect(() => () => dictation.current?.stop(), []);
+  const toggleMic = () => {
+    if (dictation.current) {
+      dictation.current.stop();
+      return;
+    }
+    setMicError(undefined);
+    const typed = useChat.getState().draft.trim();
+    setListening(true);
+    dictation.current = startDictation(i18n.language, {
+      onText: (heard) => setDraft(typed && heard ? `${typed} ${heard}` : typed || heard),
+      onError: setMicError,
+      onEnd: () => {
+        dictation.current = undefined;
+        setListening(false);
+      },
+    });
+  };
+
+  const canSend = !!draft.trim() && !waitingId;
+  const submit = () => {
+    if (!canSend) return;
+    dictation.current?.stop();
+    void send(draft, { proposalTitle: t('chat.proposal.title'), failed: t('chat.failed') });
+  };
   const body = theme.typeScale.body;
   const width = centered ? ({ width: '100%', maxWidth: 780, alignSelf: 'center' } as const) : null;
 
@@ -53,6 +90,15 @@ export function ChatView({ compact, centered }: { compact?: boolean; centered?: 
         </View>
         {m.kind === 'text' ? (
           <Text style={{ flexShrink: 1, color: p.ink, lineHeight: 22 }}>{m.text}</Text>
+        ) : m.kind === 'error' ? (
+          <Text
+            accessibilityRole="alert"
+            variant="bodySm"
+            tone="safety"
+            style={{ flexShrink: 1, lineHeight: 22 }}
+          >
+            {m.text}
+          </Text>
         ) : (
           <View
             style={{
@@ -116,7 +162,20 @@ export function ChatView({ compact, centered }: { compact?: boolean; centered?: 
         ]}
       >
         {chat && chat.messages.length ? (
-          chat.messages.map(bubble)
+          <>
+            {chat.messages.map(bubble)}
+            {waiting ? (
+              <View
+                accessibilityLiveRegion="polite"
+                style={{ alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 10 }}
+              >
+                <LogoMark size={26} />
+                <Text variant="bodySm" style={{ color: p.muted, fontStyle: 'italic' }}>
+                  {t('chat.thinking')}
+                </Text>
+              </View>
+            ) : null}
+          </>
         ) : (
           <View
             style={{
@@ -214,8 +273,15 @@ export function ChatView({ compact, centered }: { compact?: boolean; centered?: 
               ]}
             />
           </View>
-          {/* PENDING FE-14: voice input arrives with the voice relay. */}
-          <RoundButton icon="mic" label={t('chat.speak')} disabled size={compact ? 40 : 44} />
+          {/* Browser: speech to text. Phones: off until a speech library and a development build (dictation.ts). */}
+          <RoundButton
+            icon="mic"
+            label={listening ? t('chat.stopListening') : t('chat.speak')}
+            filled={listening}
+            disabled={!micAvailable || (!!waitingId && !listening)}
+            onPress={toggleMic}
+            size={compact ? 40 : 44}
+          />
           <RoundButton
             icon="call"
             label={t('chat.call')}
@@ -225,12 +291,30 @@ export function ChatView({ compact, centered }: { compact?: boolean; centered?: 
           <RoundButton
             icon="send"
             label={t('chat.send')}
-            filled={!!draft.trim()}
-            disabled={!draft.trim()}
+            filled={canSend}
+            disabled={!canSend}
             onPress={submit}
             size={compact ? 40 : 44}
           />
         </View>
+        {listening ? (
+          <Text
+            variant="bodySm"
+            accessibilityLiveRegion="polite"
+            style={{ color: p.muted, marginTop: 8, marginHorizontal: 2 }}
+          >
+            {t('chat.listening')}
+          </Text>
+        ) : micError ? (
+          <Text
+            variant="bodySm"
+            tone="safety"
+            accessibilityRole="alert"
+            style={{ marginTop: 8, marginHorizontal: 2 }}
+          >
+            {micError === 'blocked' ? t('chat.micBlocked') : t('chat.micFailed')}
+          </Text>
+        ) : null}
         {mode === 'do' ? (
           <Text variant="bodySm" style={{ color: p.muted, marginTop: 8, marginHorizontal: 2 }}>
             {t('chat.doHint')}

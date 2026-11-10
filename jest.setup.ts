@@ -1,5 +1,9 @@
 import '@/i18n';
 
+// Tests always use the mock backend, whatever the local .env switches to the real server.
+process.env.EXPO_PUBLIC_REAL_AREAS = '';
+process.env.EXPO_PUBLIC_REAL_ENDPOINTS = '';
+
 // expo-secure-store has no native module in Jest: keep values in memory instead.
 jest.mock('expo-secure-store', () => {
   const store = new Map<string, string>();

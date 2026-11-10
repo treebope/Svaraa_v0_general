@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useErrorText } from '@/features/auth/useErrorText';
-import { getGoogleCredential, signInWithGoogleToken } from '@/services/auth/authApi';
+import { GoogleCancelled, getGoogleCredential, signInWithGoogleToken } from '@/services/auth/authApi';
 import { Button, LanguageSwitch, Logo, Screen, Text, useTheme } from '@/ui';
 
 /** A1 · Welcome and sign in. */
@@ -23,7 +23,7 @@ export default function Welcome() {
       await signInWithGoogleToken(idToken, name);
       router.replace('/');
     } catch (e) {
-      setError(errorText(e));
+      if (!(e instanceof GoogleCancelled)) setError(errorText(e));
     } finally {
       setBusy(false);
     }

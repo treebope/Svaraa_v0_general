@@ -1,10 +1,14 @@
 import Constants from 'expo-constants';
 import { areaOf, flags } from './flags';
 
+const apiUrl = (process.env.EXPO_PUBLIC_API_URL ?? 'https://api.svaraa.example').replace(/\/$/, '');
+
 /** Environment settings. Set EXPO_PUBLIC_* in .env (see .env.example). */
 export const env = {
   /** Backend host, without /api/v1 (the generated paths already include it). */
-  apiUrl: (process.env.EXPO_PUBLIC_API_URL ?? 'https://api.svaraa.example').replace(/\/$/, ''),
+  apiUrl,
+  /** Voice socket host (wss:// for an https server). Empty in .env = derived from the API host. */
+  wsUrl: (process.env.EXPO_PUBLIC_WS_URL || apiUrl.replace(/^http/, 'ws')).replace(/\/$/, ''),
   /** Use mock responses instead of the real backend. On until the backend URL is live. */
   useMocks: (process.env.EXPO_PUBLIC_USE_MOCKS ?? 'true') === 'true',
   /**
@@ -15,6 +19,8 @@ export const env = {
     .split(',')
     .map((s: string) => s.trim())
     .filter(Boolean),
+  /** Google OAuth Web client ID (public, not a secret). Also in the backend's GOOGLE_CLIENT_IDS. */
+  googleWebClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? '',
   appVersion: Constants.expoConfig?.version ?? '0.0.0',
 };
 

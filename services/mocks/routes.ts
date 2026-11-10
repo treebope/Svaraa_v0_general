@@ -1,5 +1,8 @@
+import i18n from '@/i18n';
 import type {
   ActivateIn,
+  ChatIn,
+  ChatOut,
   ClaimIn,
   ConsentIn,
   ContactsIn,
@@ -433,6 +436,22 @@ export const routes: MockRoute[] = [
       if ('error' in h) return h.error;
       const d = drillNow(h.householdId, ctx.params.drill_id ?? '');
       return d ? { status: 200, body: d } : fail(404, 'drill_not_found', 'Drill not found');
+    },
+  },
+  // Text chat (flags.ai). A fixed sample reply in the app's language; like the real server, no sign-in needed.
+  {
+    method: 'POST',
+    path: `${API}/chat/`,
+    respond: ({ body }) => {
+      const { message, session_id } = (body ?? {}) as Partial<ChatIn>;
+      if (typeof message !== 'string' || !message.trim())
+        return fail(422, 'validation_error', 'Invalid request');
+      const out: ChatOut = {
+        session_id: session_id || `mock-chat-${Date.now()}`,
+        response: i18n.t('chat.reply'),
+        expires_at: new Date(Date.now() + 4 * 3_600_000).toISOString(),
+      };
+      return { status: 200, body: out };
     },
   },
 ];

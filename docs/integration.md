@@ -9,21 +9,24 @@ For the person who connects the app to the server. Simple steps, no coding knowl
 
 ## Status of each area
 
-| Screen                    | What it needs                                                                         | Service file                                 | Switch                | Status      |
-| ------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------- | --------------------- | ----------- |
-| A1, A2 Sign in (phone)    | Send code, check code, refresh, sign out                                              | `services/auth/authApi.ts`                   | `flags.auth`          | Draft ready |
-| A1 Sign in (Google)       | Google token, then `/auth/google`                                                     | `services/auth/authApi.ts`                   | `flags.googleSignIn`  | Mock        |
-| A2 Add your phone         | `/auth/mobile/request`, `/mobile/verify`                                              | `services/auth/authApi.ts`                   | `flags.auth`          | Draft ready |
-| A4 Home (name)            | `GET` and `PATCH /users/me`                                                           | `services/auth/authApi.ts`                   | `flags.auth`          | Draft ready |
-| B1 Who are you?           | `POST /households` (not in the API yet)                                               | `services/household/householdApi.ts`         | `flags.household`     | Mock        |
-| B3 Caregiver alerts       | `POST /devices/push-token` (not in API)                                               | `services/notifications/notificationsApi.ts` | `flags.notifications` | Mock        |
-| B2 Wearer permissions     | `POST /devices/push-token` (not in API)                                               | `services/notifications/notificationsApi.ts` | `flags.notifications` | Mock        |
-| C1 About you + consent    | `PATCH /households/{id}/wearer`, `POST /households/{id}/consent` (not in API)         | `services/household/wearerApi.ts`            | `flags.household`     | Mock        |
-| C2 Claim pendant          | `POST /households/{id}/claim` (not in API)                                            | `services/household/wearerApi.ts`            | `flags.household`     | Mock        |
-| C3 Pair pendant           | `POST /households/{id}/devices/{device_id}/challenge`, `.../activate` (not in API)    | `services/household/wearerApi.ts`            | `flags.household`     | Mock        |
-| C5, C6 Emergency contacts | `PUT /households/{id}/contacts` (not in API)                                          | `services/household/wearerApi.ts`            | `flags.household`     | Mock        |
-| C7 Invite a caregiver     | `POST /households/{id}/invites` (not in API)                                          | `services/household/wearerApi.ts`            | `flags.household`     | Mock        |
-| C8 SOS drill              | `POST /households/{id}/drills`, `GET /households/{id}/drills/{drill_id}` (not in API) | `services/household/wearerApi.ts`            | `flags.household`     | Mock        |
+| Screen                    | What it needs                                                                         | Service file                                 | Switch                | Status            |
+| ------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------- | --------------------- | ----------------- |
+| A1, A2 Sign in (phone)    | Send code, check code, refresh, sign out                                              | `services/auth/authApi.ts`                   | `flags.auth`          | Live (web)        |
+| A1 Sign in (Google)       | Google token, then `/auth/google`                                                     | `services/auth/google.web.ts`                | `flags.googleSignIn`  | Draft ready (web) |
+| A2 Add your phone         | `/auth/mobile/request`, `/mobile/verify`                                              | `services/auth/authApi.ts`                   | `flags.auth`          | Draft ready       |
+| A4 Home (name)            | `GET` and `PATCH /users/me`                                                           | `services/auth/authApi.ts`                   | `flags.auth`          | Draft ready       |
+| B1 Who are you?           | `POST /households` (not in the API yet)                                               | `services/household/householdApi.ts`         | `flags.household`     | Mock              |
+| B3 Caregiver alerts       | `POST /devices/push-token` (not in API)                                               | `services/notifications/notificationsApi.ts` | `flags.notifications` | Mock              |
+| B2 Wearer permissions     | `POST /devices/push-token` (not in API)                                               | `services/notifications/notificationsApi.ts` | `flags.notifications` | Mock              |
+| C1 About you + consent    | `PATCH /households/{id}/wearer`, `POST /households/{id}/consent` (not in API)         | `services/household/wearerApi.ts`            | `flags.household`     | Mock              |
+| C2 Claim pendant          | `POST /households/{id}/claim` (not in API)                                            | `services/household/wearerApi.ts`            | `flags.household`     | Mock              |
+| C3 Pair pendant           | `POST /households/{id}/devices/{device_id}/challenge`, `.../activate` (not in API)    | `services/household/wearerApi.ts`            | `flags.household`     | Mock              |
+| C5, C6 Emergency contacts | `PUT /households/{id}/contacts` (not in API)                                          | `services/household/wearerApi.ts`            | `flags.household`     | Mock              |
+| C7 Invite a caregiver     | `POST /households/{id}/invites` (not in API)                                          | `services/household/wearerApi.ts`            | `flags.household`     | Mock              |
+| C8 SOS drill              | `POST /households/{id}/drills`, `GET /households/{id}/drills/{drill_id}` (not in API) | `services/household/wearerApi.ts`            | `flags.household`     | Mock              |
+| D Chat (Ask)              | `POST /chat/` (public on the server for now; Do mode has no API yet)                  | `services/chat/chatApi.ts`                   | `flags.ai`            | Live (web)        |
+| D Chat mic (🎤)           | None: the browser's own speech to text (Web Speech API), then `POST /chat/` on Send   | `services/voice/dictation.web.ts`            | none                  | Draft ready (web) |
+| D Voice call (📞)         | `WS /voice/ws`: 16 kHz PCM up, MP3 reply down; no text back, Hindi speech only        | `services/voice/voiceSocket.ts`              | `flags.ai`            | Draft ready (web) |
 
 "Draft ready" means the endpoint exists in `docs/openapi.json` and the app already calls it the right way. It has not been tried against the live server.
 "Live" means it has been tried on a phone against the real server. Nothing is Live yet.
@@ -45,6 +48,13 @@ For the person who connects the app to the server. Simple steps, no coding knowl
 4. Run `npx expo start --clear` and open the app in Expo Go.
 5. Follow "How to check it worked" below.
 6. In the table above, change the Status of the sign-in rows to `Live`. Commit as `docs(FE-XX): mark sign-in live`.
+
+## Testing in the browser against the real server
+
+1. In `.env`: `EXPO_PUBLIC_REAL_AREAS=auth,googleSignIn,ai` (the code defaults stay `'mock'`, so tests are unaffected).
+2. Run `npm run web:server -- --clear`. It serves on port 5173, the only browser address the Render server accepts (CORS).
+3. Google: set `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` and add `http://localhost:5173` to that client's "Authorized JavaScript origins" in Google Cloud Console.
+4. On web, sign-in is kept in memory only: reloading the page signs you out.
 
 ## How to check it worked
 

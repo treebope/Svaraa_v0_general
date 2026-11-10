@@ -1,5 +1,7 @@
 import { api, call } from '@/services/api';
 import { flags } from '@/config/flags';
+import { getRealGoogleCredential } from './google';
+import { GoogleCancelled, type GoogleResult } from './googleTypes';
 import { useSession } from './session';
 
 /** A phone number is two fields on the backend: the dialling code and the number without it. */
@@ -63,14 +65,13 @@ export const updateProfile = (patch: { display_name?: string; avatar_url?: strin
   call(api.PATCH('/api/v1/users/me', { body: patch }));
 export const skipProfile = () => call(api.POST('/api/v1/users/me/profile/skip'));
 
-export type GoogleResult = { idToken: string; name?: string };
+export { GoogleCancelled, type GoogleResult };
 
 /**
- * Google sign-in. MOCK for now: returns a fake ID token and name.
- * Real sign-in needs a development build (not Expo Go) and the Google OAuth client IDs (web, iOS, Android):
- * use @react-native-google-signin/google-signin in services/auth/google.native.ts, with a .web stub.
+ * Google sign-in. With flags.googleSignIn = 'mock': a fake ID token. With 'real': Google's sign-in
+ * (browser: google.web.ts; phones: not wired yet, see google.ts). Throws GoogleCancelled if the person closes it.
  */
 export async function getGoogleCredential(): Promise<GoogleResult> {
   if (flags.googleSignIn === 'mock') return { idToken: 'mock-google-id-token' }; // no name: the greeting is then just "Hello"
-  throw new Error('Native Google sign-in is not wired yet');
+  return getRealGoogleCredential();
 }

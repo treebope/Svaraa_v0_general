@@ -61,6 +61,11 @@ export type DrillOut = {
   acknowledged_by?: string | null;
 };
 
+/** POST /chat/. Leave out session_id on the first message; send back the one the server returns. */
+export type ChatIn = { session_id?: string | null; message: string };
+/** The server starts a new session (new id) when the old one expired: idle for 4 hours, or a server restart. */
+export type ChatOut = { session_id: string; response: string; expires_at: string };
+
 type Operation<In, Out, Status extends number> = {
   parameters: NoParams;
   requestBody: { content: Json<In> };
@@ -100,6 +105,18 @@ export type PendingPaths = {
     get?: never;
     put?: never;
     post: Operation<HouseholdCreateIn, HouseholdOut, 200>;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  /** Text chat. On the live server, not yet in docs/openapi.json (that file holds auth and users only). */
+  '/api/v1/chat/': {
+    parameters: NoParams;
+    get?: never;
+    put?: never;
+    post: Operation<ChatIn, ChatOut, 200>;
     delete?: never;
     options?: never;
     head?: never;
