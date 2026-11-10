@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { usePendantStatus } from '@/features/pendant/store';
+import { SosHistory } from '@/features/pendant/SosHistory';
 import { useWearer } from '@/features/wearer/store';
 import { InfoRow, Pill, useMainPalette } from '@/features/main/palette';
 import { Button, Text, useTheme } from '@/ui';
@@ -99,6 +100,7 @@ function Pendant() {
         onPress={() => router.push('/wearer/drill')}
         fullWidth
       />
+      <SosHistory />
     </>
   );
 }

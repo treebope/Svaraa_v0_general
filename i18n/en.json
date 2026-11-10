@@ -454,7 +454,55 @@
       "answered": "Someone answered the drill.",
       "expired": "No one answered in time",
       "expiredBody": "Check that your emergency contacts' numbers are right, let them know a drill is coming, and try again.",
-      "finish": "Finish setup"
+      "finish": "Finish setup",
+      "steps": {
+        "sentChip": "Done",
+        "noAnswer": "No answer",
+        "answered": "Answered",
+        "notNeeded": "Not needed",
+        "next": "Waiting",
+        "ringing": "Ringing…",
+        "skippedDrill": "Drill: not dialled",
+        "sent": "SOS triggered",
+        "emergency": "Emergency services (112)",
+        "emergencyLast": "Last option if no contact answers",
+        "emergencyDrill": "In a real SOS 112 is called now. A drill never dials 112."
+      },
+      "call": {
+        "start": "Call them yourself, one by one",
+        "calling": "Calling {{name}}",
+        "ask": "Your phone's dialer opened. Did {{name}} answer?",
+        "failed": "This device could not open a call. Dial {{number}} yourself.",
+        "yes": "Yes, they answered",
+        "no": "No, call the next one",
+        "again": "Call again",
+        "answered": "Great, someone answered.",
+        "reset": "Start over",
+        "nobody": "No contact answered",
+        "emergency": "Call 112 emergency services now.",
+        "emergencyDrill": "In a real SOS the last option is 112, emergency services. A drill never dials 112.",
+        "again112": "Call 112"
+      },
+      "hero": {
+        "calling": "Calling {{name}}…",
+        "emergency": "Next: emergency services",
+        "nextIn": "Moves to the next contact in {{time}}",
+        "drillNote": "A real SOS would call 112 now. A drill does not."
+      },
+      "tabs": {
+        "run": "Run",
+        "history": "History"
+      },
+      "history": {
+        "last": "Last drill",
+        "earlier": "Earlier drills",
+        "passed": "Passed",
+        "expired": "Nobody answered",
+        "answeredBy": "{{name}} answered",
+        "took": "took {{time}}",
+        "emptyTitle": "No drills yet",
+        "empty": "Run an SOS drill and its result will be kept here."
+      }
     }
   },
   "languages": {
@@ -628,6 +676,32 @@
       "answer1": "Light showers are likely after 3 PM. Take an umbrella if you go out in the evening.",
       "ask2": "Remind me to take my tablet at 8.",
       "answer2": "Done. I will remind you every evening at 8 PM. This is a sample conversation until Svaraa's voice is connected."
+    }
+  },
+  "sos": {
+    "title": "SOS history",
+    "empty": "Nothing here yet.",
+    "filter": {
+      "all": "All",
+      "sos": "SOS",
+      "drill": "Mock drills"
+    },
+    "outcome": {
+      "resolved": "Resolved",
+      "falseAlarm": "False alarm",
+      "unanswered": "No one answered, 112 called",
+      "drillPassed": "Mock drill · passed",
+      "drillUnanswered": "Mock drill · no answer"
+    },
+    "step": {
+      "triggered": "SOS triggered",
+      "drillStart": "Mock drill started",
+      "acknowledged": "{{name}} acknowledged",
+      "noAnswer": "{{name}} did not answer",
+      "called112": "112 emergency services called",
+      "drillNo112": "A drill never dials 112",
+      "reached": "{{name}} reached you",
+      "someone": "Someone"
     }
   }
 }
