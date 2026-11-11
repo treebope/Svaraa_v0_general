@@ -84,7 +84,7 @@ describe('Home → main app', () => {
 });
 
 describe('Chat tab', () => {
-  it('starts empty, Ask answers, and the chat appears in Recents', async () => {
+  it('starts empty, Chat answers, and the chat appears in Recents', async () => {
     await renderApp(<Chat />);
     expect(screen.getByText('Working on 0 things')).toBeTruthy();
     await fireEvent.changeText(screen.getByLabelText('Message'), 'What day is it?');
@@ -95,16 +95,10 @@ describe('Chat tab', () => {
     expect(useChat.getState().conversations[0].title).toBe('What day is it?');
   });
 
-  it('Do proposes an action that waits for Confirm', async () => {
+  it('Talk opens the call screen straight away', async () => {
     await renderApp(<Chat />);
-    await fireEvent.press(screen.getByRole('radio', { name: 'Do' }));
-    await fireEvent.changeText(screen.getByLabelText('Message'), 'Remind me to walk at 7 AM');
-    await fireEvent.press(screen.getByRole('button', { name: 'Send' }));
-    expect(screen.getByText('Proposed action')).toBeTruthy();
-    expect(useChat.getState().conversations[0].messages[1]).toMatchObject({ status: 'waiting' });
-    await fireEvent.press(screen.getByRole('button', { name: 'Confirm' }));
-    expect(screen.getByText('✓ Done')).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Confirm' })).toBeNull();
+    await fireEvent.press(screen.getByRole('radio', { name: 'Talk' }));
+    expect(useChat.getState().voiceOpen).toBe(true);
   });
 
   it('on the Apps tab the bell opens Alerts', async () => {
