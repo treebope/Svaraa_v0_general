@@ -12,7 +12,6 @@ export type ChatMessage =
     };
 
 export type Conversation = { id: string; title: string; updatedAt: number; messages: ChatMessage[] };
-export type ChatMode = 'ask' | 'do';
 
 const MIN = 60_000;
 const HOUR = 60 * MIN;
@@ -87,14 +86,12 @@ type ChatState = {
   /** The open chat. undefined = a new, empty chat. */
   currentId: string | undefined;
   draft: string;
-  mode: ChatMode;
   /** The voice view (call button) is open. */
   voiceOpen: boolean;
   setVoiceOpen: (open: boolean) => void;
   /** Put what was said in a voice session into the open chat, or a new chat, so it stays in the history. */
   addTranscript: (turns: { role: 'user' | 'assistant'; text: string }[]) => void;
   setDraft: (d: string) => void;
-  setMode: (m: ChatMode) => void;
   newChat: () => void;
   open: (id: string) => void;
   /** `reply` and `proposal` are the already-translated texts Svaraa answers with. */
@@ -103,11 +100,10 @@ type ChatState = {
   reset: () => void;
 };
 
-const fresh = (): Pick<ChatState, 'conversations' | 'currentId' | 'draft' | 'mode' | 'voiceOpen'> => ({
+const fresh = (): Pick<ChatState, 'conversations' | 'currentId' | 'draft' | 'voiceOpen'> => ({
   conversations: SEED.map((c) => ({ ...c, messages: [...c.messages] })),
   currentId: undefined,
   draft: '',
-  mode: 'ask',
   voiceOpen: false,
 });
 
@@ -139,17 +135,13 @@ export const useChat = create<ChatState>((set, get) => ({
       ],
     });
   },
-  setMode: (mode) => set({ mode }),
   newChat: () => set({ currentId: undefined, draft: '' }),
   open: (id) => set({ currentId: id }),
   send: (text, copy) => {
     const body = text.trim();
     if (!body) return;
-    const { mode, conversations, currentId } = get();
-    const reply: ChatMessage =
-      mode === 'do'
-        ? { role: 'assistant', kind: 'proposal', title: copy.proposalTitle, detail: body, status: 'waiting' }
-        : { role: 'assistant', kind: 'text', text: copy.reply };
+    const { conversations, currentId } = get();
+    const reply: ChatMessage = { role: 'assistant', kind: 'text', text: copy.reply };
     const added: ChatMessage[] = [{ role: 'user', text: body }, reply];
     const existing = conversations.find((c) => c.id === currentId);
     if (existing) {

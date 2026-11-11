@@ -549,7 +549,7 @@
     "emptyTitle": "Svaraa",
     "working": "Working on {{count}} things",
     "working_one": "Working on {{count}} thing",
-    "emptyHelp": "Ask anything, or switch to Do to propose actions for confirmation.",
+    "emptyHelp": "Type a message, or choose Talk to speak with Svaraa.",
     "suggest": {
       "walk": "Remind me to walk at 7 AM",
       "bhajans": "Play my morning bhajans"
@@ -557,9 +557,8 @@
     "placeholder": "Say something",
     "message": "Message",
     "mode": "Mode",
-    "ask": "Ask",
-    "do": "Do",
-    "doHint": "Do mode: Svaraa proposes an action and waits for you to confirm.",
+    "chatMode": "Chat",
+    "talkMode": "Talk",
     "speak": "Speak",
     "send": "Send",
     "reply": "I'm here. This is a sample reply until Svaraa's chat is connected.",
