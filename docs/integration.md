@@ -9,28 +9,30 @@ For the person who connects the app to the server. Simple steps, no coding knowl
 
 ## Status of each area
 
-| Screen                    | What it needs                                                                         | Service file                                 | Switch                | Status            |
-| ------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------- | --------------------- | ----------------- |
-| A1, A2 Sign in (phone)    | Send code, check code, refresh, sign out                                              | `services/auth/authApi.ts`                   | `flags.auth`          | Live (web)        |
-| A1 Sign in (Google)       | Google token, then `/auth/google`                                                     | `services/auth/google.web.ts`                | `flags.googleSignIn`  | Draft ready (web) |
-| A2 Add your phone         | `/auth/mobile/request`, `/mobile/verify`                                              | `services/auth/authApi.ts`                   | `flags.auth`          | Draft ready       |
-| A4 Home (name)            | `GET` and `PATCH /users/me`                                                           | `services/auth/authApi.ts`                   | `flags.auth`          | Draft ready       |
-| News (top 5)              | `GET /news/{region}` (world, IN, US, CA): top five stories found by an AI search      | `services/news/newsApi.ts`                   | (mock only)           | Mock              |
-| B1 Who are you?           | `POST /households` (not in the API yet)                                               | `services/household/householdApi.ts`         | `flags.household`     | Mock              |
-| B3 Caregiver alerts       | `POST /devices/push-token` (not in API)                                               | `services/notifications/notificationsApi.ts` | `flags.notifications` | Mock              |
-| B2 Wearer permissions     | `POST /devices/push-token` (not in API)                                               | `services/notifications/notificationsApi.ts` | `flags.notifications` | Mock              |
-| C1 About you + consent    | `PATCH /households/{id}/wearer`, `POST /households/{id}/consent` (not in API)         | `services/household/wearerApi.ts`            | `flags.household`     | Mock              |
-| C2 Claim pendant          | `POST /households/{id}/claim` (not in API)                                            | `services/household/wearerApi.ts`            | `flags.household`     | Mock              |
-| C3 Pair pendant           | `POST /households/{id}/devices/{device_id}/challenge`, `.../activate` (not in API)    | `services/household/wearerApi.ts`            | `flags.household`     | Mock              |
-| C5, C6 Emergency contacts | `PUT /households/{id}/contacts` (not in API)                                          | `services/household/wearerApi.ts`            | `flags.household`     | Mock              |
-| C7 Invite a caregiver     | `POST /households/{id}/invites` (not in API)                                          | `services/household/wearerApi.ts`            | `flags.household`     | Mock              |
-| C8 SOS drill              | `POST /households/{id}/drills`, `GET /households/{id}/drills/{drill_id}` (not in API) | `services/household/wearerApi.ts`            | `flags.household`     | Mock              |
-| D Chat                    | `POST /chat/` (public on the server for now)                                          | `services/chat/chatApi.ts`                   | `flags.ai`            | Live (web)        |
-| D Chat mic (🎤)           | None: the browser's own speech to text (Web Speech API), then `POST /chat/` on Send   | `services/voice/dictation.web.ts`            | none                  | Draft ready (web) |
-| D Talk (call screen)      | `WS /voice/ws`: 16 kHz PCM up, MP3 reply down; no text back, Hindi speech only        | `services/voice/voiceSocket.ts`              | `flags.ai`            | Draft ready (web) |
+| Screen                    | What it needs                                                                                                         | Service file                                 | Switch                | Status               |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- | --------------------- | -------------------- |
+| A1, A2 Sign in (phone)    | Send code, check code, refresh, sign out                                                                              | `services/auth/authApi.ts`                   | `flags.auth`          | Live (web)           |
+| A1 Sign in (Google)       | Google token, then `/auth/google`                                                                                     | `services/auth/google.web.ts`                | `flags.googleSignIn`  | Draft ready (web)    |
+| A2 Add your phone         | `/auth/mobile/request`, `/mobile/verify`                                                                              | `services/auth/authApi.ts`                   | `flags.auth`          | Draft ready          |
+| A4 Home (name)            | `GET` and `PATCH /users/me`                                                                                           | `services/auth/authApi.ts`                   | `flags.auth`          | Draft ready          |
+| A4 Home (setup)           | `GET /me/home`: the household and its state, so setup resumes on another phone or after a reload                      | `features/household/store.ts`                | `flags.household`     | Blocked (server 500) |
+| News (top 5)              | `GET /news/{region}` (world, IN, US, CA): top five stories found by an AI search                                      | `services/news/newsApi.ts`                   | (mock only)           | Mock                 |
+| B1 Who are you?           | Nothing saved here (the server creates the household at C1); `GET /me/home` to resume                                 | `services/household/householdApi.ts`         | `flags.household`     | Draft ready          |
+| B3 Caregiver alerts       | `POST /me/installations` (phones only; nothing to save on the web)                                                    | `services/notifications/notificationsApi.ts` | `flags.notifications` | Draft ready          |
+| B2 Wearer permissions     | `POST /me/installations` (phones only; nothing to save on the web)                                                    | `services/notifications/notificationsApi.ts` | `flags.notifications` | Draft ready          |
+| C1 About you + consent    | `POST /circles` (`wearer_first`, with consent `2026-11-v1`), then `PATCH /circles/{id}`, `POST /circles/{id}/consent` | `services/household/wearerApi.ts`            | `flags.household`     | Blocked (server 500) |
+| C2 Claim pendant          | `POST /devices/claim` (dev server: codes starting with `MOCK`, e.g. `MOCK-0000-0001`)                                 | `services/household/wearerApi.ts`            | `flags.household`     | Blocked (server 500) |
+| C3 Pair pendant           | `POST /devices/{id}/pairing/challenge`, `/pairing/verify` (the pendant itself is still the simulator)                 | `services/household/wearerApi.ts`            | `flags.household`     | Blocked (server 500) |
+| C5, C6 Emergency contacts | `GET`, `POST /circles/{id}/contacts`, `DELETE /circles/{id}/contacts/{contact_id}`                                    | `services/household/wearerApi.ts`            | `flags.household`     | Blocked (server 500) |
+| C7 Invite a caregiver     | `POST /circles/{id}/member-invites`                                                                                   | `services/household/wearerApi.ts`            | `flags.household`     | Blocked (server 500) |
+| C8 SOS drill              | `POST /circles/{id}/drills`, `GET /circles/{id}/drills/{drill_id}` (household must be active)                         | `services/household/wearerApi.ts`            | `flags.household`     | Blocked (server 500) |
+| D Chat                    | `POST /chat/` (public on the server for now)                                                                          | `services/chat/chatApi.ts`                   | `flags.ai`            | Live (web)           |
+| D Chat mic (🎤)           | None: the browser's own speech to text (Web Speech API), then `POST /chat/` on Send                                   | `services/voice/dictation.web.ts`            | none                  | Draft ready (web)    |
+| D Talk (call screen)      | `WS /voice/ws`: 16 kHz PCM up, MP3 reply down; no text back, Hindi speech only                                        | `services/voice/voiceSocket.ts`              | `flags.ai`            | Draft ready (web)    |
 
 "Draft ready" means the endpoint exists in `docs/openapi.json` and the app already calls it the right way. It has not been tried against the live server.
 "Live (web)" means it has been tried in the browser (localhost:5173) against the real server. Nothing is Live on a phone yet.
+"Blocked (server 500)" means the app is connected, but the live server answers `500 internal_error` on `GET /me/home` and `POST /circles` (and that answer has no CORS header, so the browser also reports a CORS error). It needs a backend fix; then set `EXPO_PUBLIC_REAL_AREAS=auth,googleSignIn,ai,household,notifications` and restart.
 
 ## How to connect one area to the real backend
 
