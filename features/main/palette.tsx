@@ -22,6 +22,9 @@ const LIGHT = {
   seg: '#ECE4E1',
   good: '#2F7D4A',
   gold: '#B98A2E',
+  goldSoft: '#F7EBD3',
+  bad: '#B3261E',
+  badSoft: '#F8E3E0',
 };
 const DARK: typeof LIGHT = {
   bg1: '#251C21',
@@ -39,6 +42,9 @@ const DARK: typeof LIGHT = {
   seg: '#3A3136',
   good: '#74D39C',
   gold: '#E3B45A',
+  goldSoft: '#47381C',
+  bad: '#F2A29B',
+  badSoft: '#4A2A28',
 };
 
 export type Palette = typeof LIGHT;
@@ -261,15 +267,22 @@ export function DotPill({
 }
 
 /** Small status label (wireframe `.chipx`). */
-export function Pill({ label, tone = 'plain' }: { label: string; tone?: 'plain' | 'plum' | 'good' }) {
+export function Pill({
+  label,
+  tone = 'plain',
+}: {
+  label: string;
+  tone?: 'plain' | 'plum' | 'good' | 'warn' | 'bad';
+}) {
   const p = useMainPalette();
-  const color = tone === 'good' ? p.good : tone === 'plum' ? p.plum : p.muted;
+  const color = { good: p.good, plum: p.plum, warn: p.gold, bad: p.bad, plain: p.muted }[tone];
+  const bg = { warn: p.goldSoft, bad: p.badSoft, plain: p.seg, good: p.plumSoft, plum: p.plumSoft }[tone];
   return (
     <View
       accessible
       accessibilityLabel={label}
       style={{
-        backgroundColor: tone === 'plain' ? p.seg : p.plumSoft,
+        backgroundColor: bg,
         borderRadius: 999,
         paddingHorizontal: 10,
         paddingVertical: 3,
