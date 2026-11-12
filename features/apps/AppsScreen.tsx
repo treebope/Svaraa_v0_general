@@ -1,5 +1,5 @@
 import { Scene } from '@/features/main/Scene';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Platform, Pressable, ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,7 @@ import { MainTop } from '@/features/main/TopBar';
 import { useWide } from '@/features/main/useWide';
 import { Icon, Text, useTheme, type IconName } from '@/ui';
 import { useOpenGame } from '@/features/games/kit';
+import { useManageApps } from '@/features/manage/store';
 import { APP_IDS, AppView, type AppId } from './AppViews';
 
 export const APP_ICON: Record<AppId | 'profile', IconName> = {
@@ -39,6 +40,10 @@ function AppsPane({
   const { t } = useTranslation();
   const router = useRouter();
   const p = useMainPalette();
+  const enabled = useManageApps((s) => s.enabled);
+  useEffect(() => void useManageApps.getState().load(), []);
+  // Manage apps (F7): an app turned off there is not shown on Explore.
+  const shown = APP_IDS.filter((id) => !(id in enabled) || enabled[id as keyof typeof enabled]);
   const tile = (id: AppId | 'profile') => (
     <Pressable
       key={id}
@@ -117,7 +122,7 @@ function AppsPane({
             columnGap: phone ? 0 : 10,
           }}
         >
-          {[...APP_IDS, 'profile' as const].map(tile)}
+          {[...shown, 'profile' as const].map(tile)}
         </View>
       )}
     </ScrollView>

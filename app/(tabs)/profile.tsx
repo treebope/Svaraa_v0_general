@@ -125,6 +125,18 @@ export default function Profile() {
 
               <Card>
                 <Text variant="kicker" tone="spirit">
+                  {t('profile.apps')}
+                </Text>
+                <ListRow
+                  title={t('manage.title')}
+                  detail={t('profile.manageAppsDetail')}
+                  actionLabel={t('manage.title')}
+                  onPress={() => router.push('/manage-apps')}
+                />
+              </Card>
+
+              <Card>
+                <Text variant="kicker" tone="spirit">
                   {t('profile.pendant')}
                 </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.space[2] }}>
