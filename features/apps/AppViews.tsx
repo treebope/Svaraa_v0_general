@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { flags } from '@/config/flags';
+import { GamesView } from '@/features/games/GamesView';
 import { NewsView } from '@/features/news/NewsView';
 import { usePendantStatus } from '@/features/pendant/store';
 import { SosHistory } from '@/features/pendant/SosHistory';
@@ -10,11 +11,11 @@ import { useWearer } from '@/features/wearer/store';
 import { InfoRow, Pill, useMainPalette } from '@/features/main/palette';
 import { Button, Text, useTheme } from '@/ui';
 
-export type AppId = 'music' | 'reminders' | 'responses' | 'news' | 'pendant' | 'contacts';
+export type AppId = 'music' | 'reminders' | 'responses' | 'news' | 'games' | 'pendant' | 'contacts';
 
 /** Apps in the grid, in wireframe order. "My Profile" is the seventh tile and opens the Profile tab. */
 export const APP_IDS: AppId[] = (
-  ['music', 'reminders', 'responses', 'news', 'pendant', 'contacts'] as AppId[]
+  ['music', 'reminders', 'responses', 'news', 'games', 'pendant', 'contacts'] as AppId[]
 ).filter((id) => id !== 'news' || flags.news);
 
 const Row = InfoRow;
@@ -138,6 +139,7 @@ const VIEWS: Record<AppId, () => ReactNode> = {
   reminders: Reminders,
   responses: Responses,
   news: NewsView,
+  games: GamesView,
   pendant: Pendant,
   contacts: Contacts,
 };

@@ -607,7 +607,8 @@
       "pendant": "Pendant",
       "contacts": "Contacts",
       "profile": "My Profile",
-      "news": "News"
+      "news": "News",
+      "games": "Games"
     },
     "music": {
       "now": "Morning bhajans",
@@ -716,5 +717,73 @@
     "retry": "Try again",
     "refresh": "Refresh",
     "footer": "Top 5 stories, found with AI search. Updated {{time}}."
+  },
+  "games": {
+    "footer": "Games to pass a few relaxed minutes. Scores are kept only while the app is open.",
+    "close": "Close game",
+    "start": "Start",
+    "again": "Play again",
+    "best": "Best {{count}}",
+    "scoreLabel": "Score",
+    "bestLabel": "Best",
+    "howTitle": "How to play",
+    "newBest": "New best score!",
+    "level": "Round {{count}}",
+    "lotus": {
+      "name": "Heartbeat Run",
+      "blurb": "Run along a heartbeat. Jump the thorns, catch the golden lights.",
+      "how": "Tap anywhere (or press Space) to jump over the thorns. Catch the golden lights for 10 points each. The longer you run, the more you score.",
+      "jump": "Jump",
+      "tapHint": "Tap to jump",
+      "overTitle": "Flatline",
+      "bpm": "{{count}} bpm",
+      "lights": "Lights {{count}}",
+      "choose": "Choose your runner",
+      "hero": {
+        "heart": "Heart",
+        "diya": "Diya flame",
+        "lotus": "Lotus",
+        "ravi": "Ravi",
+        "meera": "Meera"
+      }
+    },
+    "match": {
+      "name": "Memory Match",
+      "blurb": "Turn two cards at a time and find the matching pairs.",
+      "step1": "Tap a card to turn it over.",
+      "step2": "Tap a second card to find its twin.",
+      "step3": "Match all 6 pairs to finish.",
+      "scoring": "Score: every pair you find is worth {{pair}} points. Every wrong try costs {{miss}}.",
+      "pairs": "Pairs",
+      "tries": "Tries",
+      "hit": "A match! +{{count}}",
+      "miss": "Not a match, −{{count}}. Remember where they are.",
+      "won": "All pairs found! Your score: {{count}}",
+      "card": "Card {{n}}, face down",
+      "shuffle": "New game"
+    },
+    "petals": {
+      "name": "Petal Sequence",
+      "blurb": "Watch the petals light up, then tap them in the same order.",
+      "step1": "Watch the petals light up, one by one.",
+      "step2": "Then tap the same petals in the same order.",
+      "step3": "Each round adds one more petal. How far can you go?",
+      "watch": "Watch carefully…",
+      "repeat": "Your turn: {{done}} of {{total}} tapped",
+      "ok": "Correct! Get ready for the next round.",
+      "lost": "Not quite. You completed {{count}} rounds. Try again!",
+      "roundLabel": "Round",
+      "petalName": {
+        "0": "Pink petal",
+        "1": "Gold petal",
+        "2": "Green petal",
+        "3": "Violet petal"
+      }
+    },
+    "all": "All games",
+    "sound": {
+      "turnOff": "Turn sound off",
+      "turnOn": "Turn sound on"
+    }
   }
 }

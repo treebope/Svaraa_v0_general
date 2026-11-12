@@ -88,3 +88,9 @@ After setting `EXPO_PUBLIC_API_URL` to the Railway dev URL, switch one area at a
 - PENDING BACKEND: `GET /api/v1/news/{region}` (world, IN, US, CA) returning the top five stories (rank, title, two or three plain sentences in the app's language, source, link, published time). The backend should do the AI web search and cache the result (about 15 minutes), so the app holds no search key and every user does not trigger a search. The stories in `services/mocks/news.ts` are made-up placeholders.
 - Decide: should the News app be read aloud through the pendant, and should the region follow the person's country by default? It starts on World wide.
 - The News app is a tile in Apps. The bottom bar stays Chat and Apps only.
+
+## Games (FE-09)
+
+- Heartbeat Run, Memory Match and Petal Sequence are in the Apps tab. They need no backend; best scores are kept only while the app is open (save them with the user profile later if wanted).
+- Sound: the web makes its own sounds (`features/games/sound.web.ts`). The phone plays the files in `assets/sounds` through `expo-audio` (`sound.native.ts`; remake the files with `scripts/make-game-sounds.py`). `expo-audio` is a native module, so the dev build must be rebuilt once. Not yet tried on a real device.
+- Check the games on a small phone and a tablet (the layouts were checked in a browser only).
