@@ -625,23 +625,6 @@
         "carnatic": "18 songs"
       }
     },
-    "reminders": {
-      "daily": "Daily",
-      "once": "Once",
-      "hint": "Say “Svaraa, remind me…” or use Do in chat to add one.",
-      "bp": {
-        "title": "Take BP tablet",
-        "when": "Every day · 8:00 PM"
-      },
-      "doctor": {
-        "title": "Doctor visit, Dr Iyer",
-        "when": "Friday · 11:00 AM"
-      },
-      "ravi": {
-        "title": "Call Ravi",
-        "when": "Sunday · 6:00 PM"
-      }
-    },
     "responses": {
       "intro": "Quick replies Svaraa can send for you.",
       "fine": "“I'm fine, will call you later.”",
@@ -785,5 +768,82 @@
       "turnOff": "Turn sound off",
       "turnOn": "Turn sound on"
     }
+  },
+  "reminders": {
+    "forName": "Reminders · {{name}}",
+    "wearerFallback": "you",
+    "tabs": "Show reminders",
+    "tab": {
+      "today": "Today",
+      "upcoming": "Upcoming",
+      "done": "Done"
+    },
+    "empty": {
+      "today": "Nothing left for today.",
+      "upcoming": "Nothing coming up.",
+      "done": "Nothing confirmed yet today."
+    },
+    "next": "Next",
+    "confirmed": "Confirmed",
+    "confirmedAt": "{{time}} · confirmed by voice",
+    "doneToday": "Done today",
+    "new": "New reminder",
+    "edit": "Edit reminder",
+    "all": "All reminders",
+    "by": "by {{name}}",
+    "hint": "Say “Svaraa, remind me…” or use Do in chat to add one.",
+    "say": "What should Svaraa say?",
+    "sayHint": "Keep it short. The preview below shows exactly what is heard.",
+    "sayExample": "Take your medicines",
+    "time": "Time",
+    "hours": "Hour",
+    "minutes": "Minutes",
+    "earlier": "earlier",
+    "later": "later",
+    "timeZone": "The time follows {{name}}’s time zone, not yours.",
+    "repeatLabel": "How often",
+    "repeat": {
+      "once": "Once",
+      "daily": "Daily",
+      "weekdays": "Weekdays",
+      "custom": "Custom",
+      "interval": "Every few hours"
+    },
+    "days": "Days of the week",
+    "onPendant": "On the pendant",
+    "speak": "Speak it aloud",
+    "persist": "Repeat until she says done",
+    "persistDetail": "Up to 3 times, 5 minutes apart",
+    "tellAdmins": "Tell admins if missed",
+    "preview": "Pendant will say",
+    "previewText": "“{{name}}, it’s time for your reminder: {{text}}.”",
+    "save": "Save reminder",
+    "cancel": "Cancel",
+    "last7": "Last 7 days",
+    "today": "Today",
+    "pending": "Pending",
+    "byVoice": "Confirmed by voice",
+    "missed": "Missed",
+    "noReply": "No reply after {{count}} tries · admins told",
+    "notConfirmed": "not confirmed",
+    "noHistory": "Nothing has happened yet.",
+    "paused": "Paused",
+    "editButton": "Edit",
+    "pause": "Pause reminder",
+    "resume": "Resume reminder",
+    "delete": "Delete",
+    "deleteSure": "Tap again to delete",
+    "every": "Every {{hours}} h · {{from}} to {{to}}",
+    "everyShort": "{{hours}} h",
+    "everyLabel": "Every how many hours",
+    "untilLabel": "Until",
+    "customKind": "Custom kind",
+    "kindDays": "Specific days",
+    "kindHours": "Every few hours",
+    "createdBy": "created by {{name}}",
+    "forShort": "for {{name}}",
+    "back": "Back",
+    "dueIn": "Due in {{when}}",
+    "dueNow": "Due now"
   }
 }

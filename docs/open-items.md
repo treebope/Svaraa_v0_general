@@ -94,3 +94,11 @@ After setting `EXPO_PUBLIC_API_URL` to the Railway dev URL, switch one area at a
 - Heartbeat Run, Memory Match and Petal Sequence are in the Apps tab. They need no backend; best scores are kept only while the app is open (save them with the user profile later if wanted).
 - Sound: the web makes its own sounds (`features/games/sound.web.ts`). The phone plays the files in `assets/sounds` through `expo-audio` (`sound.native.ts`; remake the files with `scripts/make-game-sounds.py`). `expo-audio` is a native module, so the dev build must be rebuilt once. Not yet tried on a real device.
 - Check the games on a small phone and a tablet (the layouts were checked in a browser only).
+
+## Reminders (FE-10)
+
+- Backend needed: a reminders API (list, create, edit, pause, delete) and per-reminder results (confirmed by voice, missed after N tries, admins told). Until then reminders and sample history live on the device (`features/reminders/store.ts`, `// PENDING BACKEND`).
+- The pendant must say the reminder, ask again up to 3 times, 5 minutes apart, and report back. The "Speak it aloud", "Repeat until she says done" and "Tell admins if missed" switches are saved but do nothing yet.
+- "Every 2 hours between times" reminders from the wireframe (G1) are not built. Creating a reminder by voice or Do in chat (F3) is not connected.
+- Time uses the phone's own zone. The wireframe says it should follow the wearer's zone: needs the wearer's zone from the backend.
+- The form has no wearer switcher: it shows the first name of the paired wearer.
