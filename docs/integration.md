@@ -15,6 +15,7 @@ For the person who connects the app to the server. Simple steps, no coding knowl
 | A1 Sign in (Google)       | Google token, then `/auth/google`                                                     | `services/auth/google.web.ts`                | `flags.googleSignIn`  | Draft ready (web) |
 | A2 Add your phone         | `/auth/mobile/request`, `/mobile/verify`                                              | `services/auth/authApi.ts`                   | `flags.auth`          | Draft ready       |
 | A4 Home (name)            | `GET` and `PATCH /users/me`                                                           | `services/auth/authApi.ts`                   | `flags.auth`          | Draft ready       |
+| News (top 5)              | `GET /news/{region}` (world, IN, US, CA): top five stories found by an AI search      | `services/news/newsApi.ts`                   | (mock only)           | Mock              |
 | B1 Who are you?           | `POST /households` (not in the API yet)                                               | `services/household/householdApi.ts`         | `flags.household`     | Mock              |
 | B3 Caregiver alerts       | `POST /devices/push-token` (not in API)                                               | `services/notifications/notificationsApi.ts` | `flags.notifications` | Mock              |
 | B2 Wearer permissions     | `POST /devices/push-token` (not in API)                                               | `services/notifications/notificationsApi.ts` | `flags.notifications` | Mock              |
@@ -24,12 +25,12 @@ For the person who connects the app to the server. Simple steps, no coding knowl
 | C5, C6 Emergency contacts | `PUT /households/{id}/contacts` (not in API)                                          | `services/household/wearerApi.ts`            | `flags.household`     | Mock              |
 | C7 Invite a caregiver     | `POST /households/{id}/invites` (not in API)                                          | `services/household/wearerApi.ts`            | `flags.household`     | Mock              |
 | C8 SOS drill              | `POST /households/{id}/drills`, `GET /households/{id}/drills/{drill_id}` (not in API) | `services/household/wearerApi.ts`            | `flags.household`     | Mock              |
-| D Chat (Ask)              | `POST /chat/` (public on the server for now; Do mode has no API yet)                  | `services/chat/chatApi.ts`                   | `flags.ai`            | Live (web)        |
+| D Chat                    | `POST /chat/` (public on the server for now)                                          | `services/chat/chatApi.ts`                   | `flags.ai`            | Live (web)        |
 | D Chat mic (🎤)           | None: the browser's own speech to text (Web Speech API), then `POST /chat/` on Send   | `services/voice/dictation.web.ts`            | none                  | Draft ready (web) |
-| D Voice call (📞)         | `WS /voice/ws`: 16 kHz PCM up, MP3 reply down; no text back, Hindi speech only        | `services/voice/voiceSocket.ts`              | `flags.ai`            | Draft ready (web) |
+| D Talk (call screen)      | `WS /voice/ws`: 16 kHz PCM up, MP3 reply down; no text back, Hindi speech only        | `services/voice/voiceSocket.ts`              | `flags.ai`            | Draft ready (web) |
 
 "Draft ready" means the endpoint exists in `docs/openapi.json` and the app already calls it the right way. It has not been tried against the live server.
-"Live" means it has been tried on a phone against the real server. Nothing is Live yet.
+"Live (web)" means it has been tried in the browser (localhost:5173) against the real server. Nothing is Live on a phone yet.
 
 ## How to connect one area to the real backend
 

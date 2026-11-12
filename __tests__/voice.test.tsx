@@ -32,7 +32,7 @@ describe('Voice view (call button beside the mic)', () => {
   it('opens from the call button, listens, then shows what was said', async () => {
     await renderApp(ui);
     expect(screen.queryByText('Voice with Svaraa')).toBeNull();
-    await fireEvent.press(screen.getByRole('button', { name: 'Talk to Svaraa' }));
+    await fireEvent.press(screen.getByRole('radio', { name: 'Talk' }));
     expect(screen.getByText('Voice with Svaraa')).toBeTruthy();
     expect(screen.getByText('Listening…')).toBeTruthy();
     await advance(LISTEN_MS);
@@ -46,7 +46,7 @@ describe('Voice view (call button beside the mic)', () => {
 
   it('mutes and unmutes', async () => {
     await renderApp(ui);
-    await fireEvent.press(screen.getByRole('button', { name: 'Talk to Svaraa' }));
+    await fireEvent.press(screen.getByRole('radio', { name: 'Talk' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Mute' }));
     expect(screen.getByText(/Muted/)).toBeTruthy();
     await advance(10_000);
@@ -57,7 +57,7 @@ describe('Voice view (call button beside the mic)', () => {
 
   it('End closes it and leaves the transcript in the chat history', async () => {
     await renderApp(ui);
-    await fireEvent.press(screen.getByRole('button', { name: 'Talk to Svaraa' }));
+    await fireEvent.press(screen.getByRole('radio', { name: 'Talk' }));
     await advance(LISTEN_MS + HEAR_MS + THINK_MS);
     await fireEvent.press(screen.getByRole('button', { name: 'End' }));
     expect(screen.queryByText('Voice with Svaraa')).toBeNull();
@@ -70,7 +70,7 @@ describe('Voice view (call button beside the mic)', () => {
 
   it('Switch to chat keeps the transcript and opens the Chat tab', async () => {
     await renderApp(ui);
-    await fireEvent.press(screen.getByRole('button', { name: 'Talk to Svaraa' }));
+    await fireEvent.press(screen.getByRole('radio', { name: 'Talk' }));
     await advance(LISTEN_MS + HEAR_MS + THINK_MS);
     await fireEvent.press(screen.getByRole('button', { name: 'Switch to chat' }));
     expect(mockNavigate).toHaveBeenCalledWith('/chat');
@@ -81,7 +81,7 @@ describe('Voice view (call button beside the mic)', () => {
   it('ending before anything was said adds no empty chat', async () => {
     await renderApp(ui);
     const before = useChat.getState().conversations.length;
-    await fireEvent.press(screen.getByRole('button', { name: 'Talk to Svaraa' }));
+    await fireEvent.press(screen.getByRole('radio', { name: 'Talk' }));
     await fireEvent.press(screen.getByRole('button', { name: 'End' }));
     expect(useChat.getState().conversations).toHaveLength(before);
   });

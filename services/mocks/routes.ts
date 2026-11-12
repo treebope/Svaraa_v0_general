@@ -14,6 +14,7 @@ import type {
   WearerProfileIn,
 } from '@/services/api/pending';
 import type { components } from '@/services/api/schema';
+import { NEWS_REGIONS, sampleNews } from './news';
 import {
   authenticate,
   claimDevice,
@@ -415,6 +416,17 @@ export const routes: MockRoute[] = [
       };
       setupOf(h.householdId).invites = [invite];
       return { status: 200, body: invite };
+    },
+  },
+  // PENDING BACKEND: the top five news stories for a region (world, IN, US, CA), found by an AI search. Not in docs/openapi.json yet.
+  {
+    method: 'GET',
+    path: `${API}/news/{region}`,
+    respond: (ctx) => {
+      const region = NEWS_REGIONS.find((r) => r === ctx.params.region);
+      return region
+        ? { status: 200, body: sampleNews(region) }
+        : fail(404, 'region_not_found', 'Region not found');
     },
   },
   // PENDING BACKEND: C8, start an SOS drill. Not in docs/openapi.json yet.

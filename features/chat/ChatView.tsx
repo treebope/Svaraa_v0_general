@@ -9,19 +9,19 @@ import { Platform, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { DotPill, RoundButton, Segmented, useMainPalette } from '@/features/main/palette';
 import { Logo, LogoMark, Text, fontFamily, useTheme } from '@/ui';
-import { useChat, usePendingCount, type ChatMessage, type ChatMode } from './store';
+import { useChat, usePendingCount, type ChatMessage } from './store';
 import { VoiceOverlay } from './VoiceView';
 
 /**
- * The conversation and the composer (wireframe D, web pins 8 and 9, phone pin 4). Ask answers straight away;
- * Do proposes an action that waits for Confirm. Shared by the Chat tab and the chat pane beside Apps on the web.
+ * The conversation and the composer (wireframe D, web pins 8 and 9, phone pin 4). Chat types and sends;
+ * Talk opens the call screen. Shared by the Chat tab and the chat pane beside Apps on the web.
  * `compact` is the phone sizing.
  */
 export function ChatView({ compact, centered }: { compact?: boolean; centered?: boolean }) {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const p = useMainPalette();
-  const { conversations, currentId, draft, mode, waitingId, setDraft, setMode, setVoiceOpen, send, decide } =
+  const { conversations, currentId, draft, voiceOpen, waitingId, setDraft, setVoiceOpen, send, decide } =
     useChat();
   const pending = usePendingCount();
   const chat = conversations.find((x) => x.id === currentId);
@@ -60,7 +60,7 @@ export function ChatView({ compact, centered }: { compact?: boolean; centered?: 
   const submit = () => {
     if (!canSend) return;
     dictation.current?.stop();
-    void send(draft, { proposalTitle: t('chat.proposal.title'), failed: t('chat.failed') });
+    void send(draft, { failed: t('chat.failed') });
   };
   const body = theme.typeScale.body;
   const width = centered ? ({ width: '100%', maxWidth: 780, alignSelf: 'center' } as const) : null;
@@ -263,13 +263,13 @@ export function ChatView({ compact, centered }: { compact?: boolean; centered?: 
         />
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 10 }}>
           <View style={{ flex: 1 }}>
-            <Segmented<ChatMode>
+            <Segmented<'chat' | 'talk'>
               label={t('chat.mode')}
-              value={mode}
-              onChange={setMode}
+              value={voiceOpen ? 'talk' : 'chat'}
+              onChange={(m) => setVoiceOpen(m === 'talk')}
               options={[
-                { id: 'ask', label: t('chat.ask') },
-                { id: 'do', label: t('chat.do') },
+                { id: 'chat', label: t('chat.chatMode') },
+                { id: 'talk', label: t('chat.talkMode') },
               ]}
             />
           </View>
@@ -280,12 +280,6 @@ export function ChatView({ compact, centered }: { compact?: boolean; centered?: 
             filled={listening}
             disabled={!micAvailable || (!!waitingId && !listening)}
             onPress={toggleMic}
-            size={compact ? 40 : 44}
-          />
-          <RoundButton
-            icon="call"
-            label={t('chat.call')}
-            onPress={() => setVoiceOpen(true)}
             size={compact ? 40 : 44}
           />
           <RoundButton
@@ -313,11 +307,6 @@ export function ChatView({ compact, centered }: { compact?: boolean; centered?: 
             style={{ marginTop: 8, marginHorizontal: 2 }}
           >
             {micError === 'blocked' ? t('chat.micBlocked') : t('chat.micFailed')}
-          </Text>
-        ) : null}
-        {mode === 'do' ? (
-          <Text variant="bodySm" style={{ color: p.muted, marginTop: 8, marginHorizontal: 2 }}>
-            {t('chat.doHint')}
           </Text>
         ) : null}
       </View>

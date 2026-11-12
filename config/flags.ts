@@ -30,7 +30,7 @@ const source = (area: string, value: Source): Source => (realAreas.includes(area
 /** Feature flags. New features (music, news, reminders) = a new folder in features/ + a flag here. */
 export const flags: Flags = {
   music: false,
-  news: false,
+  news: true,
   reminders: false,
   pendantTransport: 'simulator',
   googleSignIn: source('googleSignIn', 'mock'),

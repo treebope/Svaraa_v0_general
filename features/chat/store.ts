@@ -22,7 +22,6 @@ export type Conversation = {
   /** The server's chat session, so Svaraa remembers the earlier messages of this chat. */
   sessionId?: string;
 };
-export type ChatMode = 'ask' | 'do';
 
 const MIN = 60_000;
 const HOUR = 60 * MIN;
@@ -30,7 +29,7 @@ const DAY = 24 * HOUR;
 const ago = (ms: number) => Date.now() - ms;
 
 /**
- * Ask replies come from POST /chat/ (services/chat). PENDING BACKEND: the chat list, its history and Do's
+ * Replies come from POST /chat/ (services/chat). PENDING BACKEND: the chat list, its history and the sample
  * proposed actions have no API yet, so they live in memory. The sample chats come from the wireframes (D · Main app).
  */
 const SEED: Conversation[] = [
@@ -97,8 +96,7 @@ type ChatState = {
   /** The open chat. undefined = a new, empty chat. */
   currentId: string | undefined;
   draft: string;
-  mode: ChatMode;
-  /** The chat whose Ask reply is on its way ("Svaraa is typing"). */
+  /** The chat whose reply is on its way ("Svaraa is typing"). */
   waitingId: string | undefined;
   /** The voice view (call button) is open. */
   voiceOpen: boolean;
@@ -106,26 +104,18 @@ type ChatState = {
   /** Put what was said in a voice session into the open chat, or a new chat, so it stays in the history. */
   addTranscript: (turns: { role: 'user' | 'assistant'; text: string }[]) => void;
   setDraft: (d: string) => void;
-  setMode: (m: ChatMode) => void;
   newChat: () => void;
   open: (id: string) => void;
-  /**
-   * Ask: sends the message to Svaraa and adds the reply when it arrives. Do: proposes the action at once.
-   * `proposalTitle` and `failed` are already-translated texts.
-   */
-  send(text: string, copy: { proposalTitle: string; failed: string }): Promise<void>;
+  /** Sends the message to Svaraa (POST /chat/) and adds the reply when it arrives. `failed` is already translated. */
+  send(text: string, copy: { failed: string }): Promise<void>;
   decide: (chatId: string, index: number, status: 'done' | 'cancelled') => void;
   reset: () => void;
 };
 
-const fresh = (): Pick<
-  ChatState,
-  'conversations' | 'currentId' | 'draft' | 'mode' | 'voiceOpen' | 'waitingId'
-> => ({
+const fresh = (): Pick<ChatState, 'conversations' | 'currentId' | 'draft' | 'voiceOpen' | 'waitingId'> => ({
   conversations: SEED.map((c) => ({ ...c, messages: [...c.messages] })),
   currentId: undefined,
   draft: '',
-  mode: 'ask',
   voiceOpen: false,
   waitingId: undefined,
 });
@@ -158,37 +148,26 @@ export const useChat = create<ChatState>((set, get) => ({
       ],
     });
   },
-  setMode: (mode) => set({ mode }),
   newChat: () => set({ currentId: undefined, draft: '' }),
   open: (id) => set({ currentId: id }),
   send: async (text, copy) => {
     const body = text.trim();
     if (!body || get().waitingId) return;
-    const { mode, conversations, currentId } = get();
+    const { conversations, currentId } = get();
     const added: ChatMessage[] = [{ role: 'user', text: body }];
-    // PENDING BACKEND: Do has no API (no confirm step on the server), so the proposal is made here.
-    if (mode === 'do')
-      added.push({
-        role: 'assistant',
-        kind: 'proposal',
-        title: copy.proposalTitle,
-        detail: body,
-        status: 'waiting',
-      });
 
     const existing = conversations.find((c) => c.id === currentId);
     const id = existing?.id ?? `c${Date.now()}`;
     set({
       draft: '',
       currentId: id,
-      waitingId: mode === 'ask' ? id : undefined,
+      waitingId: id,
       conversations: existing
         ? conversations.map((c) =>
             c.id === id ? { ...c, updatedAt: Date.now(), messages: [...c.messages, ...added] } : c,
           )
         : [{ id, title: body.slice(0, 48), updatedAt: Date.now(), messages: added }, ...conversations],
     });
-    if (mode === 'do') return;
 
     let reply: ChatMessage;
     let sessionId = existing?.sessionId;

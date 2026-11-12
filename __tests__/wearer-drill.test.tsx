@@ -82,3 +82,53 @@ describe('C8 · Test your SOS', () => {
     expect(mockBack).toHaveBeenCalled();
   });
 });
+
+describe('call them yourself', () => {
+  it('opens the dialer for each contact in turn and never dials 112 in a drill', async () => {
+    const { Linking } = jest.requireActual('react-native');
+    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    useWearer.setState({
+      contacts: [
+        { name: 'Meera', countryCode: '+91', mobile: '9812344410', relationship: '' },
+        { name: 'Ravi', countryCode: '+91', mobile: '9812344411', relationship: '' },
+      ],
+    });
+    await renderApp(<SosDrill />);
+    await act(
+      async () =>
+        await fireEvent.press(screen.getByRole('button', { name: 'Call them yourself, one by one' })),
+    );
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(String(open.mock.calls[0][0])).toMatch(/^tel:\+?\d+$/);
+    await act(
+      async () => await fireEvent.press(screen.getByRole('button', { name: 'No, call the next one' })),
+    );
+    // keep pressing No until the contacts run out
+    for (let i = 0; i < 6 && screen.queryByText('No contact answered') === null; i++) {
+      await act(
+        async () => await fireEvent.press(screen.getByRole('button', { name: 'No, call the next one' })),
+      );
+    }
+    expect(screen.getByText('No contact answered')).toBeTruthy();
+    expect(open.mock.calls.some((c) => c[0] === 'tel:112')).toBe(false);
+    open.mockRestore();
+  });
+});
+
+describe('History', () => {
+  it('is not shown during setup, only after it', async () => {
+    await renderApp(<SosDrill />);
+    expect(screen.queryByRole('radio', { name: 'History' })).toBeNull();
+  });
+
+  it('keeps the last drill and shows how it ended', async () => {
+    await useHousehold.getState().activate();
+    await renderApp(<SosDrill />);
+    await act(async () => await fireEvent.press(screen.getByRole('button', { name: 'Run SOS drill' })));
+    await flush();
+    expect(await screen.findByText('Your SOS works', {}, { timeout: 4000 })).toBeTruthy();
+    await act(async () => await fireEvent.press(screen.getByRole('radio', { name: 'History' })));
+    expect(screen.getByText('Last drill')).toBeTruthy();
+    expect(screen.getByText('Passed')).toBeTruthy();
+  });
+});

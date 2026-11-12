@@ -2,19 +2,26 @@ import type { ReactNode } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { flags } from '@/config/flags';
+import { GamesView } from '@/features/games/GamesView';
+import { RemindersView } from '@/features/reminders/RemindersView';
+import { NewsView } from '@/features/news/NewsView';
 import { usePendantStatus } from '@/features/pendant/store';
+import { SosHistory } from '@/features/pendant/SosHistory';
 import { useWearer } from '@/features/wearer/store';
 import { InfoRow, Pill, useMainPalette } from '@/features/main/palette';
 import { Button, Text, useTheme } from '@/ui';
 
-export type AppId = 'music' | 'reminders' | 'responses' | 'pendant' | 'contacts';
+export type AppId = 'music' | 'reminders' | 'responses' | 'news' | 'games' | 'pendant' | 'contacts';
 
 /** Apps in the grid, in wireframe order. "My Profile" is the seventh tile and opens the Profile tab. */
-export const APP_IDS: AppId[] = ['music', 'reminders', 'responses', 'pendant', 'contacts'];
+export const APP_IDS: AppId[] = (
+  ['music', 'reminders', 'responses', 'news', 'games', 'pendant', 'contacts'] as AppId[]
+).filter((id) => id !== 'news' || flags.news);
 
 const Row = InfoRow;
 
-/** PENDING BACKEND: Music, Reminders and Responses show the sample content from the wireframes until their APIs exist. */
+/** PENDING BACKEND: Music and Responses show the sample content from the wireframes until their APIs exist. */
 function Music() {
   const { t } = useTranslation();
   const p = useMainPalette();
@@ -27,29 +34,6 @@ function Music() {
       {(['bhajans', 'film', 'carnatic'] as const).map((k) => (
         <Row key={k} title={t(`apps.music.list.${k}`)} detail={t(`apps.music.count.${k}`)} />
       ))}
-    </>
-  );
-}
-
-function Reminders() {
-  const { t } = useTranslation();
-  const p = useMainPalette();
-  return (
-    <>
-      {(['bp', 'doctor', 'ravi'] as const).map((k) => (
-        <Row
-          key={k}
-          title={t(`apps.reminders.${k}.title`)}
-          detail={t(`apps.reminders.${k}.when`)}
-          right={
-            <Pill
-              label={t(k === 'bp' ? 'apps.reminders.daily' : 'apps.reminders.once')}
-              tone={k === 'bp' ? 'plum' : 'plain'}
-            />
-          }
-        />
-      ))}
-      <Text style={{ color: p.muted }}>{t('apps.reminders.hint')}</Text>
     </>
   );
 }
@@ -99,6 +83,7 @@ function Pendant() {
         onPress={() => router.push('/wearer/drill')}
         fullWidth
       />
+      <SosHistory />
     </>
   );
 }
@@ -129,8 +114,10 @@ function Contacts() {
 
 const VIEWS: Record<AppId, () => ReactNode> = {
   music: Music,
-  reminders: Reminders,
+  reminders: RemindersView,
   responses: Responses,
+  news: NewsView,
+  games: GamesView,
   pendant: Pendant,
   contacts: Contacts,
 };

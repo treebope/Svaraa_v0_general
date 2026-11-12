@@ -248,7 +248,9 @@
     "editContacts": "Change",
     "addContact": "Add a contact",
     "contactsLimit": "Up to {{max}} contacts. Svaraa alerts them in this order.",
-    "lastContact": "Keep at least one emergency contact."
+    "lastContact": "Keep at least one emergency contact.",
+    "apps": "Apps",
+    "manageAppsDetail": "Choose what shows on Explore"
   },
   "countries": {
     "IN": "India",
@@ -454,7 +456,55 @@
       "answered": "Someone answered the drill.",
       "expired": "No one answered in time",
       "expiredBody": "Check that your emergency contacts' numbers are right, let them know a drill is coming, and try again.",
-      "finish": "Finish setup"
+      "finish": "Finish setup",
+      "steps": {
+        "sentChip": "Done",
+        "noAnswer": "No answer",
+        "answered": "Answered",
+        "notNeeded": "Not needed",
+        "next": "Waiting",
+        "ringing": "Ringing…",
+        "skippedDrill": "Drill: not dialled",
+        "sent": "SOS triggered",
+        "emergency": "Emergency services (112)",
+        "emergencyLast": "Last option if no contact answers",
+        "emergencyDrill": "In a real SOS 112 is called now. A drill never dials 112."
+      },
+      "call": {
+        "start": "Call them yourself, one by one",
+        "calling": "Calling {{name}}",
+        "ask": "Your phone's dialer opened. Did {{name}} answer?",
+        "failed": "This device could not open a call. Dial {{number}} yourself.",
+        "yes": "Yes, they answered",
+        "no": "No, call the next one",
+        "again": "Call again",
+        "answered": "Great, someone answered.",
+        "reset": "Start over",
+        "nobody": "No contact answered",
+        "emergency": "Call 112 emergency services now.",
+        "emergencyDrill": "In a real SOS the last option is 112, emergency services. A drill never dials 112.",
+        "again112": "Call 112"
+      },
+      "hero": {
+        "calling": "Calling {{name}}…",
+        "emergency": "Next: emergency services",
+        "nextIn": "Moves to the next contact in {{time}}",
+        "drillNote": "A real SOS would call 112 now. A drill does not."
+      },
+      "tabs": {
+        "run": "Run",
+        "history": "History"
+      },
+      "history": {
+        "last": "Last drill",
+        "earlier": "Earlier drills",
+        "passed": "Passed",
+        "expired": "Nobody answered",
+        "answeredBy": "{{name}} answered",
+        "took": "took {{time}}",
+        "emptyTitle": "No drills yet",
+        "empty": "Run an SOS drill and its result will be kept here."
+      }
     }
   },
   "languages": {
@@ -501,7 +551,7 @@
     "emptyTitle": "Svaraa",
     "working": "Working on {{count}} things",
     "working_one": "Working on {{count}} thing",
-    "emptyHelp": "Ask anything, or switch to Do to propose actions for confirmation.",
+    "emptyHelp": "Type a message, or choose Talk to speak with Svaraa.",
     "suggest": {
       "walk": "Remind me to walk at 7 AM",
       "bhajans": "Play my morning bhajans"
@@ -509,9 +559,8 @@
     "placeholder": "Say something",
     "message": "Message",
     "mode": "Mode",
-    "ask": "Ask",
-    "do": "Do",
-    "doHint": "Do mode: Svaraa proposes an action and waits for you to confirm.",
+    "chatMode": "Chat",
+    "talkMode": "Talk",
     "speak": "Speak",
     "stopListening": "Stop listening",
     "listening": "Listening… speak now. Tap the mic again to stop.",
@@ -565,7 +614,9 @@
       "responses": "Responses",
       "pendant": "Pendant",
       "contacts": "Contacts",
-      "profile": "My Profile"
+      "profile": "My Profile",
+      "news": "News",
+      "games": "Games"
     },
     "music": {
       "now": "Morning bhajans",
@@ -580,23 +631,6 @@
         "bhajans": "24 songs",
         "film": "41 songs",
         "carnatic": "18 songs"
-      }
-    },
-    "reminders": {
-      "daily": "Daily",
-      "once": "Once",
-      "hint": "Say “Svaraa, remind me…” or use Do in chat to add one.",
-      "bp": {
-        "title": "Take BP tablet",
-        "when": "Every day · 8:00 PM"
-      },
-      "doctor": {
-        "title": "Doctor visit, Dr Iyer",
-        "when": "Friday · 11:00 AM"
-      },
-      "ravi": {
-        "title": "Call Ravi",
-        "when": "Sunday · 6:00 PM"
       }
     },
     "responses": {
@@ -641,5 +675,218 @@
       "blocked": "The microphone is blocked. Allow it for this site in the browser settings, then start the call again.",
       "failed": "Couldn't connect to Svaraa's voice. Check your connection and start the call again."
     }
+  },
+  "sos": {
+    "title": "SOS history",
+    "empty": "Nothing here yet.",
+    "filter": {
+      "all": "All",
+      "sos": "SOS",
+      "drill": "Mock drills"
+    },
+    "outcome": {
+      "resolved": "Resolved",
+      "falseAlarm": "False alarm",
+      "unanswered": "No one answered, 112 called",
+      "drillPassed": "Mock drill · passed",
+      "drillUnanswered": "Mock drill · no answer"
+    },
+    "step": {
+      "triggered": "SOS triggered",
+      "drillStart": "Mock drill started",
+      "acknowledged": "{{name}} acknowledged",
+      "noAnswer": "{{name}} did not answer",
+      "called112": "112 emergency services called",
+      "drillNo112": "A drill never dials 112",
+      "reached": "{{name}} reached you",
+      "someone": "Someone"
+    }
+  },
+  "news": {
+    "region": {
+      "label": "News region",
+      "world": "World wide",
+      "IN": "India",
+      "US": "US",
+      "CA": "Canada"
+    },
+    "searching": "Finding today's top stories…",
+    "retry": "Try again",
+    "refresh": "Refresh",
+    "footer": "Top 5 stories, found with AI search. Updated {{time}}."
+  },
+  "games": {
+    "footer": "Games to pass a few relaxed minutes. Scores are kept only while the app is open.",
+    "close": "Close game",
+    "start": "Start",
+    "again": "Play again",
+    "best": "Best {{count}}",
+    "scoreLabel": "Score",
+    "bestLabel": "Best",
+    "howTitle": "How to play",
+    "newBest": "New best score!",
+    "level": "Round {{count}}",
+    "lotus": {
+      "name": "Heartbeat Run",
+      "blurb": "Run along a heartbeat. Jump the thorns, catch the golden lights.",
+      "how": "Tap anywhere (or press Space) to jump over the thorns. Catch the golden lights for 10 points each. The longer you run, the more you score.",
+      "jump": "Jump",
+      "tapHint": "Tap to jump",
+      "overTitle": "Flatline",
+      "bpm": "{{count}} bpm",
+      "lights": "Lights {{count}}",
+      "choose": "Choose your runner",
+      "hero": {
+        "heart": "Heart",
+        "diya": "Diya flame",
+        "lotus": "Lotus",
+        "ravi": "Ravi",
+        "meera": "Meera"
+      }
+    },
+    "match": {
+      "name": "Memory Match",
+      "blurb": "Turn two cards at a time and find the matching pairs.",
+      "step1": "Tap a card to turn it over.",
+      "step2": "Tap a second card to find its twin.",
+      "step3": "Match all 6 pairs to finish.",
+      "scoring": "Score: every pair you find is worth {{pair}} points. Every wrong try costs {{miss}}.",
+      "pairs": "Pairs",
+      "tries": "Tries",
+      "hit": "A match! +{{count}}",
+      "miss": "Not a match, −{{count}}. Remember where they are.",
+      "won": "All pairs found! Your score: {{count}}",
+      "card": "Card {{n}}, face down",
+      "shuffle": "New game"
+    },
+    "petals": {
+      "name": "Petal Sequence",
+      "blurb": "Watch the petals light up, then tap them in the same order.",
+      "step1": "Watch the petals light up, one by one.",
+      "step2": "Then tap the same petals in the same order.",
+      "step3": "Each round adds one more petal. How far can you go?",
+      "watch": "Watch carefully…",
+      "repeat": "Your turn: {{done}} of {{total}} tapped",
+      "ok": "Correct! Get ready for the next round.",
+      "lost": "Not quite. You completed {{count}} rounds. Try again!",
+      "roundLabel": "Round",
+      "petalName": {
+        "0": "Pink petal",
+        "1": "Gold petal",
+        "2": "Green petal",
+        "3": "Violet petal"
+      }
+    },
+    "all": "All games",
+    "sound": {
+      "turnOff": "Turn sound off",
+      "turnOn": "Turn sound on"
+    }
+  },
+  "reminders": {
+    "forName": "Reminders · {{name}}",
+    "wearerFallback": "you",
+    "tabs": "Show reminders",
+    "tab": {
+      "today": "Today",
+      "upcoming": "Upcoming",
+      "done": "Done"
+    },
+    "empty": {
+      "today": "Nothing left for today.",
+      "upcoming": "Nothing coming up.",
+      "done": "Nothing confirmed yet today."
+    },
+    "next": "Next",
+    "confirmed": "Confirmed",
+    "confirmedAt": "{{time}} · confirmed by voice",
+    "doneToday": "Done today",
+    "new": "New reminder",
+    "edit": "Edit reminder",
+    "all": "All reminders",
+    "by": "by {{name}}",
+    "hint": "Say “Svaraa, remind me…” or use Do in chat to add one.",
+    "say": "What should Svaraa say?",
+    "sayHint": "Keep it short. The preview below shows exactly what is heard.",
+    "sayExample": "Take your medicines",
+    "time": "Time",
+    "hours": "Hour",
+    "minutes": "Minutes",
+    "earlier": "earlier",
+    "later": "later",
+    "timeZone": "The time follows {{name}}’s time zone, not yours.",
+    "repeatLabel": "How often",
+    "repeat": {
+      "once": "Once",
+      "daily": "Daily",
+      "weekdays": "Weekdays",
+      "custom": "Custom",
+      "interval": "Every few hours"
+    },
+    "days": "Days of the week",
+    "onPendant": "On the pendant",
+    "speak": "Speak it aloud",
+    "persist": "Repeat until she says done",
+    "persistDetail": "Up to 3 times, 5 minutes apart",
+    "tellAdmins": "Tell admins if missed",
+    "preview": "Pendant will say",
+    "previewText": "“{{name}}, it’s time for your reminder: {{text}}.”",
+    "save": "Save reminder",
+    "cancel": "Cancel",
+    "last7": "Last 7 days",
+    "today": "Today",
+    "pending": "Pending",
+    "byVoice": "Confirmed by voice",
+    "missed": "Missed",
+    "noReply": "No reply after {{count}} tries · admins told",
+    "notConfirmed": "not confirmed",
+    "noHistory": "Nothing has happened yet.",
+    "paused": "Paused",
+    "editButton": "Edit",
+    "pause": "Pause reminder",
+    "resume": "Resume reminder",
+    "delete": "Delete",
+    "deleteSure": "Tap again to delete",
+    "every": "Every {{hours}} h · {{from}} to {{to}}",
+    "everyShort": "{{hours}} h",
+    "everyLabel": "Every how many hours",
+    "untilLabel": "Until",
+    "customKind": "Custom kind",
+    "kindDays": "Specific days",
+    "kindHours": "Every few hours",
+    "createdBy": "created by {{name}}",
+    "forShort": "for {{name}}",
+    "back": "Back",
+    "dueIn": "Due in {{when}}",
+    "dueNow": "Due now"
+  },
+  "manage": {
+    "title": "Manage apps",
+    "intro": "Choose what appears on {{name}}’s Explore tab and what the pendant can start.",
+    "introNoName": "Choose what appears on the Explore tab and what the pendant can start.",
+    "app": {
+      "reminders": "Reminders",
+      "news": "News",
+      "riddles": "Riddles",
+      "music": "Music"
+    },
+    "detail": {
+      "reminders": "Spoken on the pendant",
+      "news": "Daily briefing and headlines",
+      "riddles": "One a day",
+      "music": "Needs a music service"
+    },
+    "quiet": "Quiet hours",
+    "quietTitle": "No news, riddles or music",
+    "quietRange": "{{from}} to {{to}}",
+    "edit": "Edit",
+    "done": "Done",
+    "from": "From",
+    "to": "To",
+    "stillRemind": "Still speak important reminders",
+    "stillRemindDetail": "At a lower volume",
+    "sosTitle": "SOS always comes first",
+    "sosBody": "Anything playing stops when SOS starts.",
+    "pending": "These choices are saved on this phone for now. The pendant will follow them once the backend is ready."
   }
 }

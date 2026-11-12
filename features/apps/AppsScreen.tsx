@@ -1,5 +1,5 @@
 import { Scene } from '@/features/main/Scene';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Platform, Pressable, ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -9,12 +9,16 @@ import { IconButton, useMainPalette } from '@/features/main/palette';
 import { MainTop } from '@/features/main/TopBar';
 import { useWide } from '@/features/main/useWide';
 import { Icon, Text, useTheme, type IconName } from '@/ui';
+import { useOpenGame } from '@/features/games/kit';
+import { useManageApps } from '@/features/manage/store';
 import { APP_IDS, AppView, type AppId } from './AppViews';
 
 export const APP_ICON: Record<AppId | 'profile', IconName> = {
   music: 'music',
   reminders: 'remind',
   responses: 'resp',
+  news: 'news',
+  games: 'game',
   pendant: 'pendant',
   contacts: 'contacts',
   profile: 'user',
@@ -36,6 +40,10 @@ function AppsPane({
   const { t } = useTranslation();
   const router = useRouter();
   const p = useMainPalette();
+  const enabled = useManageApps((s) => s.enabled);
+  useEffect(() => void useManageApps.getState().load(), []);
+  // Manage apps (F7): an app turned off there is not shown on Explore.
+  const shown = APP_IDS.filter((id) => !(id in enabled) || enabled[id as keyof typeof enabled]);
   const tile = (id: AppId | 'profile') => (
     <Pressable
       key={id}
@@ -114,7 +122,7 @@ function AppsPane({
             columnGap: phone ? 0 : 10,
           }}
         >
-          {[...APP_IDS, 'profile' as const].map(tile)}
+          {[...shown, 'profile' as const].map(tile)}
         </View>
       )}
     </ScrollView>
@@ -246,20 +254,28 @@ export default function AppsScreen() {
   const [open, setOpen] = useState<AppId | undefined>();
   const [split, setSplit] = useState(MIN_SPLIT);
   const [width, setWidth] = useState(0);
+  // A game on wide web takes the whole width: the chat steps aside until the game is closed.
+  const gameFull = useOpenGame((s) => s.open !== undefined) && open === 'games';
 
   return (
     <Scene>
       <MainTop kind="apps" title={t('tabs.apps')} />
       {wideWeb ? (
+        // One row for both layouts, so the Apps pane (and the game in it) is never rebuilt when the chat steps aside.
         <View
           style={{ flex: 1, flexDirection: 'row', minHeight: 0, paddingVertical: 16, paddingLeft: 16 }}
           onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
         >
-          <View style={{ flex: split, minWidth: 0 }}>
-            <ChatPane split={split} onSplit={setSplit} />
-          </View>
-          <Divider split={split} width={width} onSplit={setSplit} />
-          <View style={{ flex: 1 - split, minWidth: 0 }}>
+          {gameFull ? null : (
+            <View key="chat" style={{ flex: split, minWidth: 0 }}>
+              <ChatPane split={split} onSplit={setSplit} />
+            </View>
+          )}
+          {gameFull ? null : <Divider key="divider" split={split} width={width} onSplit={setSplit} />}
+          <View
+            key="apps"
+            style={{ flex: gameFull ? 1 : 1 - split, minWidth: 0, paddingRight: gameFull ? 16 : 0 }}
+          >
             <AppsPane open={open} setOpen={setOpen} phone={false} />
           </View>
         </View>

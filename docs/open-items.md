@@ -71,3 +71,41 @@ After setting `EXPO_PUBLIC_API_URL` to the Railway dev URL, switch one area at a
 3. Test the backend alone first, with its `/dev/google-login` page.
 4. Make a development build (EAS, needs the Expo login): Google sign-in cannot run in Expo Go.
 5. Add native Google sign-in in `services/auth/google.native.ts` with a `.web.ts` stub, and set `flags.googleSignIn = 'native'`. The app already saves the Google name as the profile name after sign-in.
+
+## SOS calls (FE-06)
+
+- The app only opens the phone's dialer (`tel:`); iPhone always asks for a tap and the app cannot tell if a call was answered. "Call them yourself" asks the person instead (`features/wearer/useCallChain.ts`).
+- PENDING BACKEND: automatic calling in order (contact 1, then 2, then 112) through a telephony service, with per-contact status (ringing, answered, no answer) and the real ring time. The drill tracker guesses 30 seconds per contact (`RING_SECONDS`).
+- 112 is never dialled in a drill. A real SOS screen that uses `CallChain` with `drill={false}` does not exist yet.
+
+## SOS history (FE-06)
+
+- PENDING BACKEND: an SOS history endpoint. Each event needs the outcome (resolved, false alarm, no answer so 112 called, drill), the contacts called in order with their result, when it was acknowledged and by whom, who reached the person (where and when) and when it closed. The two real events in `services/sos/sosHistory.ts` are sample data.
+- Drills are kept on this device only (`features/wearer/drillRecords.ts`) until that endpoint exists.
+
+## News (FE-07)
+
+- PENDING BACKEND: `GET /api/v1/news/{region}` (world, IN, US, CA) returning the top five stories (rank, title, two or three plain sentences in the app's language, source, link, published time). The backend should do the AI web search and cache the result (about 15 minutes), so the app holds no search key and every user does not trigger a search. The stories in `services/mocks/news.ts` are made-up placeholders.
+- Decide: should the News app be read aloud through the pendant, and should the region follow the person's country by default? It starts on World wide.
+- The News app is a tile in Apps. The bottom bar stays Chat and Apps only.
+
+## Games (FE-09)
+
+- Heartbeat Run, Memory Match and Petal Sequence are in the Apps tab. They need no backend; best scores are kept only while the app is open (save them with the user profile later if wanted).
+- Sound: the web makes its own sounds (`features/games/sound.web.ts`). The phone plays the files in `assets/sounds` through `expo-audio` (`sound.native.ts`; remake the files with `scripts/make-game-sounds.py`). `expo-audio` is a native module, so the dev build must be rebuilt once. Not yet tried on a real device.
+- Check the games on a small phone and a tablet (the layouts were checked in a browser only).
+
+## Reminders (FE-10)
+
+- Backend needed: a reminders API (list, create, edit, pause, delete) and per-reminder results (confirmed by voice, missed after N tries, admins told). Until then reminders and sample history live on the device (`features/reminders/store.ts`, `// PENDING BACKEND`).
+- The pendant must say the reminder, ask again up to 3 times, 5 minutes apart, and report back. The "Speak it aloud", "Repeat until she says done" and "Tell admins if missed" switches are saved but do nothing yet.
+- "Every 2 hours between times" reminders from the wireframe (G1) are not built. Creating a reminder by voice or Do in chat (F3) is not connected.
+- Time uses the phone's own zone. The wireframe says it should follow the wearer's zone: needs the wearer's zone from the backend.
+- The form has no wearer switcher: it shows the first name of the paired wearer.
+
+## Manage apps (FE-11)
+
+- Opened from My Profile, Apps, Manage apps. Turning Reminders, News or Music off hides its tile on Explore now. Choices live on this phone (`features/manage/store.ts`, `// PENDING BACKEND`).
+- Backend and pendant: store the choices per wearer (apps on or off, quiet hours, "still speak important reminders") so the pendant follows them. The pendant must stop music and news during quiet hours and speak important reminders at a lower volume. SOS stops anything playing.
+- Riddles has a switch (as in wireframe F7) but there is no Riddles app yet.
+- It shows the wearer's first name when known. The wireframe says wearer or admin can open it: caregiver access to another person's choices needs the backend.
