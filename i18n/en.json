@@ -248,7 +248,9 @@
     "editContacts": "Change",
     "addContact": "Add a contact",
     "contactsLimit": "Up to {{max}} contacts. Svaraa alerts them in this order.",
-    "lastContact": "Keep at least one emergency contact."
+    "lastContact": "Keep at least one emergency contact.",
+    "apps": "Apps",
+    "manageAppsDetail": "Choose what shows on Explore"
   },
   "countries": {
     "IN": "India",
@@ -845,5 +847,34 @@
     "back": "Back",
     "dueIn": "Due in {{when}}",
     "dueNow": "Due now"
+  },
+  "manage": {
+    "title": "Manage apps",
+    "intro": "Choose what appears on {{name}}’s Explore tab and what the pendant can start.",
+    "introNoName": "Choose what appears on the Explore tab and what the pendant can start.",
+    "app": {
+      "reminders": "Reminders",
+      "news": "News",
+      "riddles": "Riddles",
+      "music": "Music"
+    },
+    "detail": {
+      "reminders": "Spoken on the pendant",
+      "news": "Daily briefing and headlines",
+      "riddles": "One a day",
+      "music": "Needs a music service"
+    },
+    "quiet": "Quiet hours",
+    "quietTitle": "No news, riddles or music",
+    "quietRange": "{{from}} to {{to}}",
+    "edit": "Edit",
+    "done": "Done",
+    "from": "From",
+    "to": "To",
+    "stillRemind": "Still speak important reminders",
+    "stillRemindDetail": "At a lower volume",
+    "sosTitle": "SOS always comes first",
+    "sosBody": "Anything playing stops when SOS starts.",
+    "pending": "These choices are saved on this phone for now. The pendant will follow them once the backend is ready."
   }
 }

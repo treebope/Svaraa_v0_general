@@ -102,3 +102,10 @@ After setting `EXPO_PUBLIC_API_URL` to the Railway dev URL, switch one area at a
 - "Every 2 hours between times" reminders from the wireframe (G1) are not built. Creating a reminder by voice or Do in chat (F3) is not connected.
 - Time uses the phone's own zone. The wireframe says it should follow the wearer's zone: needs the wearer's zone from the backend.
 - The form has no wearer switcher: it shows the first name of the paired wearer.
+
+## Manage apps (FE-11)
+
+- Opened from My Profile, Apps, Manage apps. Turning Reminders, News or Music off hides its tile on Explore now. Choices live on this phone (`features/manage/store.ts`, `// PENDING BACKEND`).
+- Backend and pendant: store the choices per wearer (apps on or off, quiet hours, "still speak important reminders") so the pendant follows them. The pendant must stop music and news during quiet hours and speak important reminders at a lower volume. SOS stops anything playing.
+- Riddles has a switch (as in wireframe F7) but there is no Riddles app yet.
+- It shows the wearer's first name when known. The wireframe says wearer or admin can open it: caregiver access to another person's choices needs the backend.

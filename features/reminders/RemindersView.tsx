@@ -247,7 +247,7 @@ function Toggle({
   );
 }
 
-function Stepper({
+export function Stepper({
   label,
   value,
   less,
