@@ -6,12 +6,11 @@ import { useSettings } from '@/features/settings/store';
 import { useWearer } from '@/features/wearer/store';
 import { verifyOtpAndSignIn } from '@/services/auth/authApi';
 import { useSession } from '@/services/auth/session';
-import { createHousehold } from '@/services/household/householdApi';
 import { saveContacts } from '@/services/household/wearerApi';
 import { mockDrillTiming } from '@/services/mocks/db';
 import { DEMO_CODE } from '@/services/mocks/routes';
 import { pendant, resetPendant, SimulatorTransport } from '@/services/pendant';
-import { INDIA, useMockBackend } from '@/test-utils/backend';
+import { createWearerHousehold, INDIA, useMockBackend, verifyTestPendant } from '@/test-utils/backend';
 import { renderApp } from '@/test-utils/render';
 
 const mockReplace = jest.fn();
@@ -35,7 +34,8 @@ beforeEach(async () => {
   const userId = useSession.getState().userId as string;
   await useHousehold.getState().load(userId);
   await useWearer.getState().load(userId);
-  householdId = (await createHousehold('wearer')).id;
+  householdId = await createWearerHousehold();
+  await verifyTestPendant(householdId);
   await useHousehold.getState().chooseRole('wearer', householdId);
   await useHousehold.getState().reachStep(6);
   await saveContacts(householdId, [{ name: 'Meera', country_code: '+91', mobile_number: '9812344410' }]);

@@ -8,10 +8,9 @@ import { useSettings } from '@/features/settings/store';
 import { useWearer } from '@/features/wearer/store';
 import { verifyOtpAndSignIn } from '@/services/auth/authApi';
 import { useSession } from '@/services/auth/session';
-import { createHousehold } from '@/services/household/householdApi';
 import { mockSetupOf } from '@/services/mocks/db';
 import { DEMO_CODE } from '@/services/mocks/routes';
-import { INDIA, useMockBackend } from '@/test-utils/backend';
+import { createWearerHousehold, INDIA, useMockBackend } from '@/test-utils/backend';
 import { renderApp } from '@/test-utils/render';
 
 const mockPush = jest.fn();
@@ -46,7 +45,7 @@ beforeEach(async () => {
   const userId = useSession.getState().userId as string;
   await useHousehold.getState().load(userId);
   await useWearer.getState().load(userId);
-  householdId = (await createHousehold('wearer')).id;
+  householdId = await createWearerHousehold();
   await useHousehold.getState().chooseRole('wearer', householdId);
   await useWearer.getState().save({ profile: PROFILE, contacts: [MEERA, RAVI] });
 });
@@ -126,7 +125,7 @@ describe('My Profile · contacts', () => {
     await renderApp(<AddContact />);
     await fireEvent.changeText(screen.getByLabelText('Name'), 'Ravi Rao');
     await act(async () => await fireEvent.press(screen.getByRole('button', { name: 'Save contact' })));
-    expect(mockSetupOf(householdId)?.contacts).toBeUndefined();
+    expect(mockSetupOf(householdId)?.contacts).toEqual([]);
     expect(useWearer.getState().contacts[1]?.name).toBe('Ravi Rao');
   });
 });

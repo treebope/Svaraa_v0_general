@@ -1,6 +1,14 @@
 import * as SecureStore from 'expo-secure-store';
 import { useHousehold } from '@/features/household/store';
 import { useSession } from '@/services/auth/session';
+import { DRAFT_HOUSEHOLD_ID, realHouseholdId } from '@/services/household/householdApi';
+import {
+  activatePendant,
+  claimPendant,
+  getPairingChallenge,
+  saveWearerProfile,
+  type DeviceOut,
+} from '@/services/household/wearerApi';
 import { resetMockDb } from '@/services/mocks/db';
 import { createMockFetch } from '@/services/mocks/fetchMock';
 
@@ -32,3 +40,21 @@ export async function useMockBackend(wrap?: (f: typeof fetch) => typeof fetch) {
 export const calls = (path: string) => requests.filter((r) => r.path === path).length;
 
 export const INDIA = { countryCode: '+91', mobile: '9876543210' };
+
+/** The signed-in person's household on the mock server, as after C1 (POST /circles). Returns its id. */
+export async function createWearerHousehold(): Promise<string> {
+  await saveWearerProfile(DRAFT_HOUSEHOLD_ID, {
+    name: 'Asha Rao',
+    date_of_birth: '1950-07-05',
+    languages: ['en'],
+    pacemaker: false,
+  });
+  return realHouseholdId(DRAFT_HOUSEHOLD_ID);
+}
+
+/** Claim and pair a pendant on the mock server (C2 and C3), so the household can become active. */
+export async function verifyTestPendant(householdId: string, code = 'SVRA-2041-7K3P'): Promise<DeviceOut> {
+  const device = await claimPendant(householdId, code);
+  await getPairingChallenge(householdId, device.id);
+  return activatePendant(householdId, device.id, 'sim:test', 'pendant-test');
+}

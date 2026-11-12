@@ -44,7 +44,9 @@ export const flags: Flags = {
 export function areaOf(path: string): 'auth' | 'household' | 'notifications' | 'ai' | undefined {
   if (path.startsWith('/api/v1/auth/') || path.startsWith('/api/v1/users/')) return 'auth';
   if (path.startsWith('/api/v1/chat/')) return 'ai';
-  if (path.startsWith('/api/v1/households')) return 'household';
-  if (path.startsWith('/api/v1/devices/')) return 'notifications';
+  // Household setup (the backend calls a household a "circle"): the household, its pendant and Home's setup status.
+  if (path.startsWith('/api/v1/circles') || path.startsWith('/api/v1/devices/') || path === '/api/v1/me/home')
+    return 'household';
+  if (path === '/api/v1/me/installations') return 'notifications';
   return undefined;
 }

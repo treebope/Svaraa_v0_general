@@ -4,7 +4,13 @@ import { routes } from './routes';
 
 export { DEMO_CODE } from './routes';
 
-const verb = { GET: http.get, POST: http.post, PATCH: http.patch, PUT: http.put } as const;
+const verb = {
+  GET: http.get,
+  POST: http.post,
+  PATCH: http.patch,
+  PUT: http.put,
+  DELETE: http.delete,
+} as const;
 
 /** MSW handlers for web (service worker) and Jest. Built from routes.ts, minus endpoints switched to the real backend. */
 export const handlers = routes

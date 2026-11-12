@@ -78,7 +78,7 @@
             }
           },
           "422": {
-            "description": "Validation error; see `fields`",
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
             "content": {
               "application/json": {
                 "schema": {
@@ -158,7 +158,7 @@
             }
           },
           "422": {
-            "description": "Validation error; see `fields`",
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
             "content": {
               "application/json": {
                 "schema": {
@@ -218,7 +218,7 @@
             }
           },
           "422": {
-            "description": "Validation error; see `fields`",
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
             "content": {
               "application/json": {
                 "schema": {
@@ -268,7 +268,7 @@
             }
           },
           "422": {
-            "description": "Validation error; see `fields`",
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
             "content": {
               "application/json": {
                 "schema": {
@@ -369,7 +369,7 @@
             }
           },
           "409": {
-            "description": "Conflict, e.g. `mobile_number_taken`",
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
             "content": {
               "application/json": {
                 "schema": {
@@ -456,7 +456,7 @@
             }
           },
           "409": {
-            "description": "Conflict, e.g. `mobile_number_taken`",
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
             "content": {
               "application/json": {
                 "schema": {
@@ -466,7 +466,7 @@
             }
           },
           "422": {
-            "description": "Validation error; see `fields`",
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
             "content": {
               "application/json": {
                 "schema": {
@@ -573,7 +573,7 @@
             }
           },
           "422": {
-            "description": "Validation error; see `fields`",
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
             "content": {
               "application/json": {
                 "schema": {
@@ -644,10 +644,5025 @@
           }
         ]
       }
+    },
+    "/api/v1/me/home": {
+      "get": {
+        "tags": ["me"],
+        "summary": "Home: my circles, what to do next, setup progress",
+        "description": "One entry per circle you belong to, with your role, its state, the single `next_action` for you, `notices` for the wearer and admins (these replace push in v0), and the setup checklist. Empty until you start setup.",
+        "operationId": "home_api_v1_me_home_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomeOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable, e.g. `otp_send_failed`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/me/installations": {
+      "post": {
+        "tags": ["me"],
+        "summary": "Register this phone for notifications",
+        "description": "Call after notification permission is granted, and again whenever the push token changes. A token that belonged to another user is taken over, so it never receives their alerts.",
+        "operationId": "register_installation_api_v1_me_installations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InstallationIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstallationOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/me/pending-invites": {
+      "get": {
+        "tags": ["me"],
+        "summary": "Setup links waiting for me",
+        "description": "Open caretaker-led setup links bound to my verified mobile number. The fallback when the link's token was lost across the app install: use `invite_id` with the `/setup-invites/*` endpoints instead of the token.",
+        "operationId": "pending_invites_api_v1_me_pending_invites_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PendingInviteOut"
+                  },
+                  "type": "array",
+                  "title": "Response Pending Invites Api V1 Me Pending Invites Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/me/step-up": {
+      "post": {
+        "tags": ["me"],
+        "summary": "Send myself a code to confirm a sensitive action",
+        "description": "Sends an OTP to your own verified mobile number (60 second resend cooldown). Send it back as `otp` on the action: promoting a viewer to admin, approving an admin, demoting or removing an admin, releasing a device, transferring the caretaker or the wearer, or cancelling the circle. Five wrong codes an hour lock further attempts.",
+        "operationId": "step_up_api_v1_me_step_up_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited, e.g. `otp_cooldown`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/circles": {
+      "post": {
+        "tags": ["circles"],
+        "summary": "Start a circle (wearer-first or caretaker-led)",
+        "description": "`wearer_first` (C1): creates the circle, makes you its wearer, and records consent in one step; the circle starts at `pending_pairing`. `caretaker_led` (D1): creates an empty `draft` with you as its admin. A user can be the wearer of one circle only, and an admin/viewer of at most 10.",
+        "operationId": "create_circle_api_v1_circles_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CircleCreateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CircleOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, e.g. `invalid_mobile_number`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/circles/{circle_id}": {
+      "get": {
+        "tags": ["circles"],
+        "summary": "Get a circle",
+        "operationId": "get_circle_api_v1_circles__circle_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CircleOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["circles"],
+        "summary": "Update the wearer's details",
+        "description": "Only the fields you send change. For caretaker-led circles send `wearer_country_code` and `wearer_mobile_number` together; that number is what the setup link is bound to. `relationship` is your own relationship to the wearer.",
+        "operationId": "patch_circle_api_v1_circles__circle_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CirclePatchIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CircleOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, e.g. `invalid_mobile_number`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/devices": {
+      "get": {
+        "tags": ["circles"],
+        "summary": "List the circle's pendants",
+        "operationId": "list_devices_api_v1_circles__circle_id__devices_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DeviceOut"
+                  },
+                  "title": "Response List Devices Api V1 Circles  Circle Id  Devices Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/contacts": {
+      "get": {
+        "tags": ["circles"],
+        "summary": "List emergency contacts",
+        "operationId": "list_contacts_api_v1_circles__circle_id__contacts_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContactOut"
+                  },
+                  "title": "Response List Contacts Api V1 Circles  Circle Id  Contacts Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["circles"],
+        "summary": "Add an emergency contact",
+        "description": "Name and number only; the contact needs no account. Up to 5 per circle. The wearer's own number is rejected.",
+        "operationId": "add_contact_api_v1_circles__circle_id__contacts_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, e.g. `invalid_mobile_number`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/contacts/{contact_id}": {
+      "patch": {
+        "tags": ["circles"],
+        "summary": "Edit an emergency contact",
+        "operationId": "patch_contact_api_v1_circles__circle_id__contacts__contact_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          },
+          {
+            "name": "contact_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Contact Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactPatchIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, e.g. `invalid_mobile_number`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["circles"],
+        "summary": "Remove an emergency contact",
+        "description": "Positions close up. Removing the last contact drops an active circle back to `pending_pairing`.",
+        "operationId": "delete_contact_api_v1_circles__circle_id__contacts__contact_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          },
+          {
+            "name": "contact_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Contact Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/setup-link": {
+      "post": {
+        "tags": ["circles"],
+        "summary": "Create or resend the wearer's setup link (D4)",
+        "description": "Admins only. Needs your own profile name, the pendant claimed, the wearer's name and mobile, and at least one emergency contact. Any earlier open link is revoked and the circle moves to `pending_consent` for 14 days. The URL carries only a random token, expires in 72 hours and works only for the wearer's number. It is returned once.",
+        "operationId": "create_setup_link_api_v1_circles__circle_id__setup_link_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupLinkOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["circles"],
+        "summary": "Cancel the open setup link",
+        "operationId": "revoke_setup_link_api_v1_circles__circle_id__setup_link_delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/consent": {
+      "post": {
+        "tags": ["circles"],
+        "summary": "Give consent (wearer only)",
+        "description": "Re-consent after a withdrawal. Moves `pending_consent` to `pending_pairing`, and on to `active` once a verified device and a contact exist. Repeating it is harmless. `409 consent_version_outdated` means the app shows old text.",
+        "operationId": "give_consent_api_v1_circles__circle_id__consent_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsentIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CircleOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/consent/withdraw": {
+      "post": {
+        "tags": ["circles"],
+        "summary": "Withdraw consent (wearer only)",
+        "description": "Moves the circle to `pending_consent`. Recording and alerts stop until the wearer consents again.",
+        "operationId": "withdraw_consent_api_v1_circles__circle_id__consent_withdraw_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CircleOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/devices/claim": {
+      "post": {
+        "tags": ["devices"],
+        "summary": "Claim a pendant with the code from its box",
+        "description": "Reserves the pendant for the circle (`claimed_unverified`); it is verified later, when the wearer pairs it. Caller must be the circle's wearer or an admin. Scanning again from the same circle is harmless. `409 device_already_claimed` means another circle holds it (screen E5): use `/devices/disputes` if it is yours. Up to 5 pendants per circle. **Mock codes:** in development and staging (never production) any code starting with `MOCK`, e.g. `MOCK-1`, creates a keyless mock pendant on the spot and claims it; each distinct code is a different pendant, and claiming the same one from another circle answers `device_already_claimed`. Pairing it verifies as `press_only`.",
+        "operationId": "claim_api_v1_devices_claim_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceClaimIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited, e.g. `otp_cooldown`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/devices/{device_id}/pairing/challenge": {
+      "post": {
+        "tags": ["devices"],
+        "summary": "Start pairing: get a challenge for the pendant to sign",
+        "description": "Wearer only, on the wearer's phone (it becomes the gateway), after consent. Valid for 2 minutes and single use.",
+        "operationId": "pairing_challenge_api_v1_devices__device_id__pairing_challenge_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Device Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PairingChallengeOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited, e.g. `otp_cooldown`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/devices/{device_id}/pairing/verify": {
+      "post": {
+        "tags": ["devices"],
+        "summary": "Finish pairing: verify the pendant",
+        "description": "Send the pendant's signature of the challenge. On success the device is `claimed_verified` and the circle becomes `active` if consent and a contact exist. Units without a key are verified as `press_only`.",
+        "operationId": "pairing_verify_api_v1_devices__device_id__pairing_verify_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Device Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PairingVerifyIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, e.g. `invalid_mobile_number`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited, e.g. `otp_cooldown`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/devices/{device_id}/pairing/complete": {
+      "post": {
+        "tags": ["devices"],
+        "summary": "Record the three pendant checks (touch, speaker, microphone)",
+        "operationId": "pairing_complete_api_v1_devices__device_id__pairing_complete_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Device Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PairingCompleteIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, e.g. `invalid_mobile_number`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/devices/{device_id}/release": {
+      "post": {
+        "tags": ["devices"],
+        "summary": "Release a pendant (wearer or admin)",
+        "description": "Needs your OTP (`otp`, from `POST /me/step-up`). Returns the pendant to unclaimed and invalidates its old box token, so support issues a new one. An active circle without a verified pendant drops back to `pending_pairing`.",
+        "operationId": "release_api_v1_devices__device_id__release_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Device Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/OtpIn"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, e.g. `invalid_mobile_number`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited, e.g. `otp_cooldown`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/devices/disputes": {
+      "post": {
+        "tags": ["devices"],
+        "summary": "Say a claimed pendant is actually yours",
+        "description": "For `device_already_claimed` (E5) when you hold the box token, e.g. a second-hand purchase. Support reviews it; nothing changes automatically in v0.",
+        "operationId": "dispute_api_v1_devices_disputes_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisputeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisputeOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited, e.g. `otp_cooldown`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/setup-invites/lookup": {
+      "post": {
+        "tags": ["setup-invites"],
+        "summary": "What is this link? (no sign-in)",
+        "description": "D6. Reveals only the caretaker's first name, the masked number to sign in with, and the status. The token goes in the body, never the URL. `410` with `invite_expired`, `invite_revoked` or `invite_used` when it no longer works.",
+        "operationId": "lookup_api_v1_setup_invites_lookup_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LookupOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The link is no longer usable: `invite_expired`, `invite_revoked`, `invite_used`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited, e.g. `otp_cooldown`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/setup-invites/reject": {
+      "post": {
+        "tags": ["setup-invites"],
+        "summary": "'I don't know this person' (no sign-in)",
+        "description": "Kills the link and flags it for support. The caretaker's circle is untouched; they can send a new link.",
+        "operationId": "reject_api_v1_setup_invites_reject_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The link is no longer usable: `invite_expired`, `invite_revoked`, `invite_used`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited, e.g. `otp_cooldown`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/setup-invites/preview": {
+      "post": {
+        "tags": ["setup-invites"],
+        "summary": "Review what the caretaker entered (sign in first)",
+        "description": "D7. Needs a signed-in user whose verified mobile equals the number the link was sent to; otherwise `403 invite_number_mismatch` (5 wrong attempts lock the link) or `403 mobile_required`. Returns the details, contacts, what the caretaker will see, the consent text and a `snapshot_hash` to send with consent.",
+        "operationId": "preview_api_v1_setup_invites_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteRefIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupPreviewOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The link is no longer usable: `invite_expired`, `invite_revoked`, `invite_used`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/setup-invites/draft": {
+      "patch": {
+        "tags": ["setup-invites"],
+        "summary": "Correct what the caretaker entered",
+        "description": "Only the fields you send change; `contacts`, if sent, replaces the whole list. Returns the new preview and hash.",
+        "operationId": "edit_draft_api_v1_setup_invites_draft_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetupDraftIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupPreviewOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, e.g. `invalid_mobile_number`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The link is no longer usable: `invite_expired`, `invite_revoked`, `invite_used`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/setup-invites/consent": {
+      "post": {
+        "tags": ["setup-invites"],
+        "summary": "Agree and join the circle as the wearer",
+        "description": "One transaction: the link is used up, you become the circle's wearer, consent is recorded, and the circle moves from `pending_consent` to `pending_pairing`. `409 snapshot_changed` if the details changed since you looked.",
+        "operationId": "consent_api_v1_setup_invites_consent_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetupConsentIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CircleOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The link is no longer usable: `invite_expired`, `invite_revoked`, `invite_used`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/setup-invites/decline": {
+      "post": {
+        "tags": ["setup-invites"],
+        "summary": "Decline to be set up",
+        "description": "Ends the link and moves the circle to `declined`; the admins see a notice on Home and can send a new link or release the pendant.",
+        "operationId": "decline_api_v1_setup_invites_decline_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteRefIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The link is no longer usable: `invite_expired`, `invite_revoked`, `invite_used`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/circles/{circle_id}/drills": {
+      "post": {
+        "tags": ["drills"],
+        "summary": "Start a practice SOS (wearer only)",
+        "description": "The circle must be `active`. It runs for 5 minutes. Starting while one is running returns the running one (status 200) instead of creating another.",
+        "operationId": "start_drill_api_v1_circles__circle_id__drills_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DrillOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/drills/{drill_id}": {
+      "get": {
+        "tags": ["drills"],
+        "summary": "Drill status",
+        "description": "Poll this to see whether a member has acknowledged. `status` is `running` until then, `passed` once acknowledged, `expired` after the 5 minutes.",
+        "operationId": "get_drill_api_v1_circles__circle_id__drills__drill_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          },
+          {
+            "name": "drill_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Drill Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DrillOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/drills/{drill_id}/ack": {
+      "post": {
+        "tags": ["drills"],
+        "summary": "Acknowledge the drill (admin or viewer, or the wearer when alone)",
+        "description": "Any admin or viewer of the circle. The wearer may acknowledge their own drill only while no admin or viewer is active in the circle; otherwise `403`. The first pass marks the circle `protected`. `409 drill_not_running` if it expired.",
+        "operationId": "ack_drill_api_v1_circles__circle_id__drills__drill_id__ack_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          },
+          {
+            "name": "drill_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Drill Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DrillOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/drills/{drill_id}/cancel": {
+      "post": {
+        "tags": ["drills"],
+        "summary": "Cancel a running drill (wearer only)",
+        "operationId": "cancel_drill_api_v1_circles__circle_id__drills__drill_id__cancel_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          },
+          {
+            "name": "drill_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Drill Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DrillOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/member-invites": {
+      "post": {
+        "tags": ["members"],
+        "summary": "Create an invite code (wearer or admin)",
+        "description": "C7. The code is single use and valid 24 hours. Whoever redeems it waits for approval; nothing is shared until a wearer or admin approves. Up to 5 open invites per circle. Creating a code needs no OTP, because it grants nothing yet.",
+        "operationId": "create_invite_api_v1_circles__circle_id__member_invites_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberInviteIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberInviteOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, e.g. `invalid_mobile_number`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["members"],
+        "summary": "Open invite codes (wearer or admin)",
+        "operationId": "list_invites_api_v1_circles__circle_id__member_invites_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MemberInviteItem"
+                  },
+                  "title": "Response List Invites Api V1 Circles  Circle Id  Member Invites Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/member-invites/{invite_id}": {
+      "delete": {
+        "tags": ["members"],
+        "summary": "Cancel an invite code",
+        "operationId": "revoke_invite_api_v1_circles__circle_id__member_invites__invite_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          },
+          {
+            "name": "invite_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Invite Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/members": {
+      "get": {
+        "tags": ["members"],
+        "summary": "Members of the circle (E3)",
+        "description": "Active members for everyone, the wearer first. The wearer and admins also see people waiting for approval.",
+        "operationId": "list_members_api_v1_circles__circle_id__members_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MemberOut"
+                  },
+                  "title": "Response List Members Api V1 Circles  Circle Id  Members Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/members/{user_id}/approve": {
+      "post": {
+        "tags": ["members"],
+        "summary": "Approve someone waiting to join (wearer or admin)",
+        "description": "Approving someone who was invited **as admin** grants admin power, so it needs your OTP (`otp`). Viewers need none.",
+        "operationId": "approve_api_v1_circles__circle_id__members__user_id__approve_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/OtpIn"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "400": {
+            "description": "Bad request, e.g. `invalid_mobile_number`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited, e.g. `otp_cooldown`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/members/{user_id}/reject": {
+      "post": {
+        "tags": ["members"],
+        "summary": "Turn down someone waiting to join (wearer or admin)",
+        "operationId": "reject_api_v1_circles__circle_id__members__user_id__reject_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/members/{user_id}": {
+      "patch": {
+        "tags": ["members"],
+        "summary": "Change a member's role (wearer or admin)",
+        "description": "Between admin and viewer. Promoting a viewer to admin and demoting an admin both need your OTP (`otp`). The wearer's role is fixed, and you cannot change your own.",
+        "operationId": "change_role_api_v1_circles__circle_id__members__user_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberRolePatchIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "400": {
+            "description": "Bad request, e.g. `invalid_mobile_number`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited, e.g. `otp_cooldown`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/members/{user_id}/remove": {
+      "post": {
+        "tags": ["members"],
+        "summary": "Remove a member, or leave the circle yourself",
+        "description": "The wearer can remove anyone except themselves. An admin can remove viewers and other admins. Nobody can remove the wearer, and the wearer cannot leave (transfer the pendant or cancel the circle). Removing an admin needs your OTP (`otp`). To leave, send your own user id; leaving needs no OTP.",
+        "operationId": "remove_member_api_v1_circles__circle_id__members__user_id__remove_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/OtpIn"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "400": {
+            "description": "Bad request, e.g. `invalid_mobile_number`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited, e.g. `otp_cooldown`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member-invites/redeem": {
+      "post": {
+        "tags": ["members"],
+        "summary": "Join a circle with an invite code",
+        "description": "Puts you in the circle's waiting list as `pending_approval`. Strict limits: 5 attempts per hour per user and 20 per IP, right or wrong. You can be an admin or viewer of at most 10 circles.",
+        "operationId": "redeem_api_v1_member_invites_redeem_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedeemIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedeemOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The link is no longer usable: `invite_expired`, `invite_revoked`, `invite_used`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error (see `fields`), or a precondition such as `profile_name_required`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited, e.g. `otp_cooldown`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/circles/{circle_id}/caretaker-transfers": {
+      "post": {
+        "tags": ["transfers"],
+        "summary": "Hand over a caretaker seat (wearer or admin)",
+        "description": "An admin hands over their own seat; the wearer can replace any admin by naming them in `from_user_id`. The receiver must already be an active viewer and has 24 hours to accept (`POST /transfers/{id}/accept`). Needs your OTP. On acceptance the receiver becomes admin and the old admin leaves (or stays as a viewer with `keep_as_viewer`).",
+        "operationId": "start_caretaker_transfer_api_v1_circles__circle_id__caretaker_transfers_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaretakerTransferIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, e.g. `invalid_mobile_number`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited, e.g. `otp_cooldown`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/wearer-transfers": {
+      "post": {
+        "tags": ["transfers"],
+        "summary": "Hand the pendant to a different wearer (wearer or admin)",
+        "description": "Creates a setup link bound to the new wearer's number; they review, edit and consent through `/setup-invites/*`. Nothing changes until they consent, so the current wearer stays protected meanwhile, and can cancel with `POST /transfers/{id}/cancel`. At consent the old wearer leaves, the new wearer joins, and the pendant goes back to unverified to be paired on the new wearer's phone. Needs your OTP.",
+        "operationId": "start_wearer_transfer_api_v1_circles__circle_id__wearer_transfers_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WearerTransferIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WearerTransferOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, e.g. `invalid_mobile_number`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited, e.g. `otp_cooldown`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/circles/{circle_id}/cancel": {
+      "post": {
+        "tags": ["transfers"],
+        "summary": "Cancel the circle (wearer, or an admin before a wearer has joined)",
+        "description": "Ends the circle for good: everyone leaves, open links, codes and handovers stop working, a running drill is cancelled and the pendants are released (their old box tokens are invalidated, so support issues new ones). Needs your OTP.",
+        "operationId": "cancel_circle_api_v1_circles__circle_id__cancel_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "circle_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Circle Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/CancelCircleIn"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "400": {
+            "description": "Bad request, e.g. `invalid_mobile_number`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your role cannot do this: `insufficient_role`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited, e.g. `otp_cooldown`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transfers/{transfer_id}/accept": {
+      "post": {
+        "tags": ["transfers"],
+        "summary": "Accept a caretaker seat",
+        "description": "You become an admin. (A wearer handover is accepted by consenting through its setup link instead.)",
+        "operationId": "accept_transfer_api_v1_transfers__transfer_id__accept_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "transfer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Transfer Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CircleOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The link is no longer usable: `invite_expired`, `invite_revoked`, `invite_used`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transfers/{transfer_id}/decline": {
+      "post": {
+        "tags": ["transfers"],
+        "summary": "Decline a caretaker seat",
+        "operationId": "decline_transfer_api_v1_transfers__transfer_id__decline_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "transfer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Transfer Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, e.g. `mobile_number_taken`, `invalid_circle_state`, `contact_limit_reached`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The link is no longer usable: `invite_expired`, `invite_revoked`, `invite_used`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transfers/{transfer_id}/cancel": {
+      "post": {
+        "tags": ["transfers"],
+        "summary": "Cancel a transfer",
+        "description": "The person who started it can withdraw it. The circle's wearer can cancel any pending transfer, including one an admin started (a veto). A wearer handover's setup link stops working with it.",
+        "operationId": "cancel_transfer_api_v1_transfers__transfer_id__cancel_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "transfer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Transfer Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found, or you are not a member: `circle_not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The link is no longer usable: `invite_expired`, `invite_revoked`, `invite_used`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/transfers": {
+      "get": {
+        "tags": ["transfers", "me"],
+        "summary": "Transfers I started, or that involve me",
+        "description": "Open ones only: handovers I started, a seat I am being handed, a seat I am being replaced from, or the pendant I wear.",
+        "operationId": "my_transfers_api_v1_me_transfers_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TransferOut"
+                  },
+                  "type": "array",
+                  "title": "Response My Transfers Api V1 Me Transfers Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated: `missing_token`, `invalid_token`, `session_revoked`, `invalid_otp`, ...",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/chat/": {
+      "post": {
+        "tags": ["chat"],
+        "summary": "Chat",
+        "description": "Text-in / text-out chat. Creates a session if none is provided.",
+        "operationId": "chat_api_v1_chat__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/stream": {
+      "post": {
+        "tags": ["chat"],
+        "summary": "Chat Stream",
+        "description": "Streaming chat — returns server-sent events so the frontend can\ndisplay tokens as they arrive (ChatGPT-style typing effect).",
+        "operationId": "chat_stream_api_v1_chat_stream_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "CancelCircleIn": {
+        "properties": {
+          "otp": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10,
+                "minLength": 4
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Otp",
+            "description": "Your OTP from `POST /me/step-up`"
+          }
+        },
+        "type": "object",
+        "title": "CancelCircleIn"
+      },
+      "CaretakerTransferIn": {
+        "properties": {
+          "to_user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "To User Id",
+            "description": "An active viewer of this circle (invite and approve them first if they are not a member)"
+          },
+          "from_user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From User Id",
+            "description": "The admin whose seat is handed over. An admin leaves this out (it is their own seat); the wearer must name the admin to replace."
+          },
+          "keep_as_viewer": {
+            "type": "boolean",
+            "title": "Keep As Viewer",
+            "description": "The old admin stays in the circle as a viewer instead of leaving",
+            "default": false
+          },
+          "otp": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10,
+                "minLength": 4
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Otp",
+            "description": "Your OTP from `POST /me/step-up`"
+          }
+        },
+        "type": "object",
+        "required": ["to_user_id"],
+        "title": "CaretakerTransferIn"
+      },
+      "ChatRequest": {
+        "properties": {
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": ["message"],
+        "title": "ChatRequest"
+      },
+      "ChatResponse": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "response": {
+            "type": "string",
+            "title": "Response"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": ["session_id", "response", "expires_at"],
+        "title": "ChatResponse"
+      },
+      "CircleCreateIn": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": ["wearer_first", "caretaker_led"],
+            "title": "Mode",
+            "description": "`wearer_first`: the wearer sets up their own pendant and consents here. `caretaker_led`: creates an empty draft the caretaker fills in (D1)."
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Wearer's name. Required for `wearer_first`",
+            "examples": ["Asha Rao"]
+          },
+          "date_of_birth": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Of Birth",
+            "description": "Wearer's date of birth (YYYY-MM-DD). Required for `wearer_first`; for `caretaker_led` it can be filled in later but must be set before the setup link is sent",
+            "examples": ["1952-03-14"]
+          },
+          "call_as": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Call As",
+            "description": "Optional; how the voice assistant addresses the wearer",
+            "examples": ["Amma"]
+          },
+          "languages": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Languages",
+            "examples": [["English", "Tamil"]]
+          },
+          "consent": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ConsentIn"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Required for `wearer_first` (the C1 checkbox)"
+          }
+        },
+        "type": "object",
+        "required": ["mode"],
+        "title": "CircleCreateIn"
+      },
+      "CircleOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CircleState"
+          },
+          "wearer_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wearer Name"
+          },
+          "wearer_date_of_birth": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wearer Date Of Birth"
+          },
+          "call_as": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Call As"
+          },
+          "languages": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Languages"
+          },
+          "wearer_mobile_masked": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wearer Mobile Masked",
+            "description": "The number the setup link is bound to, masked"
+          },
+          "protected_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Protected At",
+            "description": "Set when the first SOS drill passes"
+          },
+          "my_role": {
+            "$ref": "#/components/schemas/CircleRole"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "state",
+          "wearer_name",
+          "wearer_date_of_birth",
+          "call_as",
+          "languages",
+          "wearer_mobile_masked",
+          "protected_at",
+          "my_role",
+          "created_at"
+        ],
+        "title": "CircleOut"
+      },
+      "CirclePatchIn": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "date_of_birth": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Of Birth",
+            "description": "Wearer's date of birth (YYYY-MM-DD)",
+            "examples": ["1952-03-14"]
+          },
+          "call_as": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Call As"
+          },
+          "languages": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "maxItems": 10
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Languages"
+          },
+          "relationship": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relationship",
+            "description": "Your relationship to the wearer, e.g. Mother"
+          },
+          "wearer_country_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wearer Country Code",
+            "description": "Caretaker-led only; send with `wearer_mobile_number`",
+            "examples": ["+91"]
+          },
+          "wearer_mobile_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wearer Mobile Number",
+            "examples": ["9812303302"]
+          }
+        },
+        "type": "object",
+        "title": "CirclePatchIn",
+        "description": "Only the fields you send change."
+      },
+      "CircleRole": {
+        "type": "string",
+        "enum": ["wearer", "admin", "viewer"],
+        "title": "CircleRole"
+      },
+      "CircleState": {
+        "type": "string",
+        "enum": ["draft", "pending_consent", "pending_pairing", "active", "declined", "expired", "cancelled"],
+        "title": "CircleState"
+      },
+      "ClaimState": {
+        "type": "string",
+        "enum": ["unclaimed", "claimed_unverified", "claimed_verified"],
+        "title": "ClaimState"
+      },
+      "ConsentIn": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "The consent text version the wearer was shown",
+            "examples": ["2026-11-v1"]
+          }
+        },
+        "type": "object",
+        "required": ["version"],
+        "title": "ConsentIn"
+      },
+      "ContactIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name",
+            "examples": ["Ravi"]
+          },
+          "relationship": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relationship",
+            "examples": ["Son"]
+          },
+          "country_code": {
+            "type": "string",
+            "title": "Country Code",
+            "examples": ["+91"]
+          },
+          "mobile_number": {
+            "type": "string",
+            "title": "Mobile Number",
+            "examples": ["9912347821"]
+          }
+        },
+        "type": "object",
+        "required": ["name", "country_code", "mobile_number"],
+        "title": "ContactIn"
+      },
+      "ContactOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "relationship": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relationship"
+          },
+          "mobile_masked": {
+            "type": "string",
+            "title": "Mobile Masked"
+          },
+          "position": {
+            "type": "integer",
+            "title": "Position",
+            "description": "Alert order, 1-based"
+          }
+        },
+        "type": "object",
+        "required": ["id", "name", "relationship", "mobile_masked", "position"],
+        "title": "ContactOut"
+      },
+      "ContactPatchIn": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "relationship": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relationship"
+          },
+          "country_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country Code"
+          },
+          "mobile_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mobile Number"
+          }
+        },
+        "type": "object",
+        "title": "ContactPatchIn"
+      },
+      "DeviceClaimIn": {
+        "properties": {
+          "circle_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Circle Id"
+          },
+          "token": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 4,
+            "title": "Token",
+            "description": "From the QR code or the card inside the box. Case, dashes and spaces do not matter. In development and staging, while there are no real pendants, any code starting with `MOCK` (for example `MOCK-1`) claims a mock pendant created on the spot.",
+            "examples": ["SVRD-K7F2-QX9M-3HTC-V8WD-N4PA", "MOCK-1"]
+          }
+        },
+        "type": "object",
+        "required": ["circle_id", "token"],
+        "title": "DeviceClaimIn"
+      },
+      "DeviceOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "serial_no": {
+            "type": "string",
+            "title": "Serial No"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "claim_state": {
+            "$ref": "#/components/schemas/ClaimState"
+          },
+          "claimed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claimed At"
+          },
+          "verified_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verified At",
+            "description": "Set when the pendant was verified over Bluetooth on the wearer's phone"
+          },
+          "attestation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["signed_challenge", "press_only"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attestation"
+          },
+          "checks_passed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checks Passed At"
+          },
+          "last_seen_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Seen At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "serial_no",
+          "model",
+          "claim_state",
+          "claimed_at",
+          "verified_at",
+          "attestation",
+          "checks_passed_at",
+          "last_seen_at"
+        ],
+        "title": "DeviceOut"
+      },
+      "DisputeIn": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 4,
+            "title": "Token",
+            "description": "The box token, proving you hold the pendant's box"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": ["token"],
+        "title": "DisputeIn"
+      },
+      "DisputeOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "const": "open",
+            "title": "Status",
+            "default": "open"
+          }
+        },
+        "type": "object",
+        "required": ["id"],
+        "title": "DisputeOut"
+      },
+      "DrillOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "circle_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Circle Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["running", "passed", "expired", "cancelled"],
+            "title": "Status"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At",
+            "description": "Five minutes after the start"
+          },
+          "acknowledged_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acknowledged At"
+          },
+          "acknowledged_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acknowledged By",
+            "description": "The circle member who acknowledged it"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "circle_id",
+          "status",
+          "started_at",
+          "expires_at",
+          "acknowledged_at",
+          "acknowledged_by"
+        ],
+        "title": "DrillOut"
+      },
       "ErrorBody": {
         "properties": {
           "code": {
@@ -729,6 +5744,400 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "HomeCircle": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "wearer_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wearer Name"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CircleState"
+          },
+          "my_role": {
+            "$ref": "#/components/schemas/CircleRole"
+          },
+          "protected": {
+            "type": "boolean",
+            "title": "Protected"
+          },
+          "next_action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Action",
+            "description": "What this person should do next; null when nothing is needed"
+          },
+          "notices": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notices",
+            "description": "Messages for the wearer and admins that replace push in v0, e.g. `wearer_declined`"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/SetupStep"
+            },
+            "type": "array",
+            "title": "Steps"
+          },
+          "pending_transfers": {
+            "items": {
+              "$ref": "#/components/schemas/PendingTransfer"
+            },
+            "type": "array",
+            "title": "Pending Transfers",
+            "description": "Open caretaker or wearer handovers; the wearer can cancel any of them via `POST /transfers/{id}/cancel`"
+          },
+          "pending_members": {
+            "type": "integer",
+            "title": "Pending Members",
+            "description": "Wearer and admins only: people who redeemed an invite code and wait for approval",
+            "default": 0
+          },
+          "running_drill": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunningDrill"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A practice SOS waiting for an admin or viewer to acknowledge it"
+          }
+        },
+        "type": "object",
+        "required": ["id", "wearer_name", "state", "my_role", "protected", "next_action", "notices", "steps"],
+        "title": "HomeCircle"
+      },
+      "HomeOut": {
+        "properties": {
+          "circles": {
+            "items": {
+              "$ref": "#/components/schemas/HomeCircle"
+            },
+            "type": "array",
+            "title": "Circles",
+            "description": "Empty until the user starts setup"
+          }
+        },
+        "type": "object",
+        "required": ["circles"],
+        "title": "HomeOut"
+      },
+      "InstallationIn": {
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": ["android", "ios"],
+            "title": "Platform"
+          },
+          "push_token": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Push Token"
+          },
+          "app_version": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "App Version"
+          }
+        },
+        "type": "object",
+        "required": ["platform"],
+        "title": "InstallationIn"
+      },
+      "InstallationOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": ["id"],
+        "title": "InstallationOut"
+      },
+      "InviteRefIn": {
+        "properties": {
+          "token": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128,
+                "minLength": 16
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token"
+          },
+          "invite_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invite Id"
+          }
+        },
+        "type": "object",
+        "title": "InviteRefIn",
+        "description": "Identify the invite by its token, or by `invite_id` from `GET /me/pending-invites` when the token was lost."
+      },
+      "LookupOut": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["pending", "opened"],
+            "title": "Status"
+          },
+          "caretaker_first_name": {
+            "type": "string",
+            "title": "Caretaker First Name"
+          },
+          "wearer_mobile_masked": {
+            "type": "string",
+            "title": "Wearer Mobile Masked",
+            "description": "The number she must sign in with"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": ["status", "caretaker_first_name", "wearer_mobile_masked", "expires_at"],
+        "title": "LookupOut",
+        "description": "Everything an unauthenticated holder of the link may learn: no wearer name, nothing private."
+      },
+      "MemberInviteIn": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": ["admin", "viewer"],
+            "title": "Role",
+            "description": "What the person becomes once a wearer or admin approves them"
+          }
+        },
+        "type": "object",
+        "required": ["role"],
+        "title": "MemberInviteIn"
+      },
+      "MemberInviteItem": {
+        "properties": {
+          "invite_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Invite Id"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["admin", "viewer"],
+            "title": "Role"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": ["invite_id", "role", "expires_at"],
+        "title": "MemberInviteItem"
+      },
+      "MemberInviteOut": {
+        "properties": {
+          "invite_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Invite Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Shown only now; share it by message. Single use, valid 24 hours",
+            "examples": ["SVR-4F7K9X"]
+          },
+          "role": {
+            "type": "string",
+            "enum": ["admin", "viewer"],
+            "title": "Role"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": ["invite_id", "code", "role", "expires_at"],
+        "title": "MemberInviteOut"
+      },
+      "MemberOut": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "mobile_masked": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mobile Masked"
+          },
+          "role": {
+            "$ref": "#/components/schemas/CircleRole"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MemberStatus",
+            "description": "`pending_approval` rows are only returned to the wearer and admins"
+          },
+          "relationship": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relationship"
+          },
+          "joined_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joined At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "display_name",
+          "mobile_masked",
+          "role",
+          "status",
+          "relationship",
+          "joined_at"
+        ],
+        "title": "MemberOut"
+      },
+      "MemberRolePatchIn": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": ["admin", "viewer"],
+            "title": "Role"
+          },
+          "otp": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10,
+                "minLength": 4
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Otp",
+            "description": "Required to promote to admin or demote an admin"
+          }
+        },
+        "type": "object",
+        "required": ["role"],
+        "title": "MemberRolePatchIn"
+      },
+      "MemberStatus": {
+        "type": "string",
+        "enum": ["active", "pending_approval", "removed"],
+        "title": "MemberStatus"
+      },
+      "OtpIn": {
+        "properties": {
+          "otp": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10,
+                "minLength": 4
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Otp",
+            "description": "Required when the action grants or removes admin power"
+          }
+        },
+        "type": "object",
+        "title": "OtpIn",
+        "description": "For actions that need the actor's own OTP. Get one from `POST /me/step-up`."
+      },
       "OtpRequestIn": {
         "properties": {
           "country_code": {
@@ -771,6 +6180,126 @@
         "type": "object",
         "required": ["country_code", "mobile_number", "code"],
         "title": "OtpVerifyIn"
+      },
+      "PairingChallengeOut": {
+        "properties": {
+          "nonce": {
+            "type": "string",
+            "title": "Nonce",
+            "description": "base64url. Pass it to the pendant, which signs it with its per-unit key"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In",
+            "description": "Seconds; the challenge is single use"
+          },
+          "requires_signature": {
+            "type": "boolean",
+            "title": "Requires Signature",
+            "description": "False for units without a per-unit key (press-only verification)"
+          }
+        },
+        "type": "object",
+        "required": ["nonce", "expires_in", "requires_signature"],
+        "title": "PairingChallengeOut"
+      },
+      "PairingChecks": {
+        "properties": {
+          "touch": {
+            "type": "boolean",
+            "title": "Touch"
+          },
+          "speaker": {
+            "type": "boolean",
+            "title": "Speaker"
+          },
+          "mic": {
+            "type": "boolean",
+            "title": "Mic"
+          }
+        },
+        "type": "object",
+        "required": ["touch", "speaker", "mic"],
+        "title": "PairingChecks"
+      },
+      "PairingCompleteIn": {
+        "properties": {
+          "checks": {
+            "$ref": "#/components/schemas/PairingChecks"
+          }
+        },
+        "type": "object",
+        "required": ["checks"],
+        "title": "PairingCompleteIn"
+      },
+      "PairingVerifyIn": {
+        "properties": {
+          "signature": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signature",
+            "description": "base64url Ed25519 signature of the raw nonce bytes; required when `requires_signature`"
+          },
+          "installation_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Installation Id",
+            "description": "From `POST /me/installations`; records this phone as the gateway"
+          }
+        },
+        "type": "object",
+        "title": "PairingVerifyIn"
+      },
+      "PendingInviteOut": {
+        "properties": {
+          "invite_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Invite Id"
+          },
+          "caretaker_first_name": {
+            "type": "string",
+            "title": "Caretaker First Name"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": ["invite_id", "caretaker_first_name", "expires_at"],
+        "title": "PendingInviteOut"
+      },
+      "PendingTransfer": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind",
+            "description": "`caretaker` or `wearer`"
+          }
+        },
+        "type": "object",
+        "required": ["id", "kind"],
+        "title": "PendingTransfer"
       },
       "ProfileOut": {
         "properties": {
@@ -847,6 +6376,44 @@
         "enum": ["pending", "completed", "skipped"],
         "title": "ProfileStatus"
       },
+      "RedeemIn": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 4,
+            "title": "Code",
+            "description": "Case and dashes do not matter",
+            "examples": ["SVR-4F7K9X"]
+          }
+        },
+        "type": "object",
+        "required": ["code"],
+        "title": "RedeemIn"
+      },
+      "RedeemOut": {
+        "properties": {
+          "circle_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Circle Id"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["admin", "viewer"],
+            "title": "Role"
+          },
+          "status": {
+            "type": "string",
+            "const": "pending_approval",
+            "title": "Status",
+            "description": "Nothing is visible until a wearer or admin approves"
+          }
+        },
+        "type": "object",
+        "required": ["circle_id", "role", "status"],
+        "title": "RedeemOut"
+      },
       "RefreshIn": {
         "properties": {
           "refresh_token": {
@@ -857,6 +6424,312 @@
         "type": "object",
         "required": ["refresh_token"],
         "title": "RefreshIn"
+      },
+      "RunningDrill": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": ["id", "expires_at"],
+        "title": "RunningDrill"
+      },
+      "SetupConsentIn": {
+        "properties": {
+          "token": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128,
+                "minLength": 16
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token"
+          },
+          "invite_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invite Id"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "examples": ["2026-11-v1"]
+          },
+          "snapshot_hash": {
+            "type": "string",
+            "title": "Snapshot Hash",
+            "description": "From the last preview/draft response; consent is refused if the details changed since"
+          }
+        },
+        "type": "object",
+        "required": ["version", "snapshot_hash"],
+        "title": "SetupConsentIn"
+      },
+      "SetupDraftIn": {
+        "properties": {
+          "token": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128,
+                "minLength": 16
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token"
+          },
+          "invite_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invite Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "date_of_birth": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Of Birth",
+            "description": "Wearer's date of birth (YYYY-MM-DD)",
+            "examples": ["1952-03-14"]
+          },
+          "call_as": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Call As"
+          },
+          "languages": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "maxItems": 10
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Languages"
+          },
+          "contacts": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ContactIn"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contacts",
+            "description": "If sent, replaces the whole contact list (up to 5)"
+          }
+        },
+        "type": "object",
+        "title": "SetupDraftIn"
+      },
+      "SetupLinkOut": {
+        "properties": {
+          "invite_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Invite Id"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "Put this in the share sheet. It is shown only now and cannot be fetched again",
+            "examples": ["https://svaraa.ai/j/Xk3p9QwR..."]
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At",
+            "description": "When the link stops working (72 hours)"
+          }
+        },
+        "type": "object",
+        "required": ["invite_id", "url", "expires_at"],
+        "title": "SetupLinkOut"
+      },
+      "SetupPreviewOut": {
+        "properties": {
+          "invite_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Invite Id"
+          },
+          "circle_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Circle Id"
+          },
+          "caretaker_first_name": {
+            "type": "string",
+            "title": "Caretaker First Name"
+          },
+          "wearer_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wearer Name"
+          },
+          "wearer_date_of_birth": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wearer Date Of Birth"
+          },
+          "call_as": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Call As"
+          },
+          "languages": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Languages"
+          },
+          "contacts": {
+            "items": {
+              "$ref": "#/components/schemas/ContactOut"
+            },
+            "type": "array",
+            "title": "Contacts"
+          },
+          "caretaker_can_see": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Caretaker Can See"
+          },
+          "consent_version": {
+            "type": "string",
+            "title": "Consent Version"
+          },
+          "consent_text": {
+            "type": "string",
+            "title": "Consent Text"
+          },
+          "snapshot_hash": {
+            "type": "string",
+            "title": "Snapshot Hash"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invite_id",
+          "circle_id",
+          "caretaker_first_name",
+          "wearer_name",
+          "wearer_date_of_birth",
+          "call_as",
+          "languages",
+          "contacts",
+          "caretaker_can_see",
+          "consent_version",
+          "consent_text",
+          "snapshot_hash",
+          "expires_at"
+        ],
+        "title": "SetupPreviewOut"
+      },
+      "SetupStep": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key",
+            "examples": ["device_claimed"]
+          },
+          "done": {
+            "type": "boolean",
+            "title": "Done"
+          }
+        },
+        "type": "object",
+        "required": ["key", "done"],
+        "title": "SetupStep"
       },
       "SignInOut": {
         "properties": {
@@ -888,6 +6761,20 @@
         "required": ["access_token", "refresh_token", "user_id", "is_new"],
         "title": "SignInOut"
       },
+      "TokenIn": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 16,
+            "title": "Token",
+            "description": "The token from the link, `https://svaraa.ai/j/<token>`"
+          }
+        },
+        "type": "object",
+        "required": ["token"],
+        "title": "TokenIn"
+      },
       "TokenOut": {
         "properties": {
           "access_token": {
@@ -903,6 +6790,84 @@
         "type": "object",
         "required": ["access_token"],
         "title": "TokenOut"
+      },
+      "TransferOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "circle_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Circle Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": ["caretaker", "wearer"],
+            "title": "Kind"
+          },
+          "initiated_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Initiated By"
+          },
+          "from_user": {
+            "type": "string",
+            "format": "uuid",
+            "title": "From User",
+            "description": "The admin handing over (or being replaced), or the current wearer"
+          },
+          "to_user": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To User",
+            "description": "Caretaker transfers: the member taking the seat"
+          },
+          "to_mobile_masked": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To Mobile Masked",
+            "description": "Wearer transfers: the new wearer's number, masked"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "accepted", "declined", "expired", "cancelled"],
+            "title": "Status"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "circle_id",
+          "kind",
+          "initiated_by",
+          "from_user",
+          "to_user",
+          "to_mobile_masked",
+          "status",
+          "expires_at"
+        ],
+        "title": "TransferOut"
       },
       "ValidationError": {
         "properties": {
@@ -939,6 +6904,60 @@
         "type": "object",
         "required": ["loc", "msg", "type"],
         "title": "ValidationError"
+      },
+      "WearerTransferIn": {
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "title": "Country Code",
+            "examples": ["+91"]
+          },
+          "mobile_number": {
+            "type": "string",
+            "title": "Mobile Number",
+            "description": "The new wearer's number; the setup link works only for it",
+            "examples": ["9812303302"]
+          },
+          "otp": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10,
+                "minLength": 4
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Otp",
+            "description": "Your OTP from `POST /me/step-up`"
+          }
+        },
+        "type": "object",
+        "required": ["country_code", "mobile_number"],
+        "title": "WearerTransferIn"
+      },
+      "WearerTransferOut": {
+        "properties": {
+          "transfer_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Transfer Id"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "Share it with the new wearer. Shown only now. It works only for their number and lasts 72 hours"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": ["transfer_id", "url", "expires_at"],
+        "title": "WearerTransferOut"
       }
     },
     "securitySchemes": {
@@ -956,6 +6975,34 @@
     {
       "name": "users",
       "description": "The signed-in user's profile (name and photo)."
+    },
+    {
+      "name": "me",
+      "description": "Home (my circles and what to do next) and push registration."
+    },
+    {
+      "name": "circles",
+      "description": "Circles, emergency contacts and consent: wearer-first and caretaker-led setup."
+    },
+    {
+      "name": "devices",
+      "description": "Claim a pendant with its box code, pair it on the wearer's phone, release it."
+    },
+    {
+      "name": "setup-invites",
+      "description": "The caretaker-led setup link, from the wearer's side: look up, review, correct, agree or decline."
+    },
+    {
+      "name": "drills",
+      "description": "The practice SOS: the wearer starts it, an admin or viewer acknowledges it."
+    },
+    {
+      "name": "members",
+      "description": "Invite codes, the member list with approval, roles and removal."
+    },
+    {
+      "name": "transfers",
+      "description": "Hand over a caretaker seat or the wearer role, and cancel a circle. All need the actor's OTP."
     },
     {
       "name": "health",

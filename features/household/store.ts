@@ -1,12 +1,18 @@
 import { create } from 'zustand';
-import type { Role } from '@/services/household/householdApi';
+import {
+  findWornHousehold,
+  forgetHousehold,
+  onHouseholdKnown,
+  type Role,
+} from '@/services/household/householdApi';
 import { storage } from '@/services/storage';
-import { nextWearerRoute } from '@/features/wearer/steps';
+import { nextWearerRoute, WEARER_STEP } from '@/features/wearer/steps';
 
 /**
- * PENDING BACKEND: there is no household or setup-progress API yet. This store is a mock that keeps the
- * progress on this phone. When the API exists, replace it with a TanStack Query hook over services/;
- * the screens only use `setupStep`, `totalSteps` and `hasActiveDevice`.
+ * Setup progress, kept on this phone so setup resumes where the person left off. On load it is brought up to date
+ * from the server (GET /me/home, A4): a household set up on another phone, or before a web reload, is picked up.
+ * PENDING BACKEND: the server's setup checklist does not cover every app step (permissions, C4 checks), so the
+ * step number stays the phone's; the server can only move it forward.
  */
 
 /** Flow B to D has about 7 steps (role, permissions, box, basics, contacts, link, pairing). Not final. */
@@ -69,6 +75,7 @@ export const useHousehold = create<SetupState>((set, get) => ({
   notificationsDone: false,
 
   load: async (userId) => {
+    forgetHousehold();
     let saved: Saved | null = null;
     try {
       const raw = await storage.get(key(userId));
@@ -84,6 +91,7 @@ export const useHousehold = create<SetupState>((set, get) => ({
       householdId: saved?.householdId,
       notificationsDone: saved?.notificationsDone ?? false,
     });
+    await syncWithServer(userId);
   },
 
   chooseRole: async (role, householdId) => {
@@ -124,7 +132,8 @@ export const useHousehold = create<SetupState>((set, get) => ({
     await persist(get());
   },
 
-  unload: () =>
+  unload: () => {
+    forgetHousehold();
     set({
       userId: undefined,
       setupStep: 0,
@@ -132,8 +141,46 @@ export const useHousehold = create<SetupState>((set, get) => ({
       role: undefined,
       householdId: undefined,
       notificationsDone: false,
-    }),
+    });
+  },
 }));
+
+// Once the server has the household (C1 created it, or GET /me/home named it), keep its real id instead of the
+// placeholder B1 saved, so it is still there after a reload.
+onHouseholdKnown((id) => {
+  const s = useHousehold.getState();
+  if (!s.userId || s.householdId === id) return;
+  useHousehold.setState({ role: 'wearer', householdId: id });
+  void persist(useHousehold.getState());
+});
+
+/**
+ * A4: take the household this person wears from the server, if there is one, and move the progress forward to
+ * match it: the household exists (C1 done), it is active (pendant verified and a contact saved), or protected
+ * (an SOS drill passed). Offline or signed out: keep what the phone has.
+ */
+async function syncWithServer(userId: string) {
+  let worn: Awaited<ReturnType<typeof findWornHousehold>>;
+  try {
+    worn = await findWornHousehold();
+  } catch {
+    return;
+  }
+  const s = useHousehold.getState();
+  if (!worn || s.userId !== userId) return;
+  if (worn.protected) {
+    useHousehold.setState({ role: 'wearer', householdId: worn.id });
+    await s.activate();
+    return;
+  }
+  const step = worn.state === 'active' ? WEARER_STEP.contacts : WEARER_STEP.about;
+  useHousehold.setState((x) => ({
+    role: 'wearer',
+    householdId: worn.id,
+    setupStep: Math.min(Math.max(x.setupStep, step), x.totalSteps),
+  }));
+  await persist(useHousehold.getState());
+}
 
 /**
  * Where the setup card sends the person: the first step they have not finished.

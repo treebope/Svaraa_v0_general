@@ -1,17 +1,8 @@
-import type {
-  ConsentIn,
-  DeviceOut,
-  HouseholdOut,
-  PushTokenIn,
-  Role,
-  ContactIn,
-  DrillOut,
-  InviteOut,
-  WearerProfileIn,
-} from '@/services/api/pending';
+import type { DeviceOut, HouseholdOut } from '@/services/api/pending';
 import type { components } from '@/services/api/schema';
 
-type Profile = components['schemas']['ProfileOut'];
+type S = components['schemas'];
+type Profile = S['ProfileOut'];
 export type MockUser = Profile & { key: string; mobile?: string };
 
 /** Seconds a number must wait before another code can be requested. Same as the real backend. */
@@ -26,24 +17,32 @@ type Db = {
   /** refresh token -> { user id, revoked } */
   refresh: Map<string, { userId: string; revoked: boolean }>;
   otpAskedAt: Map<string, number>;
-  /** PENDING BACKEND: user id -> household (one per user for now). */
+  /** User id -> the household they wear (one per user, like the real backend). */
   households: Map<string, HouseholdOut>;
-  /** PENDING BACKEND: user id -> saved push tokens. */
-  pushTokens: Map<string, PushTokenIn[]>;
-  /** PENDING BACKEND: household id -> what setup saved for it. */
+  /** User id -> saved app installations (push tokens). */
+  pushTokens: Map<string, S['InstallationIn'][]>;
+  /** Household id -> what setup saved for it. */
   setup: Map<string, HouseholdSetup>;
-  /** PENDING BACKEND: claim code -> device, for every code anyone claimed. */
-  claimed: Map<string, DeviceOut & { householdId: string }>;
+  /** Claim code -> pendant, for every code anyone claimed. */
+  claimed: Map<string, MockDevice>;
 };
+
+/** A claimed pendant, in the real API's shape plus the household that holds it. */
+export type MockDevice = S['DeviceOut'] & { householdId: string };
+/** An emergency contact as the mock keeps it: what was sent, plus its id. */
+export type MockContact = S['ContactIn'] & { id: string };
 
 /** What the mock backend keeps per household during setup. */
 export type HouseholdSetup = {
-  wearer?: WearerProfileIn;
-  consents: (ConsentIn & { given_at: string })[];
-  contacts: ContactIn[];
-  /** Open invites; creating a new one cancels the others. */
-  invites: InviteOut[];
-  drills: DrillOut[];
+  state: S['CircleState'];
+  createdAt: string;
+  wearer?: { name: string; date_of_birth: string; call_as: string | null; languages: string[] };
+  consents: { version: string; given_at: string }[];
+  /** In alert order. */
+  contacts: MockContact[];
+  /** Open invites, newest last. */
+  invites: S['MemberInviteOut'][];
+  drills: S['DrillOut'][];
 };
 
 const fresh = (): Db => ({
@@ -175,19 +174,32 @@ export function mobileTakenBy(number: string, userId: string): boolean {
   return [...db.users.values()].some((u) => u.mobile === number && u.id !== userId);
 }
 
-/** PENDING BACKEND: the user's household. Asking again returns the same one (the role is not changed). */
-export function createHouseholdFor(userId: string, role: Role): HouseholdOut {
-  const found = db.households.get(userId);
-  if (found) return found;
-  const created: HouseholdOut = { id: uuid(++db.counter), role };
+/** C1: create the household this user wears (POST /circles, `wearer_first`). Undefined if they already wear one. */
+export function createHouseholdFor(
+  userId: string,
+  wearer: NonNullable<HouseholdSetup['wearer']>,
+  version: string,
+): HouseholdOut | undefined {
+  if (db.households.has(userId)) return undefined;
+  const created: HouseholdOut = { id: uuid(++db.counter), role: 'wearer' };
   db.households.set(userId, created);
+  const now = new Date().toISOString();
+  db.setup.set(created.id, {
+    state: 'pending_pairing',
+    createdAt: now,
+    wearer,
+    consents: [{ version, given_at: now }],
+    contacts: [],
+    invites: [],
+    drills: [],
+  });
   return created;
 }
 
-/** PENDING BACKEND: remember a push token for this user (the same token is kept once). */
-export function savePushTokenFor(userId: string, entry: PushTokenIn): void {
+/** Remember an app installation (push token) for this user; the same token is kept once. */
+export function savePushTokenFor(userId: string, entry: S['InstallationIn']): void {
   const list = db.pushTokens.get(userId) ?? [];
-  if (!list.some((t) => t.token === entry.token)) list.push(entry);
+  if (!list.some((t) => t.push_token === entry.push_token)) list.push(entry);
   db.pushTokens.set(userId, list);
 }
 
@@ -195,52 +207,93 @@ export function savePushTokenFor(userId: string, entry: PushTokenIn): void {
 export const mockHouseholdOf = (userId: string) => db.households.get(userId);
 export const mockPushTokensOf = (userId: string) => db.pushTokens.get(userId) ?? [];
 
-/** PENDING BACKEND: the household with this id, if this user belongs to it. */
+/** The household with this id, if this user wears it. */
 export function householdOf(userId: string, householdId: string): HouseholdOut | undefined {
   const h = db.households.get(userId);
   return h?.id === householdId ? h : undefined;
 }
 
-/** PENDING BACKEND: the setup record of a household (created empty on first use). */
-export function setupOf(householdId: string): HouseholdSetup {
-  let s = db.setup.get(householdId);
-  if (!s) {
-    s = { consents: [], contacts: [], invites: [], drills: [] };
-    db.setup.set(householdId, s);
-  }
-  return s;
+/** The setup record of a household (only households created through POST /circles have one). */
+export const setupOf = (householdId: string): HouseholdSetup | undefined => db.setup.get(householdId);
+
+/** The household as GET/PATCH /circles answer it. */
+export function circleOut(householdId: string): S['CircleOut'] {
+  const s = db.setup.get(householdId);
+  const passed = s?.drills.find((d) => d.status === 'passed');
+  return {
+    id: householdId,
+    state: s?.state ?? 'draft',
+    wearer_name: s?.wearer?.name ?? null,
+    wearer_date_of_birth: s?.wearer?.date_of_birth ?? null,
+    call_as: s?.wearer?.call_as ?? null,
+    languages: s?.wearer?.languages ?? [],
+    wearer_mobile_masked: null,
+    protected_at: passed?.acknowledged_at ?? null,
+    my_role: 'wearer',
+    created_at: s?.createdAt ?? new Date().toISOString(),
+  };
 }
 
-const withoutHousehold = ({ householdId: _h, ...d }: DeviceOut & { householdId: string }): DeviceOut => d;
+/** Active once a verified pendant and a contact exist (back to pending_pairing without them), like the server. */
+export function updateState(householdId: string): void {
+  const s = db.setup.get(householdId);
+  if (!s) return;
+  const verified = [...db.claimed.values()].some(
+    (d) => d.householdId === householdId && d.claim_state === 'claimed_verified',
+  );
+  s.state = verified && s.contacts.length > 0 ? 'active' : 'pending_pairing';
+}
 
-/** PENDING BACKEND: claim the device behind a box code for this household. Claiming twice returns the same device. */
-export function claimDevice(householdId: string, code: string): DeviceOut | 'device_already_claimed' {
+const withoutHousehold = ({ householdId: _h, ...d }: MockDevice): S['DeviceOut'] => d;
+
+/** Claim the pendant behind a box code for this household. Claiming twice returns the same pendant. */
+export function claimDevice(householdId: string, code: string): S['DeviceOut'] | 'device_already_claimed' {
   const found = db.claimed.get(code);
   if (found) return found.householdId === householdId ? withoutHousehold(found) : 'device_already_claimed';
-  const device: DeviceOut = {
+  const device: MockDevice = {
     id: uuid(++db.counter),
-    serial: code.split('-')[1] ?? '0000',
-    claim_state: 'unverified',
-    is_owner: true,
+    serial_no: code.split('-')[1] ?? '0000',
+    model: 'svaraa-fold',
+    claim_state: 'claimed_unverified',
+    claimed_at: new Date().toISOString(),
+    verified_at: null,
+    attestation: null,
+    checks_passed_at: null,
+    last_seen_at: null,
+    householdId,
   };
-  db.claimed.set(code, { ...device, householdId });
-  return device;
+  db.claimed.set(code, device);
+  return withoutHousehold(device);
 }
 
-/** For tests: the setup record and devices the mock backend holds for this household. */
-export const mockSetupOf = (householdId: string) => db.setup.get(householdId);
-export const mockDevicesOf = (householdId: string) =>
-  [...db.claimed.values()].filter((d) => d.householdId === householdId).map(withoutHousehold);
+/** The pendant as the API answers it. */
+export const deviceOut = (d: MockDevice): S['DeviceOut'] => withoutHousehold(d);
 
-/** PENDING BACKEND: a device of this household, by id. */
-export function deviceOf(
-  householdId: string,
-  deviceId: string,
-): (DeviceOut & { householdId: string }) | undefined {
-  return [...db.claimed.values()].find((d) => d.householdId === householdId && d.id === deviceId);
+/** For tests: the setup record (contacts without their ids) of this household. */
+export function mockSetupOf(householdId: string) {
+  const s = db.setup.get(householdId);
+  return s && { ...s, contacts: s.contacts.map(({ id: _id, ...c }) => c) };
 }
 
-/** PENDING BACKEND: a new invite code such as "SVR-4F7K" (no 0/O or 1/I, to read out easily). */
+/** For tests: the pendants of this household, in the app's shape. */
+export const mockDevicesOf = (householdId: string): DeviceOut[] =>
+  [...db.claimed.values()]
+    .filter((d) => d.householdId === householdId)
+    .map((d) => ({
+      id: d.id,
+      serial: d.serial_no,
+      claim_state: d.claim_state === 'claimed_verified' ? 'verified' : 'unverified',
+      is_owner: true,
+    }));
+
+/** A pendant by id, with the household that holds it. */
+export const deviceById = (deviceId: string): MockDevice | undefined =>
+  [...db.claimed.values()].find((d) => d.id === deviceId);
+
+/** A new id for a contact or invite. */
+export const newId = () => uuid(++db.counter);
+
+/** A new invite code such as "SVR-4F7K" (no 0/O or 1/I, to read out easily). */
 export function newInviteCode(): string {
   const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const n = ++db.counter;
@@ -250,29 +303,35 @@ export function newInviteCode(): string {
 /** Mock timing for the SOS drill. The first contact "answers" after `ackMs`. Tests change these. */
 export const mockDrillTiming = { ackMs: 6000, timeoutMs: 5 * 60_000 };
 
-/** PENDING BACKEND: start a drill for this household. */
-export function startDrillFor(householdId: string, now = Date.now()): DrillOut {
-  const drill: DrillOut = {
-    id: uuid(++db.counter),
-    status: 'waiting',
-    started_at: new Date(now).toISOString(),
-    expires_at: new Date(now + mockDrillTiming.timeoutMs).toISOString(),
-    acknowledged_by: null,
-  };
-  setupOf(householdId).drills.push(drill);
-  return drill;
-}
-
-/** PENDING BACKEND: a drill as it stands now. With no contacts nobody can answer, so it runs out. */
-export function drillNow(householdId: string, drillId: string, now = Date.now()): DrillOut | undefined {
-  const s = setupOf(householdId);
-  const d = s.drills.find((x) => x.id === drillId);
-  if (!d || d.status !== 'waiting') return d;
-  const started = Date.parse(d.started_at);
+/** A drill as it stands now. With no contacts nobody can answer, so it runs out. */
+export function drillNow(householdId: string, drillId: string, now = Date.now()): S['DrillOut'] | undefined {
+  const s = db.setup.get(householdId);
+  const d = s?.drills.find((x) => x.id === drillId);
+  if (!s || !d || d.status !== 'running') return d;
   const first = s.contacts[0];
-  if (first && now - started >= mockDrillTiming.ackMs) {
+  if (first && now - Date.parse(d.started_at) >= mockDrillTiming.ackMs) {
     d.status = 'passed';
     d.acknowledged_by = first.name;
+    d.acknowledged_at = new Date(now).toISOString();
   } else if (now >= Date.parse(d.expires_at)) d.status = 'expired';
   return d;
+}
+
+/** Start a drill for this household, or return the one still running. */
+export function startDrillFor(householdId: string, now = Date.now()): S['DrillOut'] | undefined {
+  const s = db.setup.get(householdId);
+  if (!s) return undefined;
+  const running = s.drills.find((d) => drillNow(householdId, d.id, now)?.status === 'running');
+  if (running) return running;
+  const drill: S['DrillOut'] = {
+    id: uuid(++db.counter),
+    circle_id: householdId,
+    status: 'running',
+    started_at: new Date(now).toISOString(),
+    expires_at: new Date(now + mockDrillTiming.timeoutMs).toISOString(),
+    acknowledged_at: null,
+    acknowledged_by: null,
+  };
+  s.drills.push(drill);
+  return drill;
 }

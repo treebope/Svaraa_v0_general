@@ -1,11 +1,14 @@
 /**
- * PENDING BACKEND: endpoints the app needs that are not in docs/openapi.json yet.
- * Written by hand in the same shape as schema.d.ts, so the client stays typed.
- * When an endpoint reaches the real API: run `npm run api:generate`, then delete it here.
+ * Two kinds of hand-written types:
+ * 1. The app's own shapes for household setup (role, wearer profile, pendant, contacts, invite, drill). The screens
+ *    use these; services/household maps them to and from the real API (/circles, /devices, /me), so the screens did
+ *    not change when setup moved to the real backend.
+ * 2. PENDING BACKEND: endpoints the app needs that the live server does not have yet (PendingPaths below), written
+ *    in the same shape as schema.d.ts so the client stays typed. When one reaches the server: run
+ *    `npm run api:generate`, then delete it here.
  */
 type Json<T> = { 'application/json': T };
 type NoHeaders = { [name: string]: unknown };
-type NoParams = { query?: never; header?: never; path?: never; cookie?: never };
 
 export type Role = 'wearer' | 'caregiver';
 export type HouseholdCreateIn = { role: Role };
@@ -81,17 +84,8 @@ export type ChatIn = { session_id?: string | null; message: string };
 /** The server starts a new session (new id) when the old one expired: idle for 4 hours, or a server restart. */
 export type ChatOut = { session_id: string; response: string; expires_at: string };
 
-type Operation<In, Out, Status extends number> = {
-  parameters: NoParams;
-  requestBody: { content: Json<In> };
-  responses: Record<Status, { headers: NoHeaders; content: Out extends void ? never : Json<Out> }>;
-};
-
-/** Path parameters such as `{ household_id: string }`. */
+/** Path parameters such as `{ region: string }`. */
 type WithPath<P> = { query?: never; header?: never; path: P; cookie?: never };
-type HouseholdPath = { household_id: string };
-type DevicePath = { household_id: string; device_id: string };
-type DrillPath = { household_id: string; drill_id: string };
 type NewsPath = { region: NewsRegion };
 type Empty = { headers: NoHeaders; content?: never };
 /** An operation on a path with parameters. `In = void` means no body; `Out = void` means 204 No Content. */
@@ -116,79 +110,5 @@ type PathItem<P, Ops extends Partial<Record<keyof NoMethods, unknown>>> = { para
   Ops;
 
 export type PendingPaths = {
-  '/api/v1/households': {
-    parameters: NoParams;
-    get?: never;
-    put?: never;
-    post: Operation<HouseholdCreateIn, HouseholdOut, 200>;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  /** Text chat. On the live server, not yet in docs/openapi.json (that file holds auth and users only). */
-  '/api/v1/chat/': {
-    parameters: NoParams;
-    get?: never;
-    put?: never;
-    post: Operation<ChatIn, ChatOut, 200>;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/devices/push-token': {
-    parameters: NoParams;
-    get?: never;
-    put?: never;
-    post: {
-      parameters: NoParams;
-      requestBody: { content: Json<PushTokenIn> };
-      responses: { 204: { headers: NoHeaders; content?: never } };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/households/{household_id}/wearer': PathItem<
-    HouseholdPath,
-    { patch: PathOperation<HouseholdPath, WearerProfileIn, WearerProfileOut> }
-  >;
-  '/api/v1/households/{household_id}/consent': PathItem<
-    HouseholdPath,
-    { post: PathOperation<HouseholdPath, ConsentIn, void> }
-  >;
-  '/api/v1/households/{household_id}/claim': PathItem<
-    HouseholdPath,
-    { post: PathOperation<HouseholdPath, ClaimIn, DeviceOut> }
-  >;
-  '/api/v1/households/{household_id}/contacts': PathItem<
-    HouseholdPath,
-    { put: PathOperation<HouseholdPath, ContactsIn, ContactsOut> }
-  >;
-  '/api/v1/households/{household_id}/invites': PathItem<
-    HouseholdPath,
-    { post: PathOperation<HouseholdPath, InviteIn, InviteOut> }
-  >;
   '/api/v1/news/{region}': PathItem<NewsPath, { get: PathOperation<NewsPath, void, NewsOut> }>;
-  '/api/v1/households/{household_id}/drills': PathItem<
-    HouseholdPath,
-    { post: PathOperation<HouseholdPath, void, DrillOut> }
-  >;
-  '/api/v1/households/{household_id}/drills/{drill_id}': PathItem<
-    DrillPath,
-    { get: PathOperation<DrillPath, void, DrillOut> }
-  >;
-  '/api/v1/households/{household_id}/devices/{device_id}/challenge': PathItem<
-    DevicePath,
-    { post: PathOperation<DevicePath, void, ChallengeOut> }
-  >;
-  '/api/v1/households/{household_id}/devices/{device_id}/activate': PathItem<
-    DevicePath,
-    { post: PathOperation<DevicePath, ActivateIn, DeviceOut> }
-  >;
 };

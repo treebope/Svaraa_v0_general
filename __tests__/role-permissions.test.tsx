@@ -11,10 +11,10 @@ import { nextSetupRoute, useHousehold } from '@/features/household/store';
 import { useSettings } from '@/features/settings/store';
 import { verifyOtpAndSignIn } from '@/services/auth/authApi';
 import { useSession } from '@/services/auth/session';
-import { createHousehold } from '@/services/household/householdApi';
+import { createHousehold, DRAFT_HOUSEHOLD_ID } from '@/services/household/householdApi';
 import { mockHouseholdOf, mockPushTokensOf } from '@/services/mocks/db';
 import { DEMO_CODE } from '@/services/mocks/routes';
-import { calls, INDIA, useMockBackend } from '@/test-utils/backend';
+import { calls, createWearerHousehold, INDIA, useMockBackend } from '@/test-utils/backend';
 import { renderApp } from '@/test-utils/render';
 
 const mockReplace = jest.fn();
@@ -60,22 +60,26 @@ describe('area switches (config/flags.ts)', () => {
   });
   it('switch one area to the real backend and leave the others mocked', () => {
     flags.household = 'real';
-    expect(isMocked('POST', '/api/v1/households')).toBe(false);
-    expect(isMocked('POST', '/api/v1/devices/push-token')).toBe(true);
+    expect(isMocked('POST', '/api/v1/circles')).toBe(false);
+    expect(isMocked('POST', '/api/v1/devices/claim')).toBe(false);
+    expect(isMocked('GET', '/api/v1/me/home')).toBe(false);
+    expect(isMocked('POST', '/api/v1/me/installations')).toBe(true);
     expect(isMocked('POST', '/api/v1/auth/otp/request')).toBe(true);
   });
 });
 
-describe('household service (mock, pending backend)', () => {
-  it('creates a household with the role, and returns the same one when asked again', async () => {
-    const first = await createHousehold('caregiver');
-    expect(first.role).toBe('caregiver');
-    expect(mockHouseholdOf(userId())).toEqual(first);
-    expect(await createHousehold('caregiver')).toEqual(first);
+describe('household service', () => {
+  it('B1 starts with a placeholder: the server creates the household at C1', async () => {
+    expect(await createHousehold('wearer')).toEqual({ id: DRAFT_HOUSEHOLD_ID, role: 'wearer' });
+    expect(mockHouseholdOf(userId())).toBeUndefined();
   });
-  it('needs a signed-in person', async () => {
+  it('continues with the household the server already has for this person', async () => {
+    const id = await createWearerHousehold();
+    expect(await createHousehold('wearer')).toEqual({ id, role: 'wearer' });
+  });
+  it('B1 goes on even when the server cannot say whether a household exists', async () => {
     await useSession.getState().clear();
-    await expect(createHousehold('wearer')).rejects.toMatchObject({ code: 'missing_token' });
+    expect(await createHousehold('wearer')).toEqual({ id: DRAFT_HOUSEHOLD_ID, role: 'wearer' });
   });
 });
 
@@ -84,7 +88,7 @@ describe('B1 · Who are you?', () => {
     await renderApp(<RoleChoice />);
     await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
     expect(mockReplace).not.toHaveBeenCalled();
-    expect(calls('/api/v1/households')).toBe(0);
+    expect(calls('/api/v1/circles')).toBe(0);
   });
 
   it('has no caregiver option: only wearer and not sure', async () => {
@@ -93,11 +97,12 @@ describe('B1 · Who are you?', () => {
     expect(screen.getAllByRole('radio')).toHaveLength(2);
   });
 
-  it('wearer: creates the household and hands off to the wearer placeholder (B2)', async () => {
+  it('wearer: starts setup (the household is created at C1) and goes on to B2', async () => {
     await renderApp(<RoleChoice />);
     await fireEvent.press(screen.getByRole('radio', { name: /I'll wear Svaraa/ }));
     await act(async () => await fireEvent.press(screen.getByRole('button', { name: 'Continue' })));
-    expect(mockHouseholdOf(userId())?.role).toBe('wearer');
+    expect(useHousehold.getState()).toMatchObject({ role: 'wearer', householdId: DRAFT_HOUSEHOLD_ID });
+    expect(calls('/api/v1/circles')).toBe(0);
     expect(mockReplace).toHaveBeenCalledWith('/wearer/permissions');
   });
 
@@ -105,19 +110,18 @@ describe('B1 · Who are you?', () => {
     await renderApp(<RoleChoice />);
     await fireEvent.press(screen.getByRole('radio', { name: /Not sure yet/ }));
     await act(async () => await fireEvent.press(screen.getByRole('button', { name: 'Continue' })));
-    expect(calls('/api/v1/households')).toBe(0);
+    expect(calls('/api/v1/circles')).toBe(0);
     expect(useHousehold.getState()).toMatchObject({ role: undefined, setupStep: 0 });
     expect(mockReplace).toHaveBeenCalledWith('/home');
   });
 
-  it('shows our own message when saving fails, and does not save the role', async () => {
-    await useSession.getState().clear(); // no token: the mock answers missing_token
+  it('saves nothing on the server, so it goes on even when the server cannot be reached', async () => {
+    await useSession.getState().clear(); // no token: GET /me/home answers missing_token
     await renderApp(<RoleChoice />);
     await fireEvent.press(screen.getByRole('radio', { name: /I'll wear Svaraa/ }));
     await act(async () => await fireEvent.press(screen.getByRole('button', { name: 'Continue' })));
-    expect(await screen.findByRole('alert')).toBeTruthy();
-    expect(useHousehold.getState().role).toBeUndefined();
-    expect(mockReplace).not.toHaveBeenCalled();
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(mockReplace).toHaveBeenCalledWith('/wearer/permissions');
   });
 
   it('works in Hindi and in the wearer theme', async () => {

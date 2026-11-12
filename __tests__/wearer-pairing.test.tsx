@@ -8,7 +8,6 @@ import { useSettings } from '@/features/settings/store';
 import { useWearer } from '@/features/wearer/store';
 import { verifyOtpAndSignIn } from '@/services/auth/authApi';
 import { useSession } from '@/services/auth/session';
-import { createHousehold } from '@/services/household/householdApi';
 import { claimPendant } from '@/services/household/wearerApi';
 import { mockDevicesOf } from '@/services/mocks/db';
 import { DEMO_CLAIM_CODE, DEMO_CODE } from '@/services/mocks/routes';
@@ -19,7 +18,7 @@ import {
   SimulatorTransport,
   simulatorTiming,
 } from '@/services/pendant';
-import { INDIA, useMockBackend } from '@/test-utils/backend';
+import { createWearerHousehold, INDIA, useMockBackend } from '@/test-utils/backend';
 import { renderApp } from '@/test-utils/render';
 
 const mockReplace = jest.fn();
@@ -41,7 +40,7 @@ beforeEach(async () => {
   const userId = useSession.getState().userId as string;
   await useHousehold.getState().load(userId);
   await useWearer.getState().load(userId);
-  householdId = (await createHousehold('wearer')).id;
+  householdId = await createWearerHousehold();
   await useHousehold.getState().chooseRole('wearer', householdId);
   await useWearer.getState().save({ device: await claimPendant(householdId, DEMO_CLAIM_CODE) });
 });

@@ -76,10 +76,10 @@ describe('SimulatorTransport', () => {
 
 describe('mock path parameters', () => {
   it('match one segment per {name}', () => {
-    expect(matchPath('/api/v1/households/{household_id}/claim', '/api/v1/households/h1/claim')).toEqual({
-      household_id: 'h1',
+    expect(matchPath('/api/v1/circles/{circle_id}/contacts', '/api/v1/circles/h1/contacts')).toEqual({
+      circle_id: 'h1',
     });
-    expect(matchPath('/api/v1/households/{household_id}/claim', '/api/v1/households/claim')).toBeUndefined();
+    expect(matchPath('/api/v1/circles/{circle_id}/contacts', '/api/v1/circles/contacts')).toBeUndefined();
     expect(matchPath('/api/v1/users/me', '/api/v1/users/me')).toEqual({});
   });
 });

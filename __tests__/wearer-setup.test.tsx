@@ -11,10 +11,10 @@ import { verifyOtpAndSignIn } from '@/services/auth/authApi';
 import { useSession } from '@/services/auth/session';
 import { createHousehold } from '@/services/household/householdApi';
 import { CONSENT_VERSION } from '@/services/household/wearerApi';
-import { mockDevicesOf, mockSetupOf } from '@/services/mocks/db';
+import { mockDevicesOf, mockHouseholdOf, mockSetupOf } from '@/services/mocks/db';
 import { DEMO_CLAIM_CODE, DEMO_CODE } from '@/services/mocks/routes';
 import * as perms from '@/services/permissions/wearerPermissions';
-import { calls, INDIA, useMockBackend } from '@/test-utils/backend';
+import { calls, createWearerHousehold, INDIA, useMockBackend } from '@/test-utils/backend';
 import { renderApp } from '@/test-utils/render';
 
 const mockReplace = jest.fn();
@@ -102,7 +102,7 @@ describe('B2 · Permissions for wearers', () => {
       'location',
       'notifications',
     ]);
-    expect(calls('/api/v1/devices/push-token')).toBe(1);
+    expect(calls('/api/v1/me/installations')).toBe(1);
     expect(useHousehold.getState().setupStep).toBe(2);
     expect(mockReplace).toHaveBeenCalledWith('/wearer/about');
   });
@@ -168,16 +168,19 @@ describe('C1 · About you + consent', () => {
     await fireEvent.press(screen.getByRole('checkbox', { name: /pacemaker/ }));
     await fireEvent.press(screen.getByRole('checkbox', { name: /I agree/ }));
     await act(async () => await fireEvent.press(screen.getByRole('button', { name: 'Continue' })));
-    const saved = mockSetupOf(householdId);
-    expect(saved?.wearer).toMatchObject({
+    // The server created the household now, with the consent (POST /circles, wearer_first).
+    const created = mockHouseholdOf(useSession.getState().userId as string);
+    const saved = mockSetupOf(created?.id ?? '');
+    expect(useHousehold.getState().householdId).toBe(created?.id);
+    expect(saved?.wearer).toEqual({
       name: 'Asha Rao',
       date_of_birth: '1950-07-05',
       call_as: 'Amma',
       languages: ['en', 'ta'],
-      pacemaker: true,
     });
-    expect(saved?.consents).toEqual([expect.objectContaining({ version: CONSENT_VERSION, via: 'app' })]);
-    expect(useWearer.getState().profile?.name).toBe('Asha Rao');
+    expect(saved?.consents[0]).toMatchObject({ version: CONSENT_VERSION });
+    // Pacemaker and health notes are not on the server yet: they stay on the phone.
+    expect(useWearer.getState().profile).toMatchObject({ name: 'Asha Rao', pacemaker: true });
     expect(useHousehold.getState().setupStep).toBe(3);
     expect(mockPush).toHaveBeenCalledWith('/wearer/claim');
   });
@@ -199,6 +202,11 @@ describe('claim code', () => {
 });
 
 describe('C2 · Claim your pendant', () => {
+  beforeEach(async () => {
+    householdId = await createWearerHousehold();
+    await useHousehold.getState().chooseRole('wearer', householdId);
+  });
+
   const typeCode = async (code: string) => {
     await fireEvent.press(screen.getByRole('button', { name: 'Enter code instead' }));
     await fireEvent.changeText(screen.getByLabelText('Code from the card'), code);
@@ -234,6 +242,6 @@ describe('C2 · Claim your pendant', () => {
     await renderApp(<ClaimPendant />);
     await typeCode('1234');
     expect(screen.getByText(/That code is not right/)).toBeTruthy();
-    expect(calls(`/api/v1/households/${householdId}/claim`)).toBe(0);
+    expect(calls('/api/v1/devices/claim')).toBe(0);
   });
 });

@@ -1,27 +1,18 @@
 import i18n from '@/i18n';
-import type {
-  ActivateIn,
-  ChatIn,
-  ChatOut,
-  ClaimIn,
-  ConsentIn,
-  ContactsIn,
-  DrillOut,
-  HouseholdCreateIn,
-  InviteIn,
-  InviteOut,
-  PushTokenIn,
-  WearerProfileIn,
-} from '@/services/api/pending';
+import type { ChatIn, ChatOut } from '@/services/api/pending';
 import type { components } from '@/services/api/schema';
 import { NEWS_REGIONS, sampleNews } from './news';
 import {
   authenticate,
+  circleOut,
   claimDevice,
   createHouseholdFor,
-  deviceOf,
+  deviceById,
+  deviceOut,
   drillNow,
   householdOf,
+  mockHouseholdOf,
+  newId,
   newInviteCode,
   findOrCreateUser,
   mobileTakenBy,
@@ -32,6 +23,10 @@ import {
   savePushTokenFor,
   setupOf,
   startDrillFor,
+  updateState,
+  type HouseholdSetup,
+  type MockContact,
+  type MockDevice,
   type MockUser,
 } from './db';
 
@@ -48,11 +43,11 @@ export const CLAIMED_CODE_SUFFIX = '-0000';
 const CLAIM_CODE = /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
 
 type S = components['schemas'];
-/** `params` holds the values of `{name}` parts of the path, e.g. `{ household_id: 'h1' }`. */
+/** `params` holds the values of `{name}` parts of the path, e.g. `{ circle_id: 'h1' }`. */
 export type MockContext = { body: unknown; headers: Headers; params: Record<string, string> };
 export type MockResult = { status: number; body?: unknown };
 export type MockRoute = {
-  method: 'GET' | 'POST' | 'PATCH' | 'PUT';
+  method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   /** Full path, as in docs/openapi.json (includes /api/v1). `{name}` parts match any one segment. */
   path: string;
   respond: (ctx: MockContext) => MockResult;
@@ -91,14 +86,55 @@ function readNumber(body: unknown): { number: string } | { error: MockResult } {
 
 const API = '/api/v1';
 
-/** The signed-in user and their household from `{household_id}`, or the error to answer with. */
+/** The signed-in user and their household from `{circle_id}`, or the error to answer with. */
 function inHousehold(ctx: MockContext): { user: MockUser; householdId: string } | { error: MockResult } {
   const auth = authenticate(ctx.headers);
   if ('code' in auth) return { error: fail(401, auth.code, 'Invalid or expired token') };
-  const household = householdOf(auth.user.id, ctx.params.household_id ?? '');
+  const household = householdOf(auth.user.id, ctx.params.circle_id ?? '');
   if (!household) return { error: fail(404, 'not_found', 'Household not found') };
   return { user: auth.user, householdId: household.id };
 }
+
+/** The pendant from `{device_id}`, if it belongs to the signed-in user's household. */
+function ownDevice(ctx: MockContext): { device: MockDevice } | { error: MockResult } {
+  const auth = authenticate(ctx.headers);
+  if ('code' in auth) return { error: fail(401, auth.code, 'Invalid or expired token') };
+  const device = deviceById(ctx.params.device_id ?? '');
+  if (!device || !householdOf(auth.user.id, device.householdId))
+    return { error: fail(404, 'not_found', 'Device not found') };
+  return { device };
+}
+
+/** The wearer's basics, checked the way the backend does, or undefined when something is missing or wrong. */
+function readWearer(b: {
+  name?: string | null;
+  date_of_birth?: string | null;
+  call_as?: string | null;
+  languages?: string[] | null;
+}): HouseholdSetup['wearer'] | undefined {
+  const name = typeof b.name === 'string' ? b.name.trim() : '';
+  const dob = typeof b.date_of_birth === 'string' ? b.date_of_birth : '';
+  if (
+    !name ||
+    name.length > 100 ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(dob) ||
+    Number.isNaN(Date.parse(dob)) ||
+    Date.parse(dob) > Date.now() ||
+    !Array.isArray(b.languages) ||
+    b.languages.length > 10
+  )
+    return undefined;
+  return { name, date_of_birth: dob, call_as: b.call_as?.trim() || null, languages: b.languages };
+}
+
+/** A contact as the API answers it: the number is masked, the position is 1-based. */
+const contactOut = (c: MockContact, i: number): S['ContactOut'] => ({
+  id: c.id,
+  name: c.name,
+  relationship: c.relationship ?? null,
+  mobile_masked: `${c.country_code} ••••••${c.mobile_number.slice(-4)}`,
+  position: i + 1,
+});
 
 /** 409 for a pendant that belongs to another household. Only a masked initial of the owner is given. */
 const alreadyClaimed: MockResult = {
@@ -254,168 +290,244 @@ export const routes: MockRoute[] = [
       return { status: 200, body: toProfile(auth.user) };
     },
   },
-  // PENDING BACKEND: create the household with the person's role. Not in docs/openapi.json yet.
+  // A4 · Home: the households this person belongs to (the backend calls them circles). Empty until C1.
   {
-    method: 'POST',
-    path: `${API}/households`,
-    respond: ({ body, headers }) => {
+    method: 'GET',
+    path: `${API}/me/home`,
+    respond: ({ headers }) => {
       const auth = authenticate(headers);
       if ('code' in auth) return fail(401, auth.code, 'Invalid or expired token');
-      const role = (body as Partial<HouseholdCreateIn> | undefined)?.role;
-      if (role !== 'wearer' && role !== 'caregiver') return fail(422, 'validation_error', 'Invalid request');
-      return { status: 200, body: createHouseholdFor(auth.user.id, role) };
+      const h = mockHouseholdOf(auth.user.id);
+      const s = h && setupOf(h.id);
+      const circles: S['HomeCircle'][] =
+        h && s
+          ? [
+              {
+                id: h.id,
+                wearer_name: s.wearer?.name ?? null,
+                state: s.state,
+                my_role: 'wearer',
+                protected: s.drills.some((d) => d.status === 'passed'),
+                next_action: null,
+                notices: [],
+                steps: [],
+                pending_transfers: [],
+                pending_members: 0,
+              },
+            ]
+          : [];
+      return { status: 200, body: { circles } satisfies S['HomeOut'] };
     },
   },
-  // PENDING BACKEND: save this phone's push token. Not in docs/openapi.json yet.
+  // C1: create the household the person wears, with their basics and consent in one step. Only `wearer_first`
+  // is mocked: the app does not offer caretaker-led setup yet.
   {
     method: 'POST',
-    path: `${API}/devices/push-token`,
+    path: `${API}/circles`,
     respond: ({ body, headers }) => {
       const auth = authenticate(headers);
       if ('code' in auth) return fail(401, auth.code, 'Invalid or expired token');
-      const { token, platform } = (body ?? {}) as Partial<PushTokenIn>;
-      if (!token || !platform || !['ios', 'android', 'web'].includes(platform))
+      const b = (body ?? {}) as Partial<S['CircleCreateIn']>;
+      const wearer = readWearer(b);
+      if (b.mode !== 'wearer_first' || !wearer || !b.consent?.version)
         return fail(422, 'validation_error', 'Invalid request');
-      savePushTokenFor(auth.user.id, { token, platform });
-      return NO_CONTENT;
+      const created = createHouseholdFor(auth.user.id, wearer, b.consent.version);
+      if (!created) return fail(409, 'conflict', 'You already wear a household');
+      return { status: 201, body: circleOut(created.id) };
     },
   },
-  // PENDING BACKEND: C1 / D2, the wearer's basics. Not in docs/openapi.json yet.
+  // C1 again, or D2 (My Profile): change the wearer's basics. Only the fields sent change.
   {
     method: 'PATCH',
-    path: `${API}/households/{household_id}/wearer`,
+    path: `${API}/circles/{circle_id}`,
     respond: (ctx) => {
       const h = inHousehold(ctx);
       if ('error' in h) return h.error;
-      const p = (ctx.body ?? {}) as Partial<WearerProfileIn>;
-      const name = typeof p.name === 'string' ? p.name.trim() : '';
-      const dob = typeof p.date_of_birth === 'string' ? p.date_of_birth : '';
-      if (
-        !name ||
-        name.length > 100 ||
-        !/^\d{4}-\d{2}-\d{2}$/.test(dob) ||
-        Number.isNaN(Date.parse(dob)) ||
-        Date.parse(dob) > Date.now() ||
-        !Array.isArray(p.languages) ||
-        typeof p.pacemaker !== 'boolean'
-      )
-        return fail(422, 'validation_error', 'Invalid request');
-      const wearer: WearerProfileIn = {
-        name,
-        date_of_birth: dob,
-        call_as: p.call_as?.trim() || null,
-        languages: p.languages,
-        health_notes: p.health_notes?.trim() || null,
-        pacemaker: p.pacemaker,
-      };
-      setupOf(h.householdId).wearer = wearer;
-      return { status: 200, body: wearer };
-    },
-  },
-  // PENDING BACKEND: a consent record (C1 checkbox; D7 by link). Not in docs/openapi.json yet.
-  {
-    method: 'POST',
-    path: `${API}/households/{household_id}/consent`,
-    respond: (ctx) => {
-      const h = inHousehold(ctx);
-      if ('error' in h) return h.error;
-      const c = (ctx.body ?? {}) as Partial<ConsentIn>;
-      if (!c.version || (c.via !== 'app' && c.via !== 'link'))
-        return fail(422, 'validation_error', 'Invalid request');
-      setupOf(h.householdId).consents.push({
-        version: c.version,
-        via: c.via,
-        given_at: new Date().toISOString(),
+      const s = setupOf(h.householdId);
+      const b = (ctx.body ?? {}) as Partial<S['CirclePatchIn']>;
+      const before = s?.wearer;
+      const wearer = readWearer({
+        name: b.name ?? before?.name,
+        date_of_birth: b.date_of_birth ?? before?.date_of_birth,
+        call_as: b.call_as === undefined ? before?.call_as : b.call_as,
+        languages: b.languages ?? before?.languages ?? [],
       });
-      return NO_CONTENT;
+      if (!s || !wearer) return fail(422, 'validation_error', 'Invalid request');
+      s.wearer = wearer;
+      return { status: 200, body: circleOut(h.householdId) };
     },
   },
-  // PENDING BACKEND: C2 / D1, claim the pendant with the one-time code from the box. Not in docs/openapi.json yet.
+  // C1 checkbox (or re-consent after a withdrawal): a consent record with the version of the text shown.
   {
     method: 'POST',
-    path: `${API}/households/{household_id}/claim`,
+    path: `${API}/circles/{circle_id}/consent`,
     respond: (ctx) => {
       const h = inHousehold(ctx);
       if ('error' in h) return h.error;
-      const code = String((ctx.body as Partial<ClaimIn> | undefined)?.code ?? '').toUpperCase();
-      if (!CLAIM_CODE.test(code)) return fail(404, 'invalid_claim_code', 'Unknown claim code');
+      const version = (ctx.body as Partial<S['ConsentIn']> | undefined)?.version;
+      if (!version) return fail(422, 'validation_error', 'Invalid request');
+      setupOf(h.householdId)?.consents.push({ version, given_at: new Date().toISOString() });
+      return { status: 200, body: circleOut(h.householdId) };
+    },
+  },
+  // C2: claim the pendant with the one-time code from the box. Like the dev server, codes starting with MOCK work too.
+  {
+    method: 'POST',
+    path: `${API}/devices/claim`,
+    respond: ({ body, headers }) => {
+      const auth = authenticate(headers);
+      if ('code' in auth) return fail(401, auth.code, 'Invalid or expired token');
+      const b = (body ?? {}) as Partial<S['DeviceClaimIn']>;
+      if (!b.circle_id || !householdOf(auth.user.id, b.circle_id))
+        return fail(404, 'not_found', 'Household not found');
+      const code = String(b.token ?? '').toUpperCase();
+      if (!CLAIM_CODE.test(code) && !code.startsWith('MOCK'))
+        return fail(404, 'invalid_claim_code', 'Unknown claim code');
       if (code.endsWith(CLAIMED_CODE_SUFFIX)) return alreadyClaimed;
-      const device = claimDevice(h.householdId, code);
+      const device = claimDevice(b.circle_id, code);
       return device === 'device_already_claimed' ? alreadyClaimed : { status: 200, body: device };
     },
   },
-  // PENDING BACKEND: C3, a random challenge for the pendant to sign. Not in docs/openapi.json yet.
+  // C3: a random challenge for the pendant to sign. The mock always asks for the simulator's signature.
   {
     method: 'POST',
-    path: `${API}/households/{household_id}/devices/{device_id}/challenge`,
+    path: `${API}/devices/{device_id}/pairing/challenge`,
     respond: (ctx) => {
-      const h = inHousehold(ctx);
-      if ('error' in h) return h.error;
-      if (!deviceOf(h.householdId, ctx.params.device_id ?? ''))
-        return fail(404, 'not_found', 'Device not found');
-      return { status: 200, body: { challenge: `challenge-${ctx.params.device_id}` } };
-    },
-  },
-  // PENDING BACKEND: C3, check the signature and lock the claim to this household. Not in docs/openapi.json yet.
-  // The mock accepts the simulator's signatures ("sim:...").
-  {
-    method: 'POST',
-    path: `${API}/households/{household_id}/devices/{device_id}/activate`,
-    respond: (ctx) => {
-      const h = inHousehold(ctx);
-      if ('error' in h) return h.error;
-      const d = deviceOf(h.householdId, ctx.params.device_id ?? '');
-      if (!d) return fail(404, 'not_found', 'Device not found');
-      const { signature, pendant_id } = (ctx.body ?? {}) as Partial<ActivateIn>;
-      if (!pendant_id || !signature?.startsWith('sim:'))
-        return fail(422, 'invalid_device_signature', 'Signature does not match');
-      d.claim_state = 'verified';
-      const { householdId: _h, ...out } = d;
+      const d = ownDevice(ctx);
+      if ('error' in d) return d.error;
+      const out: S['PairingChallengeOut'] = {
+        nonce: `challenge-${d.device.id}`,
+        expires_in: 120,
+        requires_signature: true,
+      };
       return { status: 200, body: out };
     },
   },
-  // PENDING BACKEND: C5 / D3, replace the emergency contacts (name and number only). Not in docs/openapi.json yet.
-  {
-    method: 'PUT',
-    path: `${API}/households/{household_id}/contacts`,
-    respond: (ctx) => {
-      const h = inHousehold(ctx);
-      if ('error' in h) return h.error;
-      const list = (ctx.body as Partial<ContactsIn> | undefined)?.contacts;
-      if (!Array.isArray(list)) return fail(422, 'validation_error', 'Invalid request');
-      for (const c of list) {
-        const n = readNumber(c);
-        if ('error' in n) return n.error;
-        if (!c.name?.trim()) return fail(422, 'validation_error', 'Invalid request');
-      }
-      const contacts = list.map((c) => ({
-        name: c.name.trim(),
-        relationship: c.relationship?.trim() || null,
-        country_code: c.country_code,
-        mobile_number: c.mobile_number,
-      }));
-      setupOf(h.householdId).contacts = contacts;
-      return { status: 200, body: { contacts } satisfies ContactsIn };
-    },
-  },
-  // PENDING BACKEND: C7, invite someone to help. Expires in 24 hours. Not in docs/openapi.json yet.
+  // C3: check the signature and mark the pendant verified. The mock accepts the simulator's signatures ("sim:...").
   {
     method: 'POST',
-    path: `${API}/households/{household_id}/invites`,
+    path: `${API}/devices/{device_id}/pairing/verify`,
+    respond: (ctx) => {
+      const d = ownDevice(ctx);
+      if ('error' in d) return d.error;
+      const signature = (ctx.body as Partial<S['PairingVerifyIn']> | undefined)?.signature;
+      if (!signature?.startsWith('sim:'))
+        return fail(422, 'invalid_device_signature', 'Signature does not match');
+      d.device.claim_state = 'claimed_verified';
+      d.device.verified_at = new Date().toISOString();
+      updateState(d.device.householdId);
+      return { status: 200, body: deviceOut(d.device) };
+    },
+  },
+  // C5, C6 (and D3): the emergency contacts, in alert order.
+  {
+    method: 'GET',
+    path: `${API}/circles/{circle_id}/contacts`,
     respond: (ctx) => {
       const h = inHousehold(ctx);
       if ('error' in h) return h.error;
-      const role = (ctx.body as Partial<InviteIn> | undefined)?.role;
+      return { status: 200, body: (setupOf(h.householdId)?.contacts ?? []).map(contactOut) };
+    },
+  },
+  // Add one contact at the end of the list. Name and number only; up to 5.
+  {
+    method: 'POST',
+    path: `${API}/circles/{circle_id}/contacts`,
+    respond: (ctx) => {
+      const h = inHousehold(ctx);
+      if ('error' in h) return h.error;
+      const s = setupOf(h.householdId);
+      const c = (ctx.body ?? {}) as Partial<S['ContactIn']>;
+      const n = readNumber(c);
+      if ('error' in n) return n.error;
+      const name = c.name?.trim() ?? '';
+      if (!s || !name || name.length > 100) return fail(422, 'validation_error', 'Invalid request');
+      if (s.contacts.length >= 5) return fail(409, 'conflict', 'Up to 5 contacts');
+      const contact: MockContact = {
+        id: newId(),
+        name,
+        relationship: c.relationship?.trim() || null,
+        country_code: String(c.country_code),
+        mobile_number: String(c.mobile_number),
+      };
+      s.contacts.push(contact);
+      updateState(h.householdId);
+      return { status: 201, body: contactOut(contact, s.contacts.length - 1) };
+    },
+  },
+  // Remove one contact; the others close up. With no contact left, an active household drops back to pending.
+  {
+    method: 'DELETE',
+    path: `${API}/circles/{circle_id}/contacts/{contact_id}`,
+    respond: (ctx) => {
+      const h = inHousehold(ctx);
+      if ('error' in h) return h.error;
+      const s = setupOf(h.householdId);
+      const at = s?.contacts.findIndex((c) => c.id === ctx.params.contact_id) ?? -1;
+      if (!s || at < 0) return fail(404, 'not_found', 'Contact not found');
+      s.contacts.splice(at, 1);
+      updateState(h.householdId);
+      return NO_CONTENT;
+    },
+  },
+  // C7: invite someone to help. The code is single use and valid 24 hours; up to 5 open invites.
+  {
+    method: 'POST',
+    path: `${API}/circles/{circle_id}/member-invites`,
+    respond: (ctx) => {
+      const h = inHousehold(ctx);
+      if ('error' in h) return h.error;
+      const role = (ctx.body as Partial<S['MemberInviteIn']> | undefined)?.role;
       if (role !== 'admin' && role !== 'viewer') return fail(422, 'invite_role_invalid', 'Invalid role');
-      const code = newInviteCode();
-      const invite: InviteOut = {
-        code,
-        url: `https://svaraa.ai/i/${code}`,
+      const invite: S['MemberInviteOut'] = {
+        invite_id: newId(),
+        code: newInviteCode(),
         role,
         expires_at: new Date(Date.now() + 24 * 3600_000).toISOString(),
       };
-      setupOf(h.householdId).invites = [invite];
-      return { status: 200, body: invite };
+      setupOf(h.householdId)?.invites.push(invite);
+      return { status: 201, body: invite };
+    },
+  },
+  // C8: start an SOS drill. The household must be active (a verified pendant and a contact).
+  {
+    method: 'POST',
+    path: `${API}/circles/{circle_id}/drills`,
+    respond: (ctx) => {
+      const h = inHousehold(ctx);
+      if ('error' in h) return h.error;
+      if (setupOf(h.householdId)?.state !== 'active')
+        return fail(409, 'conflict', 'The household is not active yet');
+      return { status: 201, body: startDrillFor(h.householdId) };
+    },
+  },
+  // C8: the drill's status.
+  {
+    method: 'GET',
+    path: `${API}/circles/{circle_id}/drills/{drill_id}`,
+    respond: (ctx) => {
+      const h = inHousehold(ctx);
+      if ('error' in h) return h.error;
+      const d = drillNow(h.householdId, ctx.params.drill_id ?? '');
+      return d ? { status: 200, body: d } : fail(404, 'drill_not_found', 'Drill not found');
+    },
+  },
+  // B2, B3: this phone's push token. Phones only (android, ios).
+  {
+    method: 'POST',
+    path: `${API}/me/installations`,
+    respond: ({ body, headers }) => {
+      const auth = authenticate(headers);
+      if ('code' in auth) return fail(401, auth.code, 'Invalid or expired token');
+      const b = (body ?? {}) as Partial<S['InstallationIn']>;
+      if (b.platform !== 'android' && b.platform !== 'ios')
+        return fail(422, 'validation_error', 'Invalid request');
+      savePushTokenFor(auth.user.id, {
+        platform: b.platform,
+        push_token: b.push_token ?? null,
+        app_version: b.app_version ?? null,
+      });
+      return { status: 200, body: { id: `installation-${auth.user.id}` } satisfies S['InstallationOut'] };
     },
   },
   // PENDING BACKEND: the top five news stories for a region (world, IN, US, CA), found by an AI search. Not in docs/openapi.json yet.
@@ -427,27 +539,6 @@ export const routes: MockRoute[] = [
       return region
         ? { status: 200, body: sampleNews(region) }
         : fail(404, 'region_not_found', 'Region not found');
-    },
-  },
-  // PENDING BACKEND: C8, start an SOS drill. Not in docs/openapi.json yet.
-  {
-    method: 'POST',
-    path: `${API}/households/{household_id}/drills`,
-    respond: (ctx) => {
-      const h = inHousehold(ctx);
-      if ('error' in h) return h.error;
-      return { status: 200, body: startDrillFor(h.householdId) satisfies DrillOut };
-    },
-  },
-  // PENDING BACKEND: C8, the drill's status. Not in docs/openapi.json yet.
-  {
-    method: 'GET',
-    path: `${API}/households/{household_id}/drills/{drill_id}`,
-    respond: (ctx) => {
-      const h = inHousehold(ctx);
-      if ('error' in h) return h.error;
-      const d = drillNow(h.householdId, ctx.params.drill_id ?? '');
-      return d ? { status: 200, body: d } : fail(404, 'drill_not_found', 'Drill not found');
     },
   },
   // Text chat (flags.ai). A fixed sample reply in the app's language; like the real server, no sign-in needed.

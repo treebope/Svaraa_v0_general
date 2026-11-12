@@ -9,10 +9,9 @@ import { useSettings } from '@/features/settings/store';
 import { useWearer } from '@/features/wearer/store';
 import { verifyOtpAndSignIn } from '@/services/auth/authApi';
 import { useSession } from '@/services/auth/session';
-import { createHousehold } from '@/services/household/householdApi';
 import { mockSetupOf } from '@/services/mocks/db';
 import { DEMO_CODE } from '@/services/mocks/routes';
-import { INDIA, useMockBackend } from '@/test-utils/backend';
+import { createWearerHousehold, INDIA, useMockBackend } from '@/test-utils/backend';
 import { renderApp } from '@/test-utils/render';
 
 const mockPush = jest.fn();
@@ -37,7 +36,7 @@ beforeEach(async () => {
   const userId = useSession.getState().userId as string;
   await useHousehold.getState().load(userId);
   await useWearer.getState().load(userId);
-  householdId = (await createHousehold('wearer')).id;
+  householdId = await createWearerHousehold();
   await useHousehold.getState().chooseRole('wearer', householdId);
 });
 
@@ -107,7 +106,7 @@ describe('C7 · Invite someone to help', () => {
     expect(screen.getByText(/^SVR-/)).toBeTruthy();
     expect(mockSetupOf(householdId)?.invites[0]?.role).toBe('admin');
     await act(async () => await fireEvent.press(screen.getByRole('radio', { name: /Viewer/ })));
-    expect(mockSetupOf(householdId)?.invites).toEqual([expect.objectContaining({ role: 'viewer' })]);
+    expect(mockSetupOf(householdId)?.invites.at(-1)?.role).toBe('viewer');
     await act(async () => await fireEvent.press(screen.getByRole('button', { name: 'Share invite link' })));
     expect(share.mock.calls[0]?.[0].message).toContain('https://svaraa.ai/i/SVR-');
     await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
