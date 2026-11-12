@@ -152,7 +152,7 @@
       "mobile": "Mobile number",
       "sendOtp": "Send OTP",
       "changeNumber": "Change number",
-      "devHint": "Test mode: the code is 000000. A number ending in 00 signs in as an existing user; one ending in 11 is already taken."
+      "devHint": "Test mode: the code is 0000. A number ending in 00 signs in as an existing user; one ending in 11 is already taken."
     }
   },
   "intro": {

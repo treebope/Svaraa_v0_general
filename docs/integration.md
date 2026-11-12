@@ -47,7 +47,7 @@ For the person who connects the app to the server. Simple steps, no coding knowl
 
 1. In `.env`, set `EXPO_PUBLIC_API_URL=https://your-server-address`.
 2. In `config/flags.ts`, change `auth: 'mock'` to `auth: 'real'`. This switches all of sign-in, refresh, sign out and `/users/me` together. Leave `household` and `notifications` as `'mock'`.
-3. Make sure the server accepts the test code `000000` (the dev server does).
+3. Make sure the server accepts the test code `0000` (the dev server does).
 4. Run `npx expo start --clear` and open the app in Expo Go.
 5. Follow "How to check it worked" below.
 6. In the table above, change the Status of the sign-in rows to `Live`. Commit as `docs(FE-XX): mark sign-in live`.
@@ -65,7 +65,7 @@ Phone sign-in:
 
 1. Open the app. You see the welcome screen. Tap the phone sign-in button.
 2. Enter a mobile number and tap Continue. You should see the code screen. (A real error here shows our own message, never server text.)
-3. Enter `000000`. You should land on the intro (new number) or Home (existing number).
+3. Enter `0000`. You should land on the intro (new number) or Home (existing number).
 4. Close the app fully and open it again. You should still be signed in.
 5. Open Profile and tap Sign out. You should be back on the welcome screen.
 
@@ -79,5 +79,5 @@ Claim (C2): tap "Enter code instead" and type a code in the shape `SVRA-2041-7K3
 ## If something breaks
 
 1. **"No connection" or "Something went wrong" on every screen.** The app cannot reach the server. Check `EXPO_PUBLIC_API_URL` (no typo, no `/api/v1`), that the server is running, then restart with `npx expo start --clear`. On the web build, the server must also allow our address (this is called CORS) in its settings.
-2. **The code screen says "Wrong or expired code".** The server did not accept the code. The dev server only accepts `000000`. Request a new code and try again.
+2. **The code screen says "Wrong or expired code".** The server did not accept the code. The dev server only accepts `0000`. Request a new code and try again.
 3. **You are sent back to the welcome screen again and again.** The server rejects the saved sign-in (`invalid_token` or `session_revoked`). Sign in again. If it keeps happening, check that the app and the server use the same environment (a token from one server does not work on another).

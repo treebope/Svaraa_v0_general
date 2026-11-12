@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { env } from '@/config/env';
 import { toApiError, type ApiError } from '@/services/api';
 import type { PhoneNumber } from '@/services/auth/authApi';
-import { Button, Input, OTPInput, Select, Text, useTheme } from '@/ui';
+import { Button, Input, OTP_LENGTH, OTPInput, Select, Text, useTheme } from '@/ui';
 import { COUNTRIES, DEFAULT_COUNTRY, dialCode, type CountryId } from './countries';
 import { formatClock, useCooldown } from './useCooldown';
 import { useErrorText } from './useErrorText';
@@ -61,7 +61,7 @@ export function PhoneVerify({
   }
 
   async function verify(value = code) {
-    if (value.length < 6 || busy) return;
+    if (value.length < OTP_LENGTH || busy) return;
     setError(undefined);
     setBusy('verify');
     try {
@@ -123,7 +123,7 @@ export function PhoneVerify({
           <Button
             label={t('otp.verify')}
             onPress={() => void verify()}
-            disabled={code.length < 6}
+            disabled={code.length < OTP_LENGTH}
             loading={busy === 'verify'}
             fullWidth
           />

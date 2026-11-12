@@ -23,7 +23,7 @@ Context for continuing the backend integration in a fresh clone. Written 2026-11
 - Circle states: `draft → pending_consent → pending_pairing → active`, plus `declined`, `expired`, `cancelled`. `wearer_first` starts at `pending_pairing`, `caretaker_led` at `draft`. `active` = consent + verified pendant + ≥1 contact (computed). `protected_at` is set when the first drill passes.
 - `next_action` values: `claim_device, enter_wearer_details, add_contact, send_setup_link, waiting_for_wearer, give_consent, pair_device, run_drill, acknowledge_drill, waiting_for_ack`, or null.
 - Consent version today: `2026-11-v1`; send the version displayed (`409 consent_version_outdated` otherwise). Consent text is a placeholder until legal; for setup links render `consent_text` from the preview.
-- Dev OTP is fixed `000000` (backend `ENVIRONMENT=development`, no SMS provider).
+- Dev OTP is fixed `0000` (backend `ENVIRONMENT=development`, no SMS provider).
 - Pairing: get nonce, pendant signs it (Ed25519 over raw nonce bytes, base64url), post signature. `requires_signature: false` units skip signing (`press_only`).
 
 ## Live spec vs the two documents (the live spec wins)
@@ -61,7 +61,7 @@ Native `@react-native-google-signin/google-signin` (needs a development build, n
 ## Steps (one PR each into main; lint, typecheck, tests; update docs/integration.md)
 
 1. **Setup:** download `openapi.json` from Render into `docs/`, `npm run api:generate`; `config/env.ts` reads all new vars; fix `areaOf()` (household: `/circles`, `/devices`, `/setup-invites`, `/member-invites`, `/transfers`, `/me/home`, `/me/pending-invites`, `/me/transfers`, `/me/step-up`; notifications: `/me/installations`; new `ai`: `/chat`); trim `services/api/pending.ts`; update CLAUDE.md contract line.
-2. **Sign-in live:** `flags.auth = 'real'`; timeout and single shared refresh in `services/api/authedFetch.ts`; test with `000000`.
+2. **Sign-in live:** `flags.auth = 'real'`; timeout and single shared refresh in `services/api/authedFetch.ts`; test with `0000`.
 3. **Errors:** all codes in `services/api/errors.ts` + `i18n/en.json`, `i18n/hi.json`.
 4. **Household service:** rewrite `services/household/*` to `/circles` with mappers; `useHome()` with polling; `services/notifications/notificationsApi.ts` → `POST /me/installations` (keep returned `id` as `installation_id` for pairing/verify); rewrite mocks to real paths marked `// PENDING BACKEND`; drop `is_owner`, add `pending_transfers`, `cancelled`.
 5. **Wearer-first C1–C8** (services PR, then screens PR).
@@ -73,15 +73,15 @@ Native `@react-native-google-signin/google-signin` (needs a development build, n
 
 ## Waiting on others
 
-| Need | Blocks | Who |
-|---|---|---|
-| Confirm Render accepts OTP `000000` | Step 2 | Backend |
-| Test pendant box tokens in the Render DB | Real claim (C2/D1) | Backend |
-| Where wearer-first consent text/version comes from (only setup-link preview returns it) | C1 | Backend, legal |
-| Add `http://localhost:8081` to `CORS_ORIGINS` on Render | Web only | Backend |
-| `mobile_verified` on `GET /users/me` | Google users (workaround: react to `mobile_required`) | Backend |
-| iOS + Android Google client IDs, development build | Google sign-in | Us |
-| App links for `svaraa.ai/j/*` (AASA, assetlinks.json) | Opening setup link in app | Web/backend |
-| Test pendant keys or keyless units | Real pairing (simulator until then) | Firmware |
-| Error codes per endpoint in the spec | Nice to have | Backend |
-| Sign-in on `/chat/*` and `/voice/ws`; transcript/`reply_end` frames | AI | Backend |
+| Need                                                                                    | Blocks                                                | Who            |
+| --------------------------------------------------------------------------------------- | ----------------------------------------------------- | -------------- |
+| Confirm Render accepts OTP `0000`                                                       | Step 2                                                | Backend        |
+| Test pendant box tokens in the Render DB                                                | Real claim (C2/D1)                                    | Backend        |
+| Where wearer-first consent text/version comes from (only setup-link preview returns it) | C1                                                    | Backend, legal |
+| Add `http://localhost:8081` to `CORS_ORIGINS` on Render                                 | Web only                                              | Backend        |
+| `mobile_verified` on `GET /users/me`                                                    | Google users (workaround: react to `mobile_required`) | Backend        |
+| iOS + Android Google client IDs, development build                                      | Google sign-in                                        | Us             |
+| App links for `svaraa.ai/j/*` (AASA, assetlinks.json)                                   | Opening setup link in app                             | Web/backend    |
+| Test pendant keys or keyless units                                                      | Real pairing (simulator until then)                   | Firmware       |
+| Error codes per endpoint in the spec                                                    | Nice to have                                          | Backend        |
+| Sign-in on `/chat/*` and `/voice/ws`; transcript/`reply_end` frames                     | AI                                                    | Backend        |

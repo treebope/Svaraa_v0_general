@@ -31,7 +31,7 @@ import {
 } from './db';
 
 /** Demo code accepted by the mock backend (the real dev backend also uses it). */
-export const DEMO_CODE = '000000';
+export const DEMO_CODE = '0000';
 /** Demo hook: a number ending in 00 signs in as an existing user (is_new = false). */
 export const EXISTING_USER_SUFFIX = '00';
 /** Demo hook: a number ending in 11 already belongs to another account (409 mobile_number_taken). */

@@ -4,7 +4,7 @@ export * from './ThemeProvider';
 export { Text, type TextProps, type TextTone } from './Text';
 export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from './Button';
 export { Input, type InputProps } from './Input';
-export { OTPInput } from './OTPInput';
+export { OTP_LENGTH, OTPInput } from './OTPInput';
 export { Card, AttentionCard } from './Card';
 export { Icon, type IconName } from './Icon';
 export { Chip, type ChipTone } from './Chip';

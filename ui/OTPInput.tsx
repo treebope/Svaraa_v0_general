@@ -5,6 +5,9 @@ import { Text } from './Text';
 import { useTheme } from './ThemeProvider';
 import { fontFamily } from './fonts';
 
+/** Digits in a sign-in code. The backend sends 4-digit codes (the dev server's test code is 0000). */
+export const OTP_LENGTH = 4;
+
 /**
  * One-time code field: a box per digit, backed by a single hidden-ish input so paste and SMS autofill work.
  * `onComplete` fires once all digits are entered.
@@ -12,7 +15,7 @@ import { fontFamily } from './fonts';
 export function OTPInput({
   value,
   onChange,
-  length = 6,
+  length = OTP_LENGTH,
   error,
   autoFocus,
   onComplete,
@@ -28,7 +31,10 @@ export function OTPInput({
   const { t, i18n } = useTranslation();
   const c = theme.colors;
   const complete = useRef(onComplete);
-  complete.current = onComplete;
+  // Keep the latest callback without re-running the check below when only the callback changes.
+  useEffect(() => {
+    complete.current = onComplete;
+  }, [onComplete]);
 
   useEffect(() => {
     if (value.length === length) complete.current?.(value);

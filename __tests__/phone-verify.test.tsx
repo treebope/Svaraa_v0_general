@@ -67,9 +67,9 @@ describe('phone and code form (A2)', () => {
     const { onVerify, onVerified } = await setup();
     await typeNumber();
     await press('Send OTP');
-    await fireEvent.changeText(screen.getByLabelText('Verification code'), '000000');
+    await fireEvent.changeText(screen.getByLabelText('Verification code'), '0000');
     await press('Verify');
-    expect(onVerify).toHaveBeenCalledWith({ countryCode: '+91', mobile: '9876543210' }, '000000');
+    expect(onVerify).toHaveBeenCalledWith({ countryCode: '+91', mobile: '9876543210' }, '0000');
     expect(onVerified).toHaveBeenCalled();
   });
 

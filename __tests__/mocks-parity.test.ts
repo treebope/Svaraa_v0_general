@@ -16,13 +16,13 @@ const phone = { country_code: '+91', mobile_number: '9876543210' };
 const bodies: Record<string, unknown[]> = {
   'POST /api/v1/auth/otp/request': [phone, { country_code: '+91', mobile_number: '12' }],
   'POST /api/v1/auth/otp/verify': [
-    { ...phone, code: '000000' },
-    { ...phone, code: '123456' },
+    { ...phone, code: '0000' },
+    { ...phone, code: '1234' },
   ],
   'POST /api/v1/auth/google': [{ id_token: 'abc' }, {}],
   'POST /api/v1/auth/refresh': [{ refresh_token: 'nope' }],
   'POST /api/v1/auth/mobile/request': [phone],
-  'POST /api/v1/auth/mobile/verify': [{ ...phone, code: '000000' }],
+  'POST /api/v1/auth/mobile/verify': [{ ...phone, code: '0000' }],
   'PATCH /api/v1/users/me': [{ display_name: 'Asha' }],
 };
 
