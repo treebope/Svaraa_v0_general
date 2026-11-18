@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import '@/i18n';
 import { env } from '@/config/env';
 import { useHousehold } from '@/features/household/store';
+import { usePendantVoice } from '@/features/pendant/voice';
 import { restoreLanguage } from '@/features/settings/language';
 import { useSettings } from '@/features/settings/store';
 import { useWearer } from '@/features/wearer/store';
@@ -42,6 +43,7 @@ function Screens() {
   const signedIn = status === 'signedIn';
   const needsPhone = useSession((s) => s.status === 'signedIn' && s.method === 'google' && !s.mobile);
   useSessionEffects();
+  usePendantVoice();
   return (
     <>
       <StatusBar style={theme.scheme === 'dark' ? 'light' : 'dark'} />
@@ -76,6 +78,10 @@ function Screens() {
           <Stack.Screen name="setup" />
         </Stack.Protected>
         <Stack.Screen name="(dev)/components" />
+        {/* Bluetooth test screen: development builds only (it skips sign-in and household setup). */}
+        <Stack.Protected guard={__DEV__}>
+          <Stack.Screen name="(dev)/pendant-voice" />
+        </Stack.Protected>
       </Stack>
     </>
   );

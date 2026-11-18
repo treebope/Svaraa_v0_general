@@ -888,5 +888,43 @@
     "sosTitle": "SOS always comes first",
     "sosBody": "Anything playing stops when SOS starts.",
     "pending": "These choices are saved on this phone for now. The pendant will follow them once the backend is ready."
+  },
+  "pendantVoice": {
+    "title": "Pendant voice (dev)",
+    "pendant": "Pendant",
+    "transport": "Transport: {{value}}",
+    "connection": "Connection: {{value}}",
+    "connections": {
+      "disconnected": "Not connected",
+      "connecting": "Connecting…",
+      "connected": "Connected"
+    },
+    "format": "Audio: {{codec}}, {{rate}} Hz, {{channels}} ch, {{ms}} ms frames",
+    "scan": "Scan for pendants",
+    "scanning": "Scanning…",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "noPermission": "Allow Nearby devices (Bluetooth) for Svaraa, then scan again.",
+    "voice": "Voice",
+    "off": "Pendant voice is off. Set EXPO_PUBLIC_PENDANT_VOICE=svaraa and rebuild the app.",
+    "state": "State: {{value}}",
+    "states": {
+      "waiting": "Waiting for the pendant",
+      "ready": "Ready",
+      "hearing": "Hearing",
+      "thinking": "Thinking",
+      "speaking": "Speaking",
+      "muted": "Muted",
+      "unsupported": "Pendant audio format not supported"
+    },
+    "stats": "Frames in {{frames}} · chunks sent {{chunks}} · dropped {{dropped}} · replies {{replies}}",
+    "replyTo": "Reply plays on: {{value}}",
+    "replyTargets": {
+      "phone": "Phone",
+      "pendant": "Pendant"
+    },
+    "framesOut": "Reply frames sent to the pendant: {{frames}}",
+    "lastError": "Last error: {{value}}",
+    "log": "Log"
   }
 }

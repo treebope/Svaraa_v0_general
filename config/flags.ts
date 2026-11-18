@@ -5,8 +5,16 @@ type Flags = {
   music: boolean;
   news: boolean;
   reminders: boolean;
-  /** 'simulator' now; 'ble' once real Bluetooth is wired. */
+  /** 'simulator' = in-app pendant; 'ble' = real Bluetooth (development build). Set EXPO_PUBLIC_PENDANT_TRANSPORT. */
   pendantTransport: 'simulator' | 'ble';
+  /** 'svaraa' = the pendant's audio goes to the voice socket and the reply plays on the phone. EXPO_PUBLIC_PENDANT_VOICE. */
+  pendantVoice: 'off' | 'svaraa';
+  /**
+   * Where the pendant voice plays Svaraa's reply. 'phone' = MP3 on the phone's speaker. 'pendant' = the app asks the
+   * server for PCM (reply_format=pcm16), re-encodes it in the pendant's codec and sends it over Bluetooth.
+   * EXPO_PUBLIC_PENDANT_REPLY.
+   */
+  pendantReply: 'phone' | 'pendant';
   /**
    * 'mock' = fake Google token. 'real' = Google's own sign-in, sent to POST /auth/google (needs auth: 'real').
    * Works in the browser today (EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID); phones need a development build first.
@@ -32,7 +40,9 @@ export const flags: Flags = {
   music: false,
   news: true,
   reminders: false,
-  pendantTransport: 'simulator',
+  pendantTransport: process.env.EXPO_PUBLIC_PENDANT_TRANSPORT === 'ble' ? 'ble' : 'simulator',
+  pendantVoice: process.env.EXPO_PUBLIC_PENDANT_VOICE === 'svaraa' ? 'svaraa' : 'off',
+  pendantReply: process.env.EXPO_PUBLIC_PENDANT_REPLY === 'pendant' ? 'pendant' : 'phone',
   googleSignIn: source('googleSignIn', 'mock'),
   auth: source('auth', 'mock'),
   household: source('household', 'mock'),

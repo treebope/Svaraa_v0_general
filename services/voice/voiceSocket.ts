@@ -1,9 +1,9 @@
-import { env } from '@/config/env';
+import { REPLY_GAP_MS, VOICE_RATE, openVoiceChannel, type VoiceChannel } from './voiceChannel';
 import type { VoiceHandlers, VoiceSession, VoiceState } from './voiceScripted';
 
 /**
- * A real voice conversation over WS /api/v1/voice/ws (browser only: Web Audio, getUserMedia, WebSocket).
- * Contract (frontend-api-contract, section 5.3):
+ * A real voice conversation over WS /api/v1/voice/ws (browser only: Web Audio, getUserMedia). The socket itself is
+ * voiceChannel.ts, shared with the pendant. Contract (frontend-api-contract, section 5.3):
  *  - the server first sends a text frame {"type":"session","session_id",...};
  *  - the app streams raw microphone audio: 16-bit PCM, 16 kHz, mono, small binary chunks (~100 ms);
  *  - the server decides when the person stopped talking (~1 s of silence) and answers with MP3 chunks;
@@ -11,20 +11,13 @@ import type { VoiceHandlers, VoiceSession, VoiceState } from './voiceScripted';
  * Speech recognition on the server is Hindi only for now. No sign-in is accepted on the socket yet.
  * The microphone is not sent while Svaraa speaks, so it does not hear itself and answer.
  */
-const RATE = 16_000;
+const RATE = VOICE_RATE;
 /** Microphone level (RMS, 0..1) above which the person counts as speaking. Only drives the orb, not the server. */
 const SPEECH_LEVEL = 0.02;
 /** Quiet after speech before we show "thinking" (the server waits about 1 s). */
 const SILENCE_MS = 900;
-/** No new reply chunk for this long = the reply is complete. */
-const REPLY_GAP_MS = 1000;
 /** No reply this long after the person spoke: go back to listening (the server may have heard nothing useful). */
 const NO_REPLY_MS = 20_000;
-/** Render's free tier can take 30-60 s to wake up. */
-const CONNECT_MS = 60_000;
-
-/** Kept for this page, so a new call continues the same conversation (the server keeps it for 30 idle minutes). */
-let lastSessionId: string | undefined;
 
 export function startSocketVoice(handlers: VoiceHandlers): VoiceSession {
   let state: VoiceState = 'connecting';
@@ -37,12 +30,11 @@ export function startSocketVoice(handlers: VoiceHandlers): VoiceSession {
 
   let stopped = false;
   let muted = false;
-  let ws: WebSocket | undefined;
+  let channel: VoiceChannel | undefined;
   let stream: MediaStream | undefined;
   let ctx: AudioContext | undefined;
   let processor: ScriptProcessorNode | undefined;
   let playing: HTMLAudioElement | undefined;
-  let connectTimer: ReturnType<typeof setTimeout> | undefined;
   let replyTimer: ReturnType<typeof setTimeout> | undefined;
   let noReplyTimer: ReturnType<typeof setTimeout> | undefined;
   const chunks: ArrayBuffer[] = [];
@@ -51,14 +43,9 @@ export function startSocketVoice(handlers: VoiceHandlers): VoiceSession {
 
   const cleanup = () => {
     stopped = true;
-    clearTimeout(connectTimer);
     clearTimeout(replyTimer);
     clearTimeout(noReplyTimer);
-    try {
-      ws?.close();
-    } catch {
-      /* already closed */
-    }
+    channel?.close();
     stream?.getTracks().forEach((track) => track.stop());
     processor?.disconnect();
     void ctx?.close().catch(() => {});
@@ -97,7 +84,7 @@ export function startSocketVoice(handlers: VoiceHandlers): VoiceSession {
     // ~85 ms per buffer at 48 kHz. ScriptProcessorNode is old but works everywhere without a separate worklet file.
     processor = ctx.createScriptProcessor(4096, 1, 1);
     processor.onaudioprocess = (e) => {
-      if (stopped || muted || state === 'speaking' || ws?.readyState !== WebSocket.OPEN) return;
+      if (stopped || muted || state === 'speaking' || !channel?.isReady()) return;
       const input = e.inputBuffer.getChannelData(0);
       let energy = 0;
       for (let i = 0; i < input.length; i++) energy += input[i] * input[i];
@@ -111,7 +98,7 @@ export function startSocketVoice(handlers: VoiceHandlers): VoiceSession {
         set('thinking');
         noReplyTimer = setTimeout(() => state === 'thinking' && set('listening'), NO_REPLY_MS);
       }
-      ws.send(toPcm16(input)); // the bytes of the 16-bit samples
+      channel.send(toPcm16(input)); // the bytes of the 16-bit samples
     };
     source.connect(processor);
     processor.connect(ctx.destination); // needed for the processor to run; it outputs silence
@@ -140,33 +127,20 @@ export function startSocketVoice(handlers: VoiceHandlers): VoiceSession {
   };
 
   const openSocket = () => {
-    const query = lastSessionId ? `?session_id=${encodeURIComponent(lastSessionId)}` : '';
-    const socket = new WebSocket(`${env.wsUrl}/api/v1/voice/ws${query}`);
-    ws = socket;
-    socket.binaryType = 'arraybuffer';
-    connectTimer = setTimeout(() => state === 'connecting' && fail('failed'), CONNECT_MS);
-    socket.onmessage = (e: MessageEvent) => {
-      if (typeof e.data === 'string') {
-        try {
-          const frame = JSON.parse(e.data) as { type?: string; session_id?: string };
-          if (frame.type === 'session' && frame.session_id) {
-            lastSessionId = frame.session_id;
-            clearTimeout(connectTimer);
-            if (state === 'connecting') startCapture();
-          }
-        } catch {
-          /* not JSON: ignore */
-        }
-        return;
-      }
+    channel = openVoiceChannel({
+      onReady: () => {
+        if (state === 'connecting') startCapture();
+      },
       // A piece of the spoken reply (MP3).
-      chunks.push(e.data as ArrayBuffer);
-      clearTimeout(noReplyTimer);
-      if (state !== 'speaking') set('thinking');
-      clearTimeout(replyTimer);
-      replyTimer = setTimeout(playReply, REPLY_GAP_MS);
-    };
-    socket.onclose = () => fail('failed');
+      onReplyChunk: (chunk) => {
+        chunks.push(chunk);
+        clearTimeout(noReplyTimer);
+        if (state !== 'speaking') set('thinking');
+        clearTimeout(replyTimer);
+        replyTimer = setTimeout(playReply, REPLY_GAP_MS);
+      },
+      onClose: () => fail('failed'),
+    });
   };
 
   if (!navigator.mediaDevices?.getUserMedia) {

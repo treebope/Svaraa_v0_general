@@ -888,5 +888,43 @@
     "sosTitle": "SOS हमेशा पहले",
     "sosBody": "SOS शुरू होते ही जो चल रहा हो वह रुक जाता है।",
     "pending": "ये चुनाव अभी इसी फ़ोन में सहेजे हैं। बैकएंड तैयार होने पर पेंडेंट इन्हें मानेगा।"
+  },
+  "pendantVoice": {
+    "title": "पेंडेंट वॉइस (डेव)",
+    "pendant": "पेंडेंट",
+    "transport": "ट्रांसपोर्ट: {{value}}",
+    "connection": "कनेक्शन: {{value}}",
+    "connections": {
+      "disconnected": "कनेक्ट नहीं है",
+      "connecting": "कनेक्ट हो रहा है…",
+      "connected": "कनेक्ट है"
+    },
+    "format": "ऑडियो: {{codec}}, {{rate}} Hz, {{channels}} चैनल, {{ms}} ms फ्रेम",
+    "scan": "पेंडेंट खोजें",
+    "scanning": "खोज रहे हैं…",
+    "connect": "कनेक्ट करें",
+    "disconnect": "डिस्कनेक्ट करें",
+    "noPermission": "Svaraa को आस-पास के डिवाइस (ब्लूटूथ) की अनुमति दें, फिर से खोजें।",
+    "voice": "वॉइस",
+    "off": "पेंडेंट वॉइस बंद है। EXPO_PUBLIC_PENDANT_VOICE=svaraa सेट करें और ऐप फिर से बनाएं।",
+    "state": "स्थिति: {{value}}",
+    "states": {
+      "waiting": "पेंडेंट का इंतज़ार",
+      "ready": "तैयार",
+      "hearing": "सुन रहा है",
+      "thinking": "सोच रहा है",
+      "speaking": "बोल रहा है",
+      "muted": "म्यूट",
+      "unsupported": "पेंडेंट का ऑडियो फ़ॉर्मेट समर्थित नहीं है"
+    },
+    "stats": "फ्रेम आए {{frames}} · हिस्से भेजे {{chunks}} · छूटे {{dropped}} · जवाब {{replies}}",
+    "replyTo": "जवाब कहाँ बजेगा: {{value}}",
+    "replyTargets": {
+      "phone": "फ़ोन",
+      "pendant": "पेंडेंट"
+    },
+    "framesOut": "पेंडेंट को भेजे जवाब के फ्रेम: {{frames}}",
+    "lastError": "आखिरी त्रुटि: {{value}}",
+    "log": "लॉग"
   }
 }

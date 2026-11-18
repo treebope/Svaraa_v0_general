@@ -21,6 +21,11 @@ export const env = {
     .filter(Boolean),
   /** Google OAuth Web client ID (public, not a secret). Also in the backend's GOOGLE_CLIENT_IDS. */
   googleWebClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? '',
+  /** BLE names accepted as a pendant while scanning, besides advertising the pendant's service UUID. */
+  pendantNamePrefixes: (process.env.EXPO_PUBLIC_PENDANT_NAME_PREFIXES ?? 'PendantSim,Svaraa')
+    .split(',')
+    .map((s: string) => s.trim())
+    .filter(Boolean),
   appVersion: Constants.expoConfig?.version ?? '0.0.0',
 };
 

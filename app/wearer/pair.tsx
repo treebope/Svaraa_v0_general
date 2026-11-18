@@ -62,7 +62,7 @@ export default function PairPendant() {
         ? found.map((p) => (
             <ListRow
               key={p.id}
-              title={p.name}
+              title={p.name || t('apps.pendant.name')}
               detail={t('wearer.pair.nearby', { serial: p.serial })}
               actionLabel={t('wearer.pair.pair')}
               onPress={() => void pair(p)}

@@ -1,4 +1,5 @@
 import { flags } from '@/config/flags';
+import { BleTransport } from './ble';
 import { SimulatorTransport } from './simulator';
 import type { PendantTransport } from './types';
 
@@ -8,14 +9,13 @@ export { SIMULATED_PENDANT, SimulatorTransport, simulatorTiming } from './simula
 let transport: PendantTransport | undefined;
 
 /**
- * The pendant connection for the whole app, chosen by `flags.pendantTransport`.
- * PENDING: 'ble' needs react-native-ble-plx and a development build (FE-B, after the pendant spec is frozen).
+ * The pendant connection for the whole app, chosen by `flags.pendantTransport`:
+ * 'simulator' answers inside the app; 'ble' talks to a real pendant or the Python simulator over Bluetooth
+ * (react-native-ble-plx, development build only).
  */
 export function pendant(): PendantTransport {
-  if (!transport) {
-    if (flags.pendantTransport === 'ble') throw new Error('BleTransport is not built yet');
-    transport = new SimulatorTransport();
-  }
+  if (!transport)
+    transport = flags.pendantTransport === 'ble' ? new BleTransport() : new SimulatorTransport();
   return transport;
 }
 

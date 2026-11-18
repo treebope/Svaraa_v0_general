@@ -3,6 +3,7 @@ import {
   type FoundPendant,
   type PendantCheck,
   type PendantEvent,
+  type PendantMessage,
   type PendantStatus,
   type PendantTransport,
 } from './types';
@@ -25,6 +26,9 @@ export class SimulatorTransport implements PendantTransport {
   private status: PendantStatus = { connection: 'disconnected' };
   private statusListeners = new Set<(s: PendantStatus) => void>();
   private eventListeners = new Set<(e: PendantEvent) => void>();
+  private messageListeners = new Set<(m: PendantMessage) => void>();
+  /** Tests and demos: everything the app sent to the pendant. */
+  readonly sent: PendantMessage[] = [];
 
   scan(onFound: (p: FoundPendant) => void, options?: { timeoutMs?: number; onTimeout?: () => void }) {
     const found = setTimeout(() => onFound(SIMULATED_PENDANT), simulatorTiming.found);
@@ -39,11 +43,11 @@ export class SimulatorTransport implements PendantTransport {
     if (id !== SIMULATED_PENDANT.id) throw new PendantError('pendant_connect_failed');
     this.set({ connection: 'connecting' });
     await wait(simulatorTiming.connect);
-    this.set({ connection: 'connected', battery: 82, charging: false });
+    this.set({ connection: 'connected', battery: 82, charging: false, pendantId: id });
   }
 
   async disconnect() {
-    this.set({ connection: 'disconnected', battery: undefined, charging: undefined });
+    this.set({ connection: 'disconnected' });
   }
 
   async signChallenge(challenge: string) {
@@ -69,6 +73,21 @@ export class SimulatorTransport implements PendantTransport {
   onEvent(listener: (e: PendantEvent) => void) {
     this.eventListeners.add(listener);
     return () => void this.eventListeners.delete(listener);
+  }
+
+  onMessage(listener: (m: PendantMessage) => void) {
+    this.messageListeners.add(listener);
+    return () => void this.messageListeners.delete(listener);
+  }
+
+  async send(m: PendantMessage) {
+    this.requireConnected();
+    this.sent.push(m);
+  }
+
+  /** Demo and tests only: act as if the pendant sent this (a hello, an audio frame, the end of an utterance). */
+  simulateMessage(m: PendantMessage) {
+    for (const l of this.messageListeners) l(m);
   }
 
   /** Demo and tests only: act as if the wearer held the gold dot for three seconds. */

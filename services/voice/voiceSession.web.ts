@@ -7,7 +7,18 @@ import {
 } from './voiceScripted';
 import { startSocketVoice } from './voiceSocket';
 
-export * from './voiceScripted';
+export {
+  HEAR_MS,
+  LISTEN_MS,
+  SPEAK_MS,
+  THINK_MS,
+  type VoiceError,
+  type VoiceHandlers,
+  type VoiceScript,
+  type VoiceSession,
+  type VoiceState,
+  type VoiceTurn,
+} from './voiceScripted';
 
 /**
  * Browser: the real conversation over WS /voice/ws when flags.ai is 'real' (EXPO_PUBLIC_REAL_AREAS=ai),
