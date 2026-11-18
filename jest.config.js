@@ -4,6 +4,9 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: { '^@/(.*)$': '<rootDir>/$1' },
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  // The screen tests are heavy: with one worker per core they starve each other and miss their wait timeouts
+  // (flaky failures in wearer-pairing, wearer-drill, ...). Two workers keep them reliable and are also faster.
+  maxWorkers: 2,
   // .mjs files (msw dependencies such as rettime) must also go through Babel.
   transform: {
     '\\.mjs$': [
