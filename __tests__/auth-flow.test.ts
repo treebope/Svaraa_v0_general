@@ -160,9 +160,23 @@ describe('session on this phone', () => {
       accessToken: undefined,
       refreshToken: undefined,
       mobile: undefined,
+      showIntro: false,
     });
     await useSession.getState().restore();
-    expect(useSession.getState()).toMatchObject({ status: 'signedIn', accessToken, mobile: '+919876543210' });
+    expect(useSession.getState()).toMatchObject({
+      status: 'signedIn',
+      accessToken,
+      mobile: '+919876543210',
+      showIntro: true,
+    });
+  });
+
+  it('keeps showIntro false after finishIntro across restore', async () => {
+    await verifyOtpAndSignIn(INDIA, DEMO_CODE);
+    useSession.getState().finishIntro();
+    useSession.setState({ status: 'loading', accessToken: undefined, showIntro: true });
+    await useSession.getState().restore();
+    expect(useSession.getState().showIntro).toBe(false);
   });
 
   it('is signed out when nothing is saved', async () => {

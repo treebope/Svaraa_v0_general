@@ -4,6 +4,8 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: { '^@/(.*)$': '<rootDir>/$1' },
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  // The default 5 s is too short for the heavier screens on a busy laptop or a CI runner (tests passed alone, timed out in a full run).
+  testTimeout: 20000,
   // .mjs files (msw dependencies such as rettime) must also go through Babel.
   transform: {
     '\\.mjs$': [

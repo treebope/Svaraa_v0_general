@@ -1,6 +1,6 @@
 import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { fontFamily } from './fonts';
+import { fontFamily, scriptLineFactor } from './fonts';
 import { useTheme } from './ThemeProvider';
 import type { TypeVariant } from './tokens';
 
@@ -29,19 +29,19 @@ export function Text({ variant = 'body', tone = 'primary', italic, style, ...res
     onAction: c.onAction,
     safety: c.safety,
   }[tone];
-  const hindi = i18n.language === 'hi';
+  const lang = i18n.language;
+  const nonLatin = lang !== 'en';
   return (
     <RNText
       {...rest}
       style={[
         {
           color,
-          fontFamily: fontFamily(i18n.language, t, italic),
+          fontFamily: fontFamily(lang, t, italic),
           fontSize: t.size * theme.fontScale,
-          // Devanagari needs more line height for its matras.
-          lineHeight: t.line * theme.fontScale * (hindi ? 1.12 : 1),
-          letterSpacing: hindi ? 0 : t.tracking,
-          textTransform: t.uppercase && !hindi ? 'uppercase' : undefined,
+          lineHeight: t.line * theme.fontScale * scriptLineFactor(lang),
+          letterSpacing: nonLatin ? 0 : t.tracking,
+          textTransform: t.uppercase && !nonLatin ? 'uppercase' : undefined,
         },
         style,
       ]}

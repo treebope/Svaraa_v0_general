@@ -8,14 +8,17 @@ import { CallChain } from '@/features/wearer/CallChain';
 import { DrillHistory } from '@/features/wearer/DrillHistory';
 import { useDrillRecords } from '@/features/wearer/drillRecords';
 import { DrillSteps } from '@/features/wearer/DrillSteps';
+import { MockPairingPendant } from '@/features/wearer/MockPairingPendant';
 import { useWearer } from '@/features/wearer/store';
 import { ApiError } from '@/services/api';
 import { StepHeader } from '@/features/wearer/StepHeader';
 import { useDrill } from '@/features/wearer/useDrill';
-import { Button, Choice, Screen, Text, useTheme } from '@/ui';
+import { safeBack } from '@/features/nav/safeBack';
+import { FlowShell } from '@/features/setup/FlowShell';
+import { Button, Choice, Text, useTheme } from '@/ui';
 
 /**
- * C8 · Test your SOS. Hold the gold dot for three seconds, or tap the button. Contacts get an alert marked DRILL;
+ * C8 · Test your SOS. Press the gold button 3 times. Contacts get an alert marked DRILL;
  * the drill passes when one of them answers within five minutes, then setup is finished and Home shows "Protected".
  * Also reachable from the wearer Home ("Run SOS drill"): once setup is done it is a practice run that ends with Done.
  */
@@ -25,7 +28,7 @@ export default function SosDrill() {
   const router = useRouter();
   const errorText = useErrorText();
   const setupDone = useHousehold((s) => s.hasActiveDevice);
-  const { drill, start, starting, acknowledge, acknowledging, ackError, error, secondsLeft } = useDrill();
+  const { drill, starting, acknowledge, acknowledging, ackError, error, secondsLeft } = useDrill();
   const contacts = useWearer((s) => s.contacts);
   const [finishing, setFinishing] = useState(false);
   const [tab, setTab] = useState<'run' | 'history'>('run');
@@ -47,7 +50,6 @@ export default function SosDrill() {
       ),
     });
   }, [drill, record]);
-  const c = theme.colors;
 
   const finish = async () => {
     setFinishing(true);
@@ -71,10 +73,10 @@ export default function SosDrill() {
   const running = !!drill && drill.status !== 'expired';
 
   return (
-    <Screen
+    <FlowShell
       footer={
         setupDone ? (
-          <Button label={t('common.done')} onPress={() => router.back()} disabled={waiting} fullWidth />
+          <Button label={t('common.done')} onPress={() => safeBack(router)} disabled={waiting} fullWidth />
         ) : (
           <Button
             label={t('wearer.drill.finish')}
@@ -86,85 +88,65 @@ export default function SosDrill() {
         )
       }
     >
-      <StepHeader step={setupDone ? undefined : 5} title={t('wearer.drill.title')} />
-      {setupDone ? (
-        <Choice<'run' | 'history'>
-          label={t('wearer.drill.title')}
-          value={tab}
-          onChange={setTab}
-          options={[
-            { id: 'run', label: t('wearer.drill.tabs.run') },
-            { id: 'history', label: t('wearer.drill.tabs.history') },
-          ]}
-        />
-      ) : null}
-      {setupDone && tab === 'history' ? (
-        <DrillHistory />
-      ) : (
-        <>
-          {running ? null : (
-            <View
-              accessibilityElementsHidden
-              importantForAccessibility="no"
-              style={{
-                alignSelf: 'center',
-                width: 112,
-                height: 112,
-                borderRadius: 56,
-                borderWidth: 3,
-                borderColor: c.accentSpirit,
-                backgroundColor: c.attentionTint,
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginVertical: theme.space[2],
-              }}
-            >
-              <Text variant="label" tone="spirit">
-                {t('wearer.drill.dot')}
-              </Text>
-            </View>
-          )}
-          {running ? null : (
-            <Text tone="secondary" style={{ textAlign: 'center' }}>
-              {t('wearer.drill.how')}
-            </Text>
-          )}
-          {!waiting && !passed ? (
-            <Button
-              label={drill?.status === 'expired' ? t('wearer.drill.again') : t('wearer.drill.run')}
-              variant="secondary"
-              onPress={() => void start()}
-              loading={starting}
-              fullWidth
-            />
-          ) : null}
-          {waiting ? (
-            <View style={{ gap: theme.space[1] }}>
-              <Button
-                label={t('wearer.drill.ack.button')}
-                onPress={() => void answer()}
-                loading={acknowledging || finishing}
-                fullWidth
-              />
-              <Text variant="bodySm" tone="secondary" style={{ textAlign: 'center' }}>
-                {t('wearer.drill.ack.hint')}
-              </Text>
-              {ackErrorText ? (
-                <Text tone="safety" accessibilityRole="alert">
-                  {ackErrorText}
+      <View style={{ gap: theme.space[5] }}>
+        <StepHeader step={setupDone ? undefined : 5} title={t('wearer.drill.title')} />
+        {setupDone ? (
+          <Choice<'run' | 'history'>
+            label={t('wearer.drill.title')}
+            value={tab}
+            onChange={setTab}
+            options={[
+              { id: 'run', label: t('wearer.drill.tabs.run') },
+              { id: 'history', label: t('wearer.drill.tabs.history') },
+            ]}
+          />
+        ) : null}
+        {setupDone && tab === 'history' ? (
+          <DrillHistory />
+        ) : (
+          <View style={{ gap: theme.space[4] }}>
+            {running ? null : (
+              <View style={{ gap: theme.space[5] }}>
+                <Text tone="secondary">{t('wearer.drill.how')}</Text>
+                <MockPairingPendant intent="sos" disabled={starting} />
+              </View>
+            )}
+            {waiting ? (
+              <View style={{ gap: theme.space[1] }}>
+                <Button
+                  label={t('wearer.drill.ack.button')}
+                  onPress={() => void answer()}
+                  loading={acknowledging || finishing}
+                  fullWidth
+                />
+                <Text variant="bodySm" tone="secondary" style={{ textAlign: 'center' }}>
+                  {t('wearer.drill.ack.hint')}
                 </Text>
-              ) : null}
-            </View>
-          ) : null}
-          {drill ? <DrillSteps drill={drill} contacts={contacts} secondsLeft={secondsLeft} /> : null}
-          <CallChain drill />
-          {error ? (
-            <Text tone="safety" accessibilityRole="alert">
-              {errorText(error)}
-            </Text>
-          ) : null}
-        </>
-      )}
-    </Screen>
+                {ackErrorText ? (
+                  <Text tone="safety" accessibilityRole="alert">
+                    {ackErrorText}
+                  </Text>
+                ) : null}
+              </View>
+            ) : null}
+            {drill ? (
+              <DrillSteps
+                drill={drill}
+                contacts={contacts}
+                secondsLeft={secondsLeft}
+                onOverride={() => void answer()}
+                overriding={acknowledging || finishing}
+              />
+            ) : null}
+            <CallChain drill />
+            {error ? (
+              <Text tone="safety" accessibilityRole="alert">
+                {errorText(error)}
+              </Text>
+            ) : null}
+          </View>
+        )}
+      </View>
+    </FlowShell>
   );
 }

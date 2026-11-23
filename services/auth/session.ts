@@ -17,6 +17,8 @@ type Saved = {
   method: SignInMethod;
   /** The name Google gave us at sign-in, used for the greeting until the backend has a display name. */
   googleName?: string;
+  /** Still on the post-signup intro (A3). Kept so a reload does not skip it. */
+  showIntro?: boolean;
 };
 
 type SessionState = {
@@ -51,6 +53,7 @@ async function save(s: SessionState): Promise<void> {
     userId: s.userId,
     method: s.method,
     googleName: s.googleName,
+    showIntro: s.showIntro,
   };
   await secureStorage.set(SESSION_KEY, JSON.stringify(saved));
 }
@@ -65,7 +68,16 @@ export const useSession = create<SessionState>((set, get) => ({
       const saved = raw ? (JSON.parse(raw) as Saved) : null;
       if (saved?.accessToken && saved.refreshToken && saved.userId) {
         const mobile = (await secureStorage.get(mobileKey(saved.userId))) ?? undefined;
-        set({ ...saved, mobile, status: 'signedIn' });
+        set({
+          accessToken: saved.accessToken,
+          refreshToken: saved.refreshToken,
+          userId: saved.userId,
+          method: saved.method,
+          googleName: saved.googleName,
+          showIntro: saved.showIntro ?? false,
+          mobile,
+          status: 'signedIn',
+        });
         return;
       }
     } catch {
@@ -101,7 +113,10 @@ export const useSession = create<SessionState>((set, get) => ({
     if (userId) await secureStorage.set(mobileKey(userId), mobile);
   },
 
-  finishIntro: () => set({ showIntro: false }),
+  finishIntro: () => {
+    set({ showIntro: false });
+    void save(get());
+  },
 
   clear: async () => {
     set({

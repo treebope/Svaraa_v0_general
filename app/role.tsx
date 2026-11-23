@@ -3,8 +3,10 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useErrorText } from '@/features/auth/useErrorText';
 import { useHousehold } from '@/features/household/store';
+import { safeBack } from '@/features/nav/safeBack';
+import { FlowShell } from '@/features/setup/FlowShell';
 import { createHousehold } from '@/services/household/householdApi';
-import { Button, Option, Screen, Text } from '@/ui';
+import { Button, Card, Option, Text, useTheme } from '@/ui';
 
 type Pick = 'wearer' | 'unsure';
 
@@ -14,6 +16,7 @@ type Pick = 'wearer' | 'unsure';
  * "Not sure" creates nothing: the setup card on Home stays at "not started".
  */
 export default function RoleChoice() {
+  const theme = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
   const errorText = useErrorText();
@@ -40,7 +43,7 @@ export default function RoleChoice() {
   };
 
   return (
-    <Screen
+    <FlowShell
       footer={
         <Button
           label={t('common.continue')}
@@ -51,28 +54,33 @@ export default function RoleChoice() {
         />
       }
     >
-      <Button label={t('common.back')} variant="tertiary" onPress={() => router.back()} />
-      <Text variant="title1" tone="heading" accessibilityRole="header">
-        {t('role.title')}
-      </Text>
-      <Text tone="secondary">{t('role.subtitle')}</Text>
-      <Option
-        title={t('role.wearer.title')}
-        detail={t('role.wearer.detail')}
-        selected={pick === 'wearer'}
-        onPress={() => setPick('wearer')}
-      />
-      <Option
-        title={t('role.unsure.title')}
-        detail={t('role.unsure.detail')}
-        selected={pick === 'unsure'}
-        onPress={() => setPick('unsure')}
-      />
-      {error ? (
-        <Text tone="safety" accessibilityRole="alert">
-          {error}
+      <Card style={{ gap: theme.space[4], padding: theme.space[5] }}>
+        <Button label={t('common.back')} variant="tertiary" onPress={() => safeBack(router)} />
+        <Text variant="kicker" tone="spirit">
+          {t('auth.welcome.kicker')}
         </Text>
-      ) : null}
-    </Screen>
+        <Text variant="title1" tone="heading" accessibilityRole="header">
+          {t('role.title')}
+        </Text>
+        <Text tone="secondary">{t('role.subtitle')}</Text>
+        <Option
+          title={t('role.wearer.title')}
+          detail={t('role.wearer.detail')}
+          selected={pick === 'wearer'}
+          onPress={() => setPick('wearer')}
+        />
+        <Option
+          title={t('role.unsure.title')}
+          detail={t('role.unsure.detail')}
+          selected={pick === 'unsure'}
+          onPress={() => setPick('unsure')}
+        />
+        {error ? (
+          <Text tone="safety" accessibilityRole="alert">
+            {error}
+          </Text>
+        ) : null}
+      </Card>
+    </FlowShell>
   );
 }

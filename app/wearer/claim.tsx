@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { flags } from '@/config/flags';
+import { env } from '@/config/env';
 import { useErrorText } from '@/features/auth/useErrorText';
 import { useHousehold } from '@/features/household/store';
 import { parseClaimCode } from '@/features/wearer/claimCode';
@@ -10,7 +12,12 @@ import { WEARER_STEP } from '@/features/wearer/steps';
 import { useWearer } from '@/features/wearer/store';
 import { toApiError } from '@/services/api';
 import { claimPendant } from '@/services/household/wearerApi';
-import { Button, Card, Input, Screen, Text, useTheme } from '@/ui';
+import { DEMO_CLAIM_CODE, DEMO_MOCK_CLAIM_CODE } from '@/services/mocks/routes';
+import { FlowShell } from '@/features/setup/FlowShell';
+import { Button, Card, Input, Text, useTheme } from '@/ui';
+
+/** Mock backend: printed-card shape. Real/staging: MOCK-* (created on claim). */
+const CLAIM_DEMO_CODE = flags.household === 'mock' ? DEMO_CLAIM_CODE : DEMO_MOCK_CLAIM_CODE;
 
 /**
  * C2 · Claim your pendant. Scan the QR on the card inside the box, or type its code. The one-time code makes this
@@ -67,7 +74,7 @@ export default function ClaimPendant() {
   }, [params.code, householdId]);
 
   return (
-    <Screen
+    <FlowShell
       footer={
         typing ? (
           <>
@@ -91,24 +98,47 @@ export default function ClaimPendant() {
     >
       <StepHeader step={2} title={t('wearer.claim.title')} />
       {typing ? (
-        <Input
-          label={t('wearer.claim.codeLabel')}
-          hint={t('wearer.claim.codeHint')}
-          value={typed}
-          onChangeText={setTyped}
-          autoCapitalize="characters"
-          autoCorrect={false}
-          placeholder={t('wearer.claim.codePlaceholder')}
-          onSubmitEditing={() => void claim(typed)}
-        />
+        <>
+          <Input
+            label={t('wearer.claim.codeLabel')}
+            hint={t('wearer.claim.codeHint')}
+            value={typed}
+            onChangeText={setTyped}
+            autoCapitalize="characters"
+            autoCorrect={false}
+            placeholder={CLAIM_DEMO_CODE}
+            onSubmitEditing={() => void claim(typed)}
+          />
+          {env.showDevOtpHint || env.useMocks ? (
+            <Text variant="caption" tone="tertiary">
+              {t('wearer.claim.devHint', { code: CLAIM_DEMO_CODE })}
+            </Text>
+          ) : null}
+        </>
       ) : (
         <>
           <QrScanner onScan={(data) => void claim(data)} paused={busy || ownerHint !== null} />
           <Text tone="secondary">{t('wearer.claim.where')}</Text>
+          {env.showDevOtpHint || env.useMocks ? (
+            <Text variant="caption" tone="tertiary">
+              {t('wearer.claim.devHint', { code: CLAIM_DEMO_CODE })}
+            </Text>
+          ) : null}
         </>
       )}
       <Card style={{ gap: theme.space[2] }}>
         <Text tone="secondary">{t('wearer.claim.owner')}</Text>
+        {env.showDevOtpHint || env.useMocks ? (
+          <Button
+            label={t('wearer.claim.useDevCode', { code: CLAIM_DEMO_CODE })}
+            variant="secondary"
+            onPress={() => {
+              setTyping(true);
+              setTyped(CLAIM_DEMO_CODE);
+              setError(null);
+            }}
+          />
+        ) : null}
       </Card>
       {ownerHint !== null ? (
         // E5 (FE-A) will become its own screen; until then the blocked claim is shown here.
@@ -137,6 +167,6 @@ export default function ClaimPendant() {
           {error}
         </Text>
       ) : null}
-    </Screen>
+    </FlowShell>
   );
 }

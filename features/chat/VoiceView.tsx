@@ -193,12 +193,14 @@ function VoiceView({ active = true }: { active?: boolean }) {
           bottom: 0,
           left: 0,
           zIndex: 50,
+          // Opaque fill so chat messages never show through (card/tile fills are translucent).
+          backgroundColor: p.bg2,
           paddingTop: wide ? 16 : insets.top + 12,
           paddingBottom: wide ? 20 : insets.bottom + 16,
           paddingHorizontal: 20,
           alignItems: 'center',
+          ...(wide ? { borderRadius: 24 } : pageBackground(p)),
         },
-        wide ? { backgroundColor: p.card, borderRadius: 24 } : pageBackground(p),
       ]}
     >
       <Text variant="kicker" style={{ color: p.gold }} accessibilityRole="header">

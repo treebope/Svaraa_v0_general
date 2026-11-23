@@ -17,7 +17,9 @@ import {
   type PermissionStatus,
   type WearerPermission,
 } from '@/services/permissions/wearerPermissions';
-import { Button, Card, Chip, ListRow, Screen, Sheet, Text, useTheme } from '@/ui';
+import { safeBack } from '@/features/nav/safeBack';
+import { FlowShell } from '@/features/setup/FlowShell';
+import { Button, Card, Chip, ListRow, Sheet, Text, useTheme } from '@/ui';
 
 type Statuses = Record<WearerPermission, PermissionStatus>;
 
@@ -102,7 +104,7 @@ export default function WearerPermissions() {
   };
 
   return (
-    <Screen
+    <FlowShell
       footer={
         <>
           {!canGrantPermissions ? (
@@ -127,7 +129,7 @@ export default function WearerPermissions() {
         </>
       }
     >
-      <Button label={t('common.back')} variant="tertiary" onPress={() => router.back()} />
+      <Button label={t('common.back')} variant="tertiary" onPress={() => safeBack(router)} />
       <Text variant="title1" tone="heading" accessibilityRole="header">
         {t('wearer.permissions.title')}
       </Text>
@@ -167,6 +169,6 @@ export default function WearerPermissions() {
         <Text tone="secondary">{t('wearer.permissions.whyBody')}</Text>
         <Button label={t('common.close')} variant="secondary" onPress={() => setWhy(false)} fullWidth />
       </Sheet>
-    </Screen>
+    </FlowShell>
   );
 }

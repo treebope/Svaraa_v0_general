@@ -63,22 +63,39 @@ export const useSound = create<{ muted: boolean; toggle: () => void }>((set) => 
 }));
 
 /**
- * Width for a game board and the size of each square in a grid of `cols`. Sizes are whole pixels (not percentages), so
- * the cards line up the same on every phone and in the browser. `max` keeps boards from growing too wide.
+ * Width for a game board and the size of each square in a grid of `cols`.
+ * Sized from the parent pane (`onLayout`), not the window — so games fit the Apps section beside chat.
+ * `max` caps how wide a board may grow on a very large pane.
  */
 export function useBoard(max: number, cols: number, gap: number) {
-  const win = useWindowDimensions();
-  const [avail, setAvail] = useState<number | undefined>();
-  const width = Math.floor(Math.min(max, avail ?? win.width - 28));
+  const [avail, setAvail] = useState(0);
+  // Until onLayout runs, use a pane-sized fallback (not the full window) so boards fit the Apps section.
+  const width = Math.floor(Math.min(max, avail > 0 ? avail : Math.min(max, 360)));
   const cell = Math.floor((width - gap * (cols - 1)) / cols);
   return {
     width,
     cell,
-    onLayout: (e: { nativeEvent: { layout: { width: number } } }) => setAvail(e.nativeEvent.layout.width),
+    onLayout: (e: { nativeEvent: { layout: { width: number } } }) =>
+      setAvail(Math.floor(e.nativeEvent.layout.width)),
   };
 }
 
-/** Which game is open (if any), so the Apps screen can give it the whole width on wide web. */
+/**
+ * Height left for a game under Apps chrome + the in-app title row.
+ * Boards use this so cards/petals stay on screen without scrolling.
+ */
+export function useGamePaneHeight(): number {
+  const { height } = useWindowDimensions();
+  return Math.round(Math.min(Math.max(height - 250, 300), Math.min(height * 0.68, 560)));
+}
+
+/** Square cell capped by width and by how many rows must fit in `boardBudget`. */
+export function fitCell(widthCell: number, rows: number, gap: number, boardBudget: number): number {
+  const byHeight = Math.floor((boardBudget - gap * Math.max(0, rows - 1)) / Math.max(1, rows));
+  return Math.max(44, Math.min(widthCell, byHeight));
+}
+
+/** Which game is open inside the Games app (list vs a single game). Stays in the Apps pane. */
 export const useOpenGame = create<{ open: GameId | undefined; setOpen: (g: GameId | undefined) => void }>(
   (set) => ({ open: undefined, setOpen: (open) => set({ open }) }),
 );

@@ -7,6 +7,7 @@ import { SearchBox, useTimeAgo } from '@/features/chat/ChatHistory';
 import { useChat } from '@/features/chat/store';
 import { useNewChat } from '@/features/main/useNewChat';
 import { MainTop } from '@/features/main/TopBar';
+import { safeBack } from '@/features/nav/safeBack';
 import { useMainPalette } from '@/features/main/palette';
 import { Button, Text, useTheme } from '@/ui';
 
@@ -32,7 +33,7 @@ export default function AllChats() {
     .sort((a, b) => b.updatedAt - a.updatedAt);
   return (
     <Scene>
-      <MainTop kind="chat" title={t('chat.all')} onMenu={() => router.back()} />
+      <MainTop kind="chat" title={t('chat.all')} onMenu={() => safeBack(router)} />
       <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ padding: 16, gap: 12, maxWidth: 720, width: '100%', alignSelf: 'center' }}

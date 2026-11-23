@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { openMyProfile } from '@/features/apps/openApp';
 import { ChatHistory } from '@/features/chat/ChatHistory';
 import { useChat } from '@/features/chat/store';
-import { Icon, useTheme } from '@/ui';
+import { glassStyle, Icon, useTheme } from '@/ui';
 import { Avatar, IconButton, useMainPalette } from './palette';
 import { useNewChat } from './useNewChat';
 import { useInitial } from './TopBar';
@@ -26,18 +27,29 @@ export function WebSidebar() {
   const toggle = () => setManual({ path, open: !open });
   const newChat = useNewChat();
 
+  const theme = useTheme();
   return (
     <View
-      style={{
-        width: open ? 252 : 60,
-        backgroundColor: `${p.card}8C`,
-        borderRightWidth: 1,
-        borderRightColor: p.line,
-        paddingVertical: 10,
-        paddingHorizontal: open ? 10 : 0,
-        alignItems: open ? 'stretch' : 'center',
-        gap: 6,
-      }}
+      style={[
+        glassStyle({
+          scheme: theme.scheme,
+          fill: p.card,
+          border: p.line,
+          kind: 'chrome',
+        }),
+        {
+          width: open ? 252 : 60,
+          borderTopWidth: 0,
+          borderBottomWidth: 0,
+          borderLeftWidth: 0,
+          borderRightWidth: 1,
+          borderRadius: 0,
+          paddingVertical: 10,
+          paddingHorizontal: open ? 10 : 0,
+          alignItems: open ? 'stretch' : 'center',
+          gap: 6,
+        },
+      ]}
     >
       {open ? (
         <>
@@ -52,7 +64,7 @@ export function WebSidebar() {
             }}
             onNew={newChat}
             onAll={() => router.navigate('/chats')}
-            onUser={() => router.navigate('/profile')}
+            onUser={() => openMyProfile(router)}
           />
         </>
       ) : (
@@ -61,7 +73,7 @@ export function WebSidebar() {
           <RailPlus label={t('chat.new')} onPress={newChat} />
           <IconButton icon="chat" label={t('chat.all')} onPress={() => router.navigate('/chats')} />
           <View style={{ flex: 1 }} />
-          <Avatar initial={initial} label={t('tabs.profile')} onPress={() => router.navigate('/profile')} />
+          <Avatar initial={initial} label={t('tabs.profile')} onPress={() => openMyProfile(router)} />
         </>
       )}
     </View>

@@ -9,7 +9,7 @@ import { Platform, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { DotPill, RoundButton, Segmented, useMainPalette } from '@/features/main/palette';
-import { Logo, LogoMark, Text, fontFamily, useTheme } from '@/ui';
+import { glassStyle, LogoMark, Text, fontFamily, useTheme } from '@/ui';
 import { useHousehold } from '@/features/household/store';
 import { useReminderSchedule } from '@/features/reminders/store';
 import { useChat, usePendingCount, type ChatMessage } from './store';
@@ -162,164 +162,176 @@ export function ChatView({ compact, centered }: { compact?: boolean; centered?: 
   return (
     <View style={{ flex: 1, minHeight: 0 }}>
       <VoiceOverlay where="pane" />
-      <ScrollView
-        ref={scroll}
-        keyboardShouldPersistTaps="handled"
-        style={{ flex: 1 }}
-        contentContainerStyle={[
-          { flexGrow: 1, paddingVertical: 16, paddingHorizontal: compact ? 16 : 20, gap: 14 },
-          width,
-        ]}
-      >
-        {chat && chat.messages.length ? (
-          <>
-            {chat.messages.map(bubble)}
-            {waiting ? (
-              <View
-                accessibilityLiveRegion="polite"
-                style={{ alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 10 }}
-              >
-                <LogoMark size={26} />
-                <Text variant="bodySm" style={{ color: p.muted, fontStyle: 'italic' }}>
-                  {t('chat.thinking')}
-                </Text>
-              </View>
-            ) : null}
-          </>
-        ) : (
-          <View
-            style={{
-              flex: 1,
-              minHeight: 280,
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-              alignSelf: 'center',
-              maxWidth: 320,
-            }}
+      {/* Hide chat while Talk is open so messages/composer cannot show through the voice layer. */}
+      {voiceOpen ? null : (
+        <>
+          <ScrollView
+            ref={scroll}
+            keyboardShouldPersistTaps="handled"
+            style={{ flex: 1 }}
+            contentContainerStyle={[
+              { flexGrow: 1, paddingVertical: 16, paddingHorizontal: compact ? 16 : 20, gap: 14 },
+              width,
+            ]}
           >
-            <Logo height={64} />
-            <View accessibilityLiveRegion="polite">
-              <DotPill label={t('chat.working', { count: pending })} bordered={false} />
-            </View>
-            <Text
-              variant="bodyLg"
-              style={{ color: p.muted, textAlign: 'center', marginTop: 16, marginBottom: 6 }}
-            >
-              {t('chat.emptyHelp')}
-            </Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, justifyContent: 'center' }}>
-              {(['walk', 'bhajans'] as const).map((k) => (
-                <Pressable
-                  key={k}
-                  accessibilityRole="button"
-                  onPress={() => setDraft(t(`chat.suggest.${k}`))}
-                  style={({ pressed }) => ({
-                    minHeight: theme.minTarget,
-                    justifyContent: 'center',
-                    borderWidth: 1,
-                    borderColor: p.line2,
-                    borderRadius: 999,
-                    paddingHorizontal: 12,
-                    backgroundColor: pressed ? p.plumSoft : p.card,
-                  })}
+            {chat && chat.messages.length ? (
+              <>
+                {chat.messages.map(bubble)}
+                {waiting ? (
+                  <View
+                    accessibilityLiveRegion="polite"
+                    style={{ alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 10 }}
+                  >
+                    <LogoMark size={26} />
+                    <Text variant="bodySm" style={{ color: p.muted, fontStyle: 'italic' }}>
+                      {t('chat.thinking')}
+                    </Text>
+                  </View>
+                ) : null}
+              </>
+            ) : (
+              <View
+                style={{
+                  flex: 1,
+                  minHeight: 280,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  alignSelf: 'center',
+                  maxWidth: 320,
+                }}
+              >
+                <View accessible accessibilityLabel={t('chat.emptyTitle')}>
+                  <LogoMark size={64} />
+                </View>
+                <View accessibilityLiveRegion="polite">
+                  <DotPill label={t('chat.working', { count: pending })} bordered={false} />
+                </View>
+                <Text
+                  variant="bodyLg"
+                  style={{ color: p.muted, textAlign: 'center', marginTop: 16, marginBottom: 6 }}
                 >
-                  <Text variant="bodySm" style={{ color: p.ink }}>
-                    {t(`chat.suggest.${k}`)}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-        )}
-      </ScrollView>
+                  {t('chat.emptyHelp')}
+                </Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, justifyContent: 'center' }}>
+                  {(['walk', 'bhajans'] as const).map((k) => (
+                    <Pressable
+                      key={k}
+                      accessibilityRole="button"
+                      onPress={() => setDraft(t(`chat.suggest.${k}`))}
+                      style={({ pressed }) => ({
+                        minHeight: theme.minTarget,
+                        justifyContent: 'center',
+                        borderWidth: 1,
+                        borderColor: p.line2,
+                        borderRadius: 999,
+                        paddingHorizontal: 12,
+                        backgroundColor: pressed ? p.plumSoft : p.card,
+                      })}
+                    >
+                      <Text variant="bodySm" style={{ color: p.ink }}>
+                        {t(`chat.suggest.${k}`)}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            )}
+          </ScrollView>
 
-      <View
-        style={[
-          { paddingTop: 8, paddingBottom: compact ? 10 : 16, paddingHorizontal: compact ? 12 : 16 },
-          width,
-        ]}
-      >
-        <TextInput
-          value={draft}
-          onChangeText={setDraft}
-          placeholder={t('chat.placeholder')}
-          placeholderTextColor={p.muted}
-          accessibilityLabel={t('chat.message')}
-          multiline
-          blurOnSubmit={false}
-          onKeyPress={(e) => {
-            // Web: Enter sends, Shift+Enter adds a line.
-            const ev = e.nativeEvent as unknown as { key: string; shiftKey?: boolean };
-            if (ev.key === 'Enter' && !ev.shiftKey && Platform.OS === 'web') {
-              (e as unknown as { preventDefault?: () => void }).preventDefault?.();
-              submit();
-            }
-          }}
-          style={{
-            minHeight: compact ? 46 : 70,
-            maxHeight: 160,
-            textAlignVertical: 'top',
-            backgroundColor: p.card,
-            borderWidth: 1,
-            borderColor: p.line2,
-            borderRadius: compact ? 24 : 20,
-            paddingVertical: compact ? 12 : 13,
-            paddingHorizontal: 16,
-            color: p.ink,
-            fontFamily: fontFamily(i18n.language, body),
-            fontSize: 15.5 * theme.fontScale,
-          }}
-        />
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 10 }}>
-          <View style={{ flex: 1 }}>
-            <Segmented<'chat' | 'talk'>
-              label={t('chat.mode')}
-              value={voiceOpen ? 'talk' : 'chat'}
-              onChange={(m) => setVoiceOpen(m === 'talk')}
-              options={[
-                { id: 'chat', label: t('chat.chatMode') },
-                { id: 'talk', label: t('chat.talkMode') },
+          <View
+            style={[
+              { paddingTop: 8, paddingBottom: compact ? 10 : 16, paddingHorizontal: compact ? 12 : 16 },
+              width,
+            ]}
+          >
+            <TextInput
+              value={draft}
+              onChangeText={setDraft}
+              placeholder={t('chat.placeholder')}
+              placeholderTextColor={p.muted}
+              accessibilityLabel={t('chat.message')}
+              multiline
+              blurOnSubmit={false}
+              onKeyPress={(e) => {
+                // Web: Enter sends, Shift+Enter adds a line.
+                const ev = e.nativeEvent as unknown as { key: string; shiftKey?: boolean };
+                if (ev.key === 'Enter' && !ev.shiftKey && Platform.OS === 'web') {
+                  (e as unknown as { preventDefault?: () => void }).preventDefault?.();
+                  submit();
+                }
+              }}
+              style={[
+                glassStyle({
+                  scheme: theme.scheme,
+                  fill: p.card,
+                  border: p.line2,
+                  kind: 'card',
+                  radius: compact ? 24 : 22,
+                }),
+                {
+                  minHeight: compact ? 46 : 70,
+                  maxHeight: 160,
+                  textAlignVertical: 'top',
+                  paddingVertical: compact ? 12 : 13,
+                  paddingHorizontal: 16,
+                  color: p.ink,
+                  fontFamily: fontFamily(i18n.language, body),
+                  fontSize: 15.5 * theme.fontScale,
+                },
               ]}
             />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 10 }}>
+              <View style={{ flex: 1 }}>
+                <Segmented<'chat' | 'talk'>
+                  label={t('chat.mode')}
+                  value={voiceOpen ? 'talk' : 'chat'}
+                  onChange={(m) => setVoiceOpen(m === 'talk')}
+                  options={[
+                    { id: 'chat', label: t('chat.chatMode') },
+                    { id: 'talk', label: t('chat.talkMode') },
+                  ]}
+                />
+              </View>
+              {/* Browser: speech to text. Phones: off until a speech library and a development build (dictation.ts). */}
+              <RoundButton
+                icon="mic"
+                label={listening ? t('chat.stopListening') : t('chat.speak')}
+                filled={listening}
+                disabled={!micAvailable || (!!waitingId && !listening)}
+                onPress={toggleMic}
+                size={compact ? 40 : 44}
+              />
+              <RoundButton
+                icon="send"
+                label={t('chat.send')}
+                filled={canSend}
+                disabled={!canSend}
+                onPress={submit}
+                size={compact ? 40 : 44}
+              />
+            </View>
+            {listening ? (
+              <Text
+                variant="bodySm"
+                accessibilityLiveRegion="polite"
+                style={{ color: p.muted, marginTop: 8, marginHorizontal: 2 }}
+              >
+                {t('chat.listening')}
+              </Text>
+            ) : micError ? (
+              <Text
+                variant="bodySm"
+                tone="safety"
+                accessibilityRole="alert"
+                style={{ marginTop: 8, marginHorizontal: 2 }}
+              >
+                {micError === 'blocked' ? t('chat.micBlocked') : t('chat.micFailed')}
+              </Text>
+            ) : null}
           </View>
-          {/* Browser: speech to text. Phones: off until a speech library and a development build (dictation.ts). */}
-          <RoundButton
-            icon="mic"
-            label={listening ? t('chat.stopListening') : t('chat.speak')}
-            filled={listening}
-            disabled={!micAvailable || (!!waitingId && !listening)}
-            onPress={toggleMic}
-            size={compact ? 40 : 44}
-          />
-          <RoundButton
-            icon="send"
-            label={t('chat.send')}
-            filled={canSend}
-            disabled={!canSend}
-            onPress={submit}
-            size={compact ? 40 : 44}
-          />
-        </View>
-        {listening ? (
-          <Text
-            variant="bodySm"
-            accessibilityLiveRegion="polite"
-            style={{ color: p.muted, marginTop: 8, marginHorizontal: 2 }}
-          >
-            {t('chat.listening')}
-          </Text>
-        ) : micError ? (
-          <Text
-            variant="bodySm"
-            tone="safety"
-            accessibilityRole="alert"
-            style={{ marginTop: 8, marginHorizontal: 2 }}
-          >
-            {micError === 'blocked' ? t('chat.micBlocked') : t('chat.micFailed')}
-          </Text>
-        ) : null}
-      </View>
+        </>
+      )}
     </View>
   );
 }

@@ -4,10 +4,11 @@ import Home from '@/app/home';
 import Apps from '@/app/(tabs)/apps';
 import Chat from '@/app/(tabs)/chat';
 import AllChats from '@/app/(tabs)/chats';
-import Profile from '@/app/(tabs)/profile';
+import { useOpenApp } from '@/features/apps/openApp';
 import { useChat } from '@/features/chat/store';
 import { useHousehold } from '@/features/household/store';
 import { usePendant } from '@/features/pendant/store';
+import { ProfileView } from '@/features/profile/ProfileView';
 import { useSettings } from '@/features/settings/store';
 import { useWearer } from '@/features/wearer/store';
 import { verifyOtpAndSignIn } from '@/services/auth/authApi';
@@ -45,8 +46,9 @@ beforeEach(async () => {
   resetPendant();
   usePendant.setState({ connection: 'disconnected', battery: undefined });
   useChat.getState().reset();
+  useOpenApp.setState({ open: undefined });
   await i18n.changeLanguage('en');
-  useSettings.setState({ themeMode: 'wearer', scheme: 'light' });
+  useSettings.setState({ themeMode: 'wearer', scheme: 'light', homeBackground: 'rose' });
   await useMockBackend();
   await verifyOtpAndSignIn(INDIA, DEMO_CODE);
   const userId = useSession.getState().userId as string;
@@ -133,6 +135,12 @@ describe('Apps tab', () => {
     expect(screen.getByText('2 · Ravi')).toBeTruthy();
     await fireEvent.press(screen.getByRole('button', { name: 'Back to apps' }));
     expect(screen.getByRole('button', { name: 'Music' })).toBeTruthy();
+    // My Profile opens in this same pane (not a separate tab).
+    await fireEvent.press(screen.getAllByRole('button', { name: 'My Profile' })[0]);
+    expect(screen.getByText('About you')).toBeTruthy();
+    expect(screen.getByText('Settings')).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'Back to apps' }));
+    expect(screen.getByRole('button', { name: 'Music' })).toBeTruthy();
   });
 
   it('Pendant app shows the status and runs the SOS drill', async () => {
@@ -144,9 +152,9 @@ describe('Apps tab', () => {
   });
 });
 
-describe('My Profile tab', () => {
+describe('My Profile (in Apps pane)', () => {
   it('keeps the details, contacts, sign-in and Settings together', async () => {
-    await renderApp(<Profile />);
+    await renderApp(<ProfileView />);
     expect(screen.getByText('Asha Rao')).toBeTruthy();
     expect(screen.getByText('Amma')).toBeTruthy();
     expect(screen.getByText(/^05\/07\/1950 · \d+ years old$/)).toBeTruthy();
@@ -159,9 +167,28 @@ describe('My Profile tab', () => {
   });
 
   it('Display has Light, Dark and System, and choosing one changes the scheme', async () => {
-    await renderApp(<Profile />);
+    await renderApp(<ProfileView />);
     for (const n of ['Light', 'Dark', 'System']) expect(screen.getByRole('radio', { name: n })).toBeTruthy();
     await fireEvent.press(screen.getByRole('radio', { name: 'Dark' }));
     expect(useSettings.getState().scheme).toBe('dark');
+  });
+
+  it('Home background has three placeholders, and choosing one updates the setting', async () => {
+    await renderApp(<ProfileView />);
+    expect(screen.getByText('Home background')).toBeTruthy();
+    for (const n of ['Soft rose', 'Warm sand', 'Cool mist']) {
+      expect(screen.getByRole('radio', { name: n })).toBeTruthy();
+    }
+    await fireEvent.press(screen.getByRole('radio', { name: 'Warm sand' }));
+    expect(useSettings.getState().homeBackground).toBe('sand');
+  });
+
+  it('Text and apps size has 1 2 3, and choosing one updates the setting', async () => {
+    useSettings.setState({ displayScale: 1 });
+    await renderApp(<ProfileView />);
+    expect(screen.getByText('Text and apps size')).toBeTruthy();
+    for (const n of ['1', '2', '3']) expect(screen.getByRole('radio', { name: n })).toBeTruthy();
+    await fireEvent.press(screen.getByRole('radio', { name: '2' }));
+    expect(useSettings.getState().displayScale).toBe(2);
   });
 });

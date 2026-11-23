@@ -1,4 +1,4 @@
-# Svaraa Mobile
+# Svaraa Core
 
 Expo + TypeScript (strict) + Expo Router. iOS, Android, web (caregiver screens only).
 

@@ -234,13 +234,20 @@ function Record({ back, done }: { back: () => void; done: (id: string) => void }
             borderColor: p.line,
             borderRadius: 15,
             padding: 18,
-            gap: theme.space[2],
+            gap: theme.space[3],
             alignItems: 'center',
           }}
         >
           <Icon name="mic" size={32} color={busy ? p.muted : p.bad} />
           <Text
-            style={{ color: p.ink, fontSize: 34, fontWeight: '700' }}
+            // Explicit line height: the default is shorter than a 34px number, which clipped it into the mic icon.
+            style={{
+              color: p.ink,
+              fontSize: 34,
+              lineHeight: 44,
+              fontWeight: '700',
+              marginTop: theme.space[1],
+            }}
             accessibilityLabel={t('notes.length', { time: clock(recorder.seconds) })}
           >
             {clock(recorder.seconds)}

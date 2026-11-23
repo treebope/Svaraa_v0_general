@@ -1,26 +1,28 @@
 import type { ReactNode } from 'react';
 import { View, type ViewProps } from 'react-native';
 import { Button } from './Button';
+import { glassStyle } from './glass';
 import { Text } from './Text';
 import { useTheme } from './ThemeProvider';
-import { shadow } from './tokens';
 
-/** Standard card surface. */
+/** Standard glass card surface (soft frost over the page). */
 export function Card({ children, style, ...rest }: ViewProps & { children: ReactNode }) {
   const theme = useTheme();
   return (
     <View
       {...rest}
       style={[
+        glassStyle({
+          scheme: theme.scheme,
+          fill: theme.colors.surface,
+          border: theme.colors.border,
+          kind: 'card',
+          radius: theme.radius.xl,
+        }),
         {
-          backgroundColor: theme.colors.surfaceSolid,
-          borderRadius: theme.radius.xl,
-          borderWidth: 1,
-          borderColor: theme.colors.borderSubtle,
           padding: theme.space[4],
           gap: theme.space[3],
         },
-        theme.scheme === 'light' ? shadow.card : null,
         style,
       ]}
     >

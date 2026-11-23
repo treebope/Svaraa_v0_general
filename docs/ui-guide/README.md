@@ -1,6 +1,6 @@
 # Svaraa UI Guide
 
-The visual and component rules for the Svaraa web app. Written from the V0 code, so it matches what ships.
+The visual and component rules for the Svaraa web app. Written from the Core UI, so it matches what ships.
 Source of truth: `packages/ui/src/tokens/tokens.css` (tokens) and `packages/ui/src/components/` (components).
 Live view of every component and state: `/styleguide` (add `?theme=dark` for dark mode).
 
@@ -137,7 +137,7 @@ All are exported from `packages/ui/src/index.ts`. Styles are in `components/comp
 
 ## 6. Look history
 
-The V0 look follows the Svaraa website (Newsreader + Inter, plum, soft glow). The earlier Brand-document values
+The Core look follows the Svaraa website (Newsreader + Inter, plum, soft glow). The earlier Brand-document values
 are kept in `docs/design/tokens.brand-doc-v1.css`. Token names did not change between the two.
 
 ## 7. Adding to the UI

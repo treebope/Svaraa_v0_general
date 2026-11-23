@@ -12,10 +12,19 @@ export function usePageWidth(): number {
 }
 
 /**
- * Two side-by-side columns on a wide web window; on a phone or narrow window the two lists simply follow each other,
- * exactly as before, so the phone layout does not change.
+ * Two side-by-side columns on a wide web window; on a phone or narrow window the two lists simply follow each other.
+ * `equalHeight` stretches both columns to the taller one (for a single card on each side).
  */
-export function Columns({ left, right }: { left: ReactNode; right: ReactNode }) {
+export function Columns({
+  left,
+  right,
+  equalHeight = true,
+}: {
+  left: ReactNode;
+  right: ReactNode;
+  /** When true (default), both columns share the taller height. Turn off when a column has stacked content under its card. */
+  equalHeight?: boolean;
+}) {
   const theme = useTheme();
   const wide = useWide();
   if (!wide)
@@ -25,9 +34,24 @@ export function Columns({ left, right }: { left: ReactNode; right: ReactNode }) 
         {right}
       </>
     );
-  const column = { flex: 1, minWidth: 0, gap: theme.space[4] } as const;
+  // flexBasis 0 so both sides get the same width regardless of content size.
+  const column = {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
+    minWidth: 0,
+    gap: theme.space[4],
+    ...(equalHeight ? { alignSelf: 'stretch' as const } : null),
+  };
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: theme.space[4] }}>
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: equalHeight ? 'stretch' : 'flex-start',
+        gap: theme.space[5],
+        width: '100%',
+      }}
+    >
       <View style={column}>{left}</View>
       <View style={column}>{right}</View>
     </View>

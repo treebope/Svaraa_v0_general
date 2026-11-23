@@ -28,6 +28,13 @@ jest.mock('expo-router', () => ({
 let householdId = '';
 const flush = () => act(async () => await new Promise((r) => setTimeout(r, 0)));
 
+/** Start the drill the same way the gold-button mock does after 3 presses. */
+async function startViaSos() {
+  const sim = pendant();
+  if (!(sim instanceof SimulatorTransport)) throw new Error('expected SimulatorTransport');
+  await act(async () => sim.simulateSosPress());
+}
+
 beforeEach(async () => {
   mockReplace.mockClear();
   mockBack.mockClear();
@@ -51,7 +58,7 @@ describe('C8 · Test your SOS', () => {
   it('passes when a contact answers, then finishing makes the device Active', async () => {
     await renderApp(<SosDrill />);
     expect(screen.getByRole('button', { name: 'Finish setup' })).toBeDisabled();
-    await act(async () => await fireEvent.press(screen.getByRole('button', { name: 'Run SOS drill' })));
+    await act(async () => await startViaSos());
     await flush();
     expect(await screen.findByText('Your SOS works', {}, { timeout: 4000 })).toBeTruthy();
     expect(screen.getByText('Meera answered the drill.')).toBeTruthy();
@@ -63,17 +70,17 @@ describe('C8 · Test your SOS', () => {
   it('shows the countdown while waiting, and offers a retry when nobody answers', async () => {
     Object.assign(mockDrillTiming, { ackMs: 60 * 60_000, timeoutMs: 0 });
     await renderApp(<SosDrill />);
-    await act(async () => await fireEvent.press(screen.getByRole('button', { name: 'Run SOS drill' })));
-    expect(screen.getByText(/Waiting for someone to answer… 0:00/)).toBeTruthy();
+    await act(async () => await startViaSos());
+    await flush();
     expect(await screen.findByText('No one answered in time', {}, { timeout: 4000 })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Run the drill again' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Press the gold button 3 times' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Finish setup' })).toBeDisabled();
   });
 
   it('can be answered from the app, which finishes setup and goes Home', async () => {
     Object.assign(mockDrillTiming, { ackMs: 60 * 60_000 });
     await renderApp(<SosDrill />);
-    await act(async () => await fireEvent.press(screen.getByRole('button', { name: 'Run SOS drill' })));
+    await act(async () => await startViaSos());
     await act(
       async () => await fireEvent.press(screen.getByRole('button', { name: 'I got the drill alert' })),
     );
@@ -83,14 +90,65 @@ describe('C8 · Test your SOS', () => {
     expect(mockReplace).toHaveBeenCalledWith('/home');
   });
 
-  it('starts when the wearer holds the gold dot', async () => {
+  it('starts when the wearer presses the gold button 3 times', async () => {
     const sim = new SimulatorTransport();
+    const spy = jest.spyOn(sim, 'simulateSosPress');
     resetPendant(sim);
     await renderApp(<SosDrill />);
+    await flush();
     expect(pendant()).toBe(sim);
-    await act(async () => sim.simulateSosPress());
+    const btn = screen.getByRole('button', { name: 'Press the gold button 3 times' });
+    await act(async () => {
+      await fireEvent.press(btn);
+      await fireEvent.press(btn);
+    });
+    expect(spy).not.toHaveBeenCalled();
+    await act(async () => await fireEvent.press(btn));
+    expect(spy).toHaveBeenCalledTimes(1);
     await flush();
     expect(await screen.findByText('Your SOS works', {}, { timeout: 4000 })).toBeTruthy();
+  });
+
+  it('can skip to the next contact while waiting', async () => {
+    Object.assign(mockDrillTiming, { ackMs: 60 * 60_000 });
+    useWearer.setState({
+      contacts: [
+        { name: 'Meera', countryCode: '+91', mobile: '9812344410', relationship: '' },
+        { name: 'Ravi', countryCode: '+91', mobile: '9812344411', relationship: '' },
+      ],
+    });
+    await renderApp(<SosDrill />);
+    await act(async () => await startViaSos());
+    await flush();
+    expect(screen.getByText(/Calling Meera/)).toBeTruthy();
+    await act(
+      async () => await fireEvent.press(screen.getByRole('button', { name: 'Skip to next contact' })),
+    );
+    expect(screen.getByText(/Calling Ravi/)).toBeTruthy();
+  });
+
+  it('can override the SOS check at the emergency stage', async () => {
+    Object.assign(mockDrillTiming, { ackMs: 60 * 60_000 });
+    useWearer.setState({
+      contacts: [
+        { name: 'Meera', countryCode: '+91', mobile: '9812344410', relationship: '' },
+        { name: 'Ravi', countryCode: '+91', mobile: '9812344411', relationship: '' },
+      ],
+    });
+    await renderApp(<SosDrill />);
+    await act(async () => await startViaSos());
+    await flush();
+    await act(
+      async () => await fireEvent.press(screen.getByRole('button', { name: 'Skip to next contact' })),
+    );
+    await act(
+      async () => await fireEvent.press(screen.getByRole('button', { name: 'Skip to next contact' })),
+    );
+    expect(screen.getByText('Next: emergency services')).toBeTruthy();
+    await act(async () => await fireEvent.press(screen.getByRole('button', { name: 'Override SOS check' })));
+    await flush();
+    expect(await screen.findByText('Your SOS works', {}, { timeout: 4000 })).toBeTruthy();
+    expect(useHousehold.getState()).toMatchObject({ hasActiveDevice: true });
   });
 
   it('after setup it is a practice run that ends with Done', async () => {
@@ -143,7 +201,7 @@ describe('History', () => {
   it('keeps the last drill and shows how it ended', async () => {
     await useHousehold.getState().activate();
     await renderApp(<SosDrill />);
-    await act(async () => await fireEvent.press(screen.getByRole('button', { name: 'Run SOS drill' })));
+    await act(async () => await startViaSos());
     await flush();
     expect(await screen.findByText('Your SOS works', {}, { timeout: 4000 })).toBeTruthy();
     await act(async () => await fireEvent.press(screen.getByRole('radio', { name: 'History' })));

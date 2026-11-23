@@ -50,13 +50,11 @@ const flush = () => act(async () => await new Promise((r) => setTimeout(r, 0)));
 describe('C3 · Pair your pendant', () => {
   it('scans, pairs, verifies the claim with a signed challenge and goes to the checks', async () => {
     await renderApp(<PairPendant />);
-    await fireEvent.press(screen.getByRole('button', { name: 'I pressed the dot' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Press the gold button once' }));
     await flush();
-    expect(screen.getByText('Svaraa Fold Over')).toBeTruthy();
-    expect(screen.getByText('#2041 · nearby')).toBeTruthy();
-    await act(
-      async () => await fireEvent.press(screen.getByRole('button', { name: 'Pair: Svaraa Fold Over' })),
-    );
+    expect(screen.getByText(/Svaraa Fold Over · #2041 nearby/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Continue' })).toBeTruthy();
+    await act(async () => await fireEvent.press(screen.getByRole('button', { name: 'Continue' })));
     await flush();
     expect(mockDevicesOf(householdId)[0]?.claim_state).toBe('verified');
     expect(useWearer.getState()).toMatchObject({
@@ -71,21 +69,24 @@ describe('C3 · Pair your pendant', () => {
     jest.useFakeTimers();
     simulatorTiming.found = 60_000;
     await renderApp(<PairPendant />);
-    await fireEvent.press(screen.getByRole('button', { name: 'I pressed the dot' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Press the gold button once' }));
     await act(async () => void jest.advanceTimersByTime(20_000));
     expect(screen.getByText(/We could not find your pendant/)).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Press the dot again and retry' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Press the gold button again and retry' })).toBeTruthy();
     jest.useRealTimers();
   });
 
   it('refuses a pendant that is not genuine', async () => {
-    resetPendant(Object.assign(new SimulatorTransport(), { signChallenge: async () => 'forged-signature' }));
+    const forged = new SimulatorTransport();
+    forged.signChallenge = async () => 'forged-signature';
+    resetPendant(forged);
     await renderApp(<PairPendant />);
-    await fireEvent.press(screen.getByRole('button', { name: 'I pressed the dot' }));
-    await flush();
-    await act(
-      async () => await fireEvent.press(screen.getByRole('button', { name: 'Pair: Svaraa Fold Over' })),
-    );
+    await act(async () => {
+      forged.simulatePairingPress();
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    expect(screen.getByText(/Svaraa Fold Over · #2041 nearby/)).toBeTruthy();
+    await act(async () => await fireEvent.press(screen.getByRole('button', { name: 'Continue' })));
     await flush();
     expect(screen.getByText(/genuine Svaraa pendant/)).toBeTruthy();
     expect(mockDevicesOf(householdId)[0]?.claim_state).toBe('unverified');

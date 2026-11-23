@@ -8,12 +8,15 @@ import { useChat } from '@/features/chat/store';
 import { IconButton, useMainPalette } from '@/features/main/palette';
 import { MainTop } from '@/features/main/TopBar';
 import { useWide } from '@/features/main/useWide';
-import { Icon, Text, useTheme, type IconName } from '@/ui';
-import { useOpenGame } from '@/features/games/kit';
+import { ProfileView } from '@/features/profile/ProfileView';
+import { displayScaleFactor } from '@/features/settings/displayScale';
+import { useSettings } from '@/features/settings/store';
+import { glassStyle, Icon, Text, useTheme, type IconName } from '@/ui';
 import { useManageApps } from '@/features/manage/store';
-import { APP_IDS, AppView, type AppId } from './AppViews';
+import { APP_IDS, AppView } from './AppViews';
+import { useOpenApp, type OpenableApp } from './openApp';
 
-export const APP_ICON: Record<AppId | 'profile', IconName> = {
+export const APP_ICON: Record<OpenableApp, IconName> = {
   music: 'music',
   reminders: 'remind',
   notes: 'note',
@@ -33,47 +36,55 @@ function AppsPane({
   setOpen,
   phone,
 }: {
-  open: AppId | undefined;
-  setOpen: (a: AppId | undefined) => void;
+  open: OpenableApp | undefined;
+  setOpen: (a: OpenableApp | undefined) => void;
   phone: boolean;
 }) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const router = useRouter();
   const p = useMainPalette();
+  const displayScale = useSettings((s) => s.displayScale);
+  const zoom = displayScaleFactor(displayScale);
   const enabled = useManageApps((s) => s.enabled);
   useEffect(() => void useManageApps.getState().load(), []);
   // Manage apps (F7): an app turned off there is not shown on Explore.
   const shown = APP_IDS.filter((id) => !(id in enabled) || enabled[id as keyof typeof enabled]);
-  const tile = (id: AppId | 'profile') => (
+  const tileSide = (phone ? 72 : 78) * zoom;
+  const cellWidth = phone ? (displayScale >= 3 ? '50%' : '33.33%') : 112 * zoom;
+  const tile = (id: OpenableApp) => (
     <Pressable
       key={id}
       accessibilityRole="button"
       accessibilityLabel={t(`apps.name.${id}`)}
-      onPress={() => (id === 'profile' ? router.navigate('/profile') : setOpen(id))}
-      style={{ width: phone ? '33.33%' : 112, alignItems: 'center', gap: 11, padding: 4 }}
+      onPress={() => setOpen(id)}
+      style={{ width: cellWidth, alignItems: 'center', gap: 11, padding: 4 }}
     >
       {({ pressed }) => (
         <>
           <View
-            style={{
-              width: phone ? 72 : 78,
-              height: phone ? 72 : 78,
-              borderRadius: phone ? 20 : 21,
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderWidth: 1,
-              borderColor: p.line,
-              backgroundColor: p.tile,
-              transform: [{ translateY: pressed ? -2 : 0 }],
-              ...(Platform.OS === 'web'
-                ? ({ backgroundImage: `linear-gradient(180deg, ${p.tile}, ${p.tile2})` } as object)
-                : null),
-            }}
+            style={[
+              glassStyle({
+                scheme: theme.scheme,
+                fill: p.tile,
+                border: p.line,
+                kind: 'tile',
+                radius: (phone ? 22 : 24) * zoom,
+              }),
+              {
+                width: tileSide,
+                height: tileSide,
+                alignItems: 'center',
+                justifyContent: 'center',
+                transform: [{ translateY: pressed ? -3 : 0 }, { scale: pressed ? 0.97 : 1 }],
+                ...(Platform.OS === 'web'
+                  ? ({ backgroundImage: `linear-gradient(165deg, ${p.tile2}, ${p.tile})` } as object)
+                  : null),
+              },
+            ]}
           >
-            <Icon name={APP_ICON[id]} size={28} color={p.plum} />
+            <Icon name={APP_ICON[id]} size={28 * zoom} color={p.plum} />
           </View>
-          <Text style={{ color: p.ink, fontWeight: '600', fontSize: 15, textAlign: 'center' }}>
+          <Text variant="label" style={{ color: p.ink, fontWeight: '600', textAlign: 'center' }}>
             {t(`apps.name.${id}`)}
           </Text>
         </>
@@ -95,16 +106,16 @@ function AppsPane({
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <IconButton icon="back" label={t('apps.back')} onPress={() => setOpen(undefined)} />
             <View
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 13,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderWidth: 1,
-                borderColor: p.line,
-                backgroundColor: p.tile,
-              }}
+              style={[
+                glassStyle({
+                  scheme: theme.scheme,
+                  fill: p.tile,
+                  border: p.line,
+                  kind: 'tile',
+                  radius: 14,
+                }),
+                { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+              ]}
             >
               <Icon name={APP_ICON[open]} size={22} color={p.plum} />
             </View>
@@ -112,7 +123,7 @@ function AppsPane({
               {t(`apps.name.${open}`)}
             </Text>
           </View>
-          <AppView id={open} />
+          {open === 'profile' ? <ProfileView /> : <AppView id={open} />}
         </>
       ) : (
         <View
@@ -137,21 +148,23 @@ function AppsPane({
 function ChatPane({ split, onSplit }: { split: number; onSplit: (n: number) => void }) {
   const { t } = useTranslation();
   const router = useRouter();
+  const theme = useTheme();
   const p = useMainPalette();
   const wide = split > 0.5;
   const title =
     useChat((s) => s.conversations.find((c) => c.id === s.currentId)?.title) ?? t('chat.newTitle');
   return (
     <View
-      style={{
-        flex: 1,
-        minHeight: 0,
-        backgroundColor: `${p.card}D1`,
-        borderWidth: 1,
-        borderColor: p.line,
-        borderRadius: 24,
-        overflow: 'hidden',
-      }}
+      style={[
+        glassStyle({
+          scheme: theme.scheme,
+          fill: p.card,
+          border: p.line,
+          kind: 'panel',
+          radius: 28,
+        }),
+        { flex: 1, minHeight: 0, overflow: 'hidden' },
+      ]}
     >
       <View
         style={{
@@ -252,31 +265,25 @@ function Divider({ split, width, onSplit }: { split: number; width: number; onSp
 export default function AppsScreen() {
   const { t } = useTranslation();
   const wideWeb = useWide();
-  const [open, setOpen] = useState<AppId | undefined>();
+  const open = useOpenApp((s) => s.open);
+  const setOpen = useOpenApp((s) => s.setOpen);
   const [split, setSplit] = useState(MIN_SPLIT);
   const [width, setWidth] = useState(0);
-  // A game on wide web takes the whole width: the chat steps aside until the game is closed.
-  const gameFull = useOpenGame((s) => s.open !== undefined) && open === 'games';
 
   return (
     <Scene>
       <MainTop kind="apps" title={t('tabs.apps')} />
       {wideWeb ? (
-        // One row for both layouts, so the Apps pane (and the game in it) is never rebuilt when the chat steps aside.
+        // Chat + Apps stay side by side (same as Music / My Profile). Games size to the Apps pane.
         <View
           style={{ flex: 1, flexDirection: 'row', minHeight: 0, paddingVertical: 16, paddingLeft: 16 }}
           onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
         >
-          {gameFull ? null : (
-            <View key="chat" style={{ flex: split, minWidth: 0 }}>
-              <ChatPane split={split} onSplit={setSplit} />
-            </View>
-          )}
-          {gameFull ? null : <Divider key="divider" split={split} width={width} onSplit={setSplit} />}
-          <View
-            key="apps"
-            style={{ flex: gameFull ? 1 : 1 - split, minWidth: 0, paddingRight: gameFull ? 16 : 0 }}
-          >
+          <View style={{ flex: split, minWidth: 0 }}>
+            <ChatPane split={split} onSplit={setSplit} />
+          </View>
+          <Divider split={split} width={width} onSplit={setSplit} />
+          <View style={{ flex: 1 - split, minWidth: 0 }}>
             <AppsPane open={open} setOpen={setOpen} phone={false} />
           </View>
         </View>

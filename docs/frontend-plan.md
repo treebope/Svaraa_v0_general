@@ -1,4 +1,4 @@
-# Svaraa V0 — Frontend Plan & Timeline
+# Svaraa Core — Frontend Plan & Timeline
 
 Nov 2, 2026 · Pragati. Source: `docs/source/frontend-plan-timeline.docx`.
 
@@ -39,7 +39,7 @@ Each person reviews the other's code.
 ## App structure
 
 ```
-svaraa-mobile/
+svaraa-core/
 ├── app/        screens only (auth, onboarding, j/[token], main)
 ├── features/   auth, circles, devices, invites, consent, sos
 ├── services/   api, pendant, voice, push   ← all outside calls

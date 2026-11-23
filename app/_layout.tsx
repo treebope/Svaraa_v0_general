@@ -12,6 +12,7 @@ import { DueBanner } from '@/features/reminders/DueBanner';
 import { useScheduleSync } from '@/features/reminders/store';
 import { useReminderAlerts } from '@/features/reminders/useReminderAlerts';
 import { DRAFT_HOUSEHOLD_ID } from '@/services/household/householdApi';
+import { restoreDisplayScale } from '@/features/settings/displayScale';
 import { restoreLanguage } from '@/features/settings/language';
 import { useSettings } from '@/features/settings/store';
 import { useWearer } from '@/features/wearer/store';
@@ -109,7 +110,7 @@ export default function RootLayout() {
   useEffect(() => {
     void (async () => {
       if (env.useMocks) await startMocks();
-      await Promise.all([restoreLanguage(), useSession.getState().restore()]);
+      await Promise.all([restoreLanguage(), restoreDisplayScale(), useSession.getState().restore()]);
       setReady(true);
     })();
   }, []);

@@ -29,9 +29,9 @@ export function GamesView() {
   if (game) {
     const Game = GAMES[game];
     return (
-      <View style={{ gap: theme.space[3] }}>
+      <View style={{ gap: theme.space[3], width: '100%', alignSelf: 'stretch', minWidth: 0 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Text style={{ color: p.ink, fontWeight: '700', fontSize: 20 }} accessibilityRole="header">
+          <Text style={{ color: p.ink, fontWeight: '700', fontSize: 20, flex: 1 }} accessibilityRole="header">
             {t(`games.${game}.name`)}
           </Text>
           <Button label={t('games.all')} variant="secondary" size="sm" onPress={() => setGame(undefined)} />
@@ -41,7 +41,7 @@ export function GamesView() {
     );
   }
   return (
-    <View style={{ gap: theme.space[3] }}>
+    <View style={{ gap: theme.space[3], width: '100%', alignSelf: 'stretch', minWidth: 0 }}>
       {GAME_IDS.map((id) => (
         <Pressable
           key={id}

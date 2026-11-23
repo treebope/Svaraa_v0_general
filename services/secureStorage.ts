@@ -1,8 +1,8 @@
 import type { Storage } from './storage';
 
 /**
- * Storage for tokens and other private values. This file is the in-memory version used on web and in tests:
- * nothing is written to disk, so a web session ends when the tab closes. Mobile uses secureStorage.native.ts.
+ * Storage for tokens and other private values. In-memory fallback for tests and SSR.
+ * Web uses secureStorage.web.ts (localStorage); mobile uses secureStorage.native.ts (SecureStore).
  */
 const memory = new Map<string, string>();
 

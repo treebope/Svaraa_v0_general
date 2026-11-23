@@ -1,6 +1,7 @@
 import { fireEvent, screen } from '@testing-library/react-native';
 import i18n from '@/i18n';
 import AppsScreen from '@/features/apps/AppsScreen';
+import { useOpenApp } from '@/features/apps/openApp';
 import { useOpenGame } from '@/features/games/kit';
 import { useMockBackend } from '@/test-utils/backend';
 import { renderApp } from '@/test-utils/render';
@@ -17,6 +18,7 @@ jest.mock('@/features/main/useWide', () => ({ useWide: () => mockWide, WIDE_BREA
 beforeEach(async () => {
   await i18n.changeLanguage('en');
   useOpenGame.setState({ open: undefined });
+  useOpenApp.setState({ open: undefined });
   await useMockBackend();
 });
 

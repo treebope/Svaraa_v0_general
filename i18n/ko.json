@@ -1,0 +1,368 @@
+{
+  "common": {
+    "continue": "계속",
+    "back": "뒤로",
+    "cancel": "취소",
+    "done": "완료",
+    "close": "닫기",
+    "language": "언어",
+    "english": "English",
+    "hindi": "हिन्दी",
+    "tamil": "தமிழ்",
+    "mandarin": "中文",
+    "korean": "한국어",
+    "japanese": "日本語",
+    "save": "저장"
+  },
+  "auth": {
+    "welcome": {
+      "kicker": "Svaraa를 소개합니다",
+      "line1": "돌봄의 세계,",
+      "line2": "한마디 거리에.",
+      "subtitle": "어르신과 돌보는 분을 위한 음성 우선 AI 동반자.",
+      "body": "가족과 돌봄 제공자를 하나의 세심한 돌봄 생태계로 연결합니다.",
+      "signInTitle": "계속하려면 로그인",
+      "signInHint": "Google 또는 휴대폰 번호로 계속하세요.",
+      "points": {
+        "recite": "Recite — 음성으로 기도하고 고요함을",
+        "remind": "Remind — 약과 일과를 말로 알림",
+        "rescue": "Rescue — 믿을 수 있는 가족에게 닿는 SOS"
+      },
+      "scheme": "표시",
+      "google": "Google로 계속",
+      "phone": "휴대폰 번호로 계속",
+      "terms": "계속하면 약관 및 개인정보 처리방침에 동의하게 됩니다.",
+      "logo": "Svaraa 로고",
+      "googleModal": {
+        "title": "Google로 계속",
+        "subtitle": "Svaraa에 사용할 Google 계정을 선택하세요. 비밀번호는 보지 않습니다.",
+        "close": "닫기"
+      }
+    },
+    "phone": {
+      "title": "휴대폰 인증",
+      "subtitle": "SOS와 계정 복구에 사용합니다.",
+      "addTitle": "휴대폰 추가",
+      "addSubtitle": "로그인을 마치려면 휴대폰 번호를 추가하세요. SOS와 계정 복구에 사용합니다.",
+      "country": "국가",
+      "mobile": "휴대폰 번호",
+      "sendOtp": "OTP 보내기",
+      "changeNumber": "번호 변경",
+      "devHint": "테스트 모드: 코드는 0000입니다. 00으로 끝나는 번호는 기존 사용자로 로그인되고, 11로 끝나면 이미 사용 중인 번호입니다."
+    }
+  },
+  "home": {
+    "greeting": "안녕하세요, {{name}}",
+    "greetingNoName": "안녕하세요",
+    "setup": {
+      "title": "Svaraa 설정 마치기",
+      "notStarted": "시작하지 않음",
+      "start": "시작",
+      "continue": "계속",
+      "saved": "{{total}}단계 중 {{current}}단계에 저장됨"
+    },
+    "haveSvaraa": "Svaraa가 있습니다",
+    "start": "시작",
+    "explore": "기능 살펴보기",
+    "buying": "구매 가이드",
+    "product": {
+      "name": "Svaraa Fold",
+      "body": "AI 기반의 음성 우선 웨어러블 — 상상할 수 있는 모든 쓰임새를 위해.",
+      "alt": "금색 끈의 Svaraa Fold 펜던트, 스튜디오 제품 컷"
+    },
+    "settings": "설정"
+  },
+  "role": {
+    "title": "당신은 누구인가요?",
+    "subtitle": "누가 Svaraa를 착용할지 선택하세요.",
+    "wearer": {
+      "title": "내가 Svaraa를 착용합니다",
+      "detail": "내 펜던트 설정"
+    },
+    "unsure": {
+      "title": "아직 잘 모름 / 선물",
+      "detail": "저장하고 나중에 돌아오기"
+    }
+  },
+  "permissions": {
+    "allow": "허용",
+    "openSettings": "설정 열기",
+    "caregiver": {
+      "title": "소식을 받아보세요",
+      "body": "돌보는 분이 도움이 필요하면 바로 알 수 있습니다.",
+      "note": "Bluetooth와 위치는 착용자 휴대폰에서만 필요해 여기서는 묻지 않습니다."
+    },
+    "notifications": {
+      "title": "알림",
+      "detail": "SOS 및 상태 알림"
+    },
+    "state": {
+      "required": "필수",
+      "granted": "허용됨",
+      "denied": "허용 안 됨",
+      "later": "나중에 휴대폰에서"
+    },
+    "denied": {
+      "title": "알림이 꺼져 있습니다",
+      "body": "설정에서 Svaraa 알림을 켠 뒤 돌아오세요."
+    }
+  },
+  "setup": {
+    "title": "Svaraa 설정",
+    "stubBody": "설정 단계는 이후 릴리스에 제공됩니다. 지금은 진행 저장·재개만 테스트할 수 있습니다.",
+    "advance": "다음 단계 완료 (테스트)",
+    "reset": "처음부터 (테스트)",
+    "done": "모든 단계 완료. 홈의 설정 카드가 사라졌습니다."
+  },
+  "wearer": {
+    "claim": {
+      "title": "상자 안 코드 스캔",
+      "submit": "펜던트 등록",
+      "where": "상자 안 펜던트 아래 카드에 있습니다.",
+      "owner": "등록하면 이 펜던트의 소유자가 됩니다. 나중에 이전할 수 있습니다.",
+      "typeInstead": "코드 입력하기",
+      "scanInstead": "코드 스캔하기",
+      "codeLabel": "카드의 코드",
+      "codeHint": "네 글자/숫자 세 그룹.",
+      "codePlaceholder": "SVRA-2041-7K3P",
+      "devHint": "테스트 모드: {{code}}를 사용하세요.",
+      "useDevCode": "{{code}} 사용",
+      "viewfinder": "카메라. 카드의 코드를 비추세요.",
+      "cameraAsk": "코드 스캔에 카메라가 필요합니다.",
+      "cameraDenied": "Svaraa 카메라가 꺼져 있습니다. 코드를 입력하거나 설정에서 허용하세요.",
+      "allowCamera": "카메라 허용",
+      "taken": {
+        "title": "이미 등록된 펜던트입니다",
+        "owner": "{{initial}}••• 소유의 가정에 속합니다.",
+        "ownerUnknown": "다른 가정에 속합니다.",
+        "next": "소유자에게 해제를 요청하거나, 중고 구매라면 Svaraa 지원에 문의하세요.",
+        "retry": "다른 코드 스캔"
+      }
+    },
+    "optional": "선택",
+    "permissions": {
+      "title": "Svaraa에 필요한 권한 허용",
+      "body": "휴대폰이 펜던트에 연결되고 SOS를 보냅니다. 설정이 끊기지 않도록 지금 요청합니다.",
+      "allow": "허용하고 계속",
+      "why": "요청 이유",
+      "whyTitle": "요청 이유",
+      "whyBody": "휴대폰은 펜던트와 가족을 잇는 연결고리입니다. Bluetooth는 펜던트와 통신하고, 위치는 SOS 중에만 공유되며, 알림은 가족 알림과 훈련에 쓰입니다.",
+      "bluetooth": {
+        "title": "Bluetooth",
+        "detail": "펜던트와 통신"
+      },
+      "location": {
+        "title": "위치, 항상",
+        "detail": "SOS 중 위치 공유"
+      },
+      "notifications": {
+        "title": "알림",
+        "detail": "가족 알림과 훈련"
+      },
+      "battery": {
+        "title": "배터리 예외",
+        "detail": "권장. 휴대폰이 대기 중에도 펜던트 연결 유지.",
+        "action": "열기"
+      },
+      "denied": {
+        "title": "꺼진 항목이 있습니다",
+        "body": "설정에서 “허용 안 됨” 항목을 허용한 뒤 돌아오세요."
+      },
+      "webNote": "웹 브라우저는 Bluetooth·위치·알림을 줄 수 없습니다. 지금은 계속할 수 있으며, 페어링 전에 휴대폰에서 요청합니다.",
+      "continueWeb": "계속"
+    },
+    "about": {
+      "title": "나에 대해",
+      "name": "이름",
+      "dob": "생년월일",
+      "dobHint": "일, 월, 년 — 예: 05/07/1950.",
+      "dobPlaceholder": "DD/MM/YYYY",
+      "dobError": {
+        "incomplete": "생년월일을 입력하세요.",
+        "invalid": "존재하지 않는 날짜입니다. 일과 월을 확인하세요.",
+        "future": "생년월일은 미래일 수 없습니다.",
+        "tooOld": "연도를 확인하세요. 120년이 넘었습니다."
+      },
+      "callAs": "Svaraa가 어떻게 부를까요? (선택)",
+      "callAsHint": "음성 비서가 부르는 방식만 바뀝니다.",
+      "languages": "선호 언어",
+      "notes": "건강 메모 (선택)",
+      "pacemaker": "심박동기 또는 ICD가 있습니다",
+      "consent": "Svaraa의 청취·녹음 방식에 동의합니다.",
+      "details": "자세히"
+    },
+    "consent": {
+      "title": "Svaraa의 청취와 녹음",
+      "hearsTitle": "무엇을 듣나요",
+      "hears": "말씀하시면 이해와 응답을 위해 신뢰할 수 있는 AI 서비스로 전송됩니다.",
+      "recordsTitle": "언제 녹음하나요",
+      "records": "“Svaraa”라고 말한 뒤에만. 듣는 중임을 펜던트가 표시합니다.",
+      "seesTitle": "누가 무엇을 보나요",
+      "sees": "초대한 사람은 상태와 알림을 보고, 위치는 SOS 중에만 봅니다. 권한은 여러분이 정합니다."
+    },
+    "pair": {
+      "title": "펜던트 페어링",
+      "step1": "금색 버튼을 한 번 누르세요",
+      "step1Detail": "틱 피드백을 느낍니다",
+      "step2": "Svaraa Fold Over 찾기",
+      "step3": "페어링. 펜던트가 “Connected”라고 말합니다",
+      "pressed": "버튼을 눌렀습니다",
+      "retry": "금색 버튼을 다시 누르고 재시도",
+      "scanning": "펜던트를 찾는 중…",
+      "nearby": "#{{serial}} · 근처",
+      "pair": "페어링",
+      "pairing": "페어링 중…",
+      "confirms": "휴대폰이 물으면 페어링을 탭하세요. 펜던트가 틱과 “Connected”로 확인합니다.",
+      "charging": "충전 중? 자석 패도에 올려 두세요.",
+      "mockHint": "펜던트가 없나요? 금색 버튼을 한 번 눌러 시뮬레이션하세요.",
+      "mockPress": "금색 버튼을 한 번 누르세요",
+      "nearbyFound": "{{name}} · #{{serial}} 근처",
+      "button": "금색 버튼"
+    },
+    "check": {
+      "title": "펜던트 확인",
+      "body": "되면 각각 체크하세요.",
+      "touch": "틱을 느꼈습니다 (터치)",
+      "announce": "상태 안내를 들었습니다",
+      "mic": "마이크에서 “Hello”를 들었습니다",
+      "again": "다시",
+      "againFor": "다시: {{check}}",
+      "finish": "페어링 완료",
+      "repair": "다시 페어링"
+    },
+    "contacts": {
+      "title": "긴급 연락처 설정",
+      "body": "도움이 필요하면 Svaraa가 이 순서로 알립니다.",
+      "row": "{{n}} · {{name}}",
+      "add": "연락처 추가",
+      "limit": "지금은 {{max}}명까지. 나중에 내 프로필에서 더 추가할 수 있습니다."
+    },
+    "contact": {
+      "title": "연락처 추가",
+      "editTitle": "연락처 수정",
+      "name": "이름",
+      "relationship": "관계 (선택)",
+      "save": "연락처 저장",
+      "remove": "연락처 삭제",
+      "howAlerted": "전화로 알리고, 앱을 쓰면 알림도 보냅니다.",
+      "numberInvalid": "이 국가의 유효한 휴대폰 번호를 입력하세요.",
+      "numberInvalidIndia": "6, 7, 8 또는 9로 시작하는 10자리 인도 휴대폰 번호를 입력하세요.",
+      "ownNumber": "본인 번호입니다. 도와줄 다른 사람을 추가하세요.",
+      "duplicate": "이미 연락처에 있는 번호입니다."
+    },
+    "invite": {
+      "title": "도와줄 사람 초대",
+      "body": "상태와 알림을 보게 됩니다. 권한은 여러분이 정합니다.",
+      "admin": "관리자",
+      "adminDetail": "상태 보기, 설정 편집",
+      "viewer": "보기 전용",
+      "viewerDetail": "알림만 보기",
+      "codeLabel": "초대 코드 {{code}}",
+      "expires": "24시간 후 만료. 합류 전에 승인이 필요합니다.",
+      "share": "초대 링크 공유",
+      "skip": "지금은 건너뛰기",
+      "sent": "초대를 공유했습니다. 승인할 때까지 대기 상태로 표시됩니다.",
+      "message": "Svaraa에 함께해 제 상태를 보고 알림을 받아 주세요. {{url}}을 열거나 앱에서 {{code}}를 입력하세요."
+    },
+    "drill": {
+      "title": "SOS 테스트",
+      "dot": "금색 점",
+      "how": "금색 버튼을 3번 눌러 훈련을 시작하세요.",
+      "run": "SOS 훈련 실행",
+      "again": "훈련 다시 실행",
+      "waiting": "응답 대기 중… {{time}}",
+      "marked": "알림은 DRILL로 표시되어 걱정하지 않아도 됩니다.",
+      "passed": "SOS가 정상 작동합니다",
+      "answeredBy": "{{name}}님이 훈련에 응답했습니다.",
+      "answered": "누군가 훈련에 응답했습니다.",
+      "expired": "제시간에 응답한 사람이 없습니다",
+      "expiredBody": "긴급 연락처 번호를 확인하고, 훈련이 온다고 알린 뒤 다시 시도하세요.",
+      "finish": "설정 완료",
+      "mockHint": "펜던트가 없나요? 금색 버튼을 3번 누르면 SOS를 시뮬레이션합니다.",
+      "mockPress": "금색 버튼을 3번 누르세요",
+      "pressProgress": "{{current}} / {{total}}",
+      "skip": "다음 연락처로 건너뛰기",
+      "override": "SOS 확인 건너뛰기",
+      "overrideHint": "연락처 응답을 기다리지 않고 이 훈련을 통과로 표시한 뒤 계속합니다."
+    }
+  },
+  "demo": {
+    "theme": {
+      "light": "밝게",
+      "dark": "어둡게",
+      "system": "시스템"
+    }
+  },
+  "profile": {
+    "signOut": "로그아웃",
+    "scheme": "표시",
+    "language": "언어",
+    "background": "홈 배경",
+    "backgroundHint": "채팅·앱·프로필용 임시 배경입니다. 실제 아트는 나중에 적용됩니다.",
+    "backgroundOptions": {
+      "rose": "소프트 로즈",
+      "sand": "웜 샌드",
+      "mist": "쿨 미스트"
+    }
+  },
+  "otp": {
+    "label": "인증 코드",
+    "digit": "{{total}}자리 중 {{n}}번째",
+    "send": "코드 보내기",
+    "verify": "확인",
+    "resend": "다시 보내기",
+    "resendIn": "{{time}} 후 다시 보내기",
+    "sent": "{{to}}(으)로 코드를 보냈습니다",
+    "verified": "확인됨",
+    "wrong": "코드가 올바르지 않습니다. 다시 시도하세요."
+  },
+  "intro": {
+    "page": "{{total}}페이지 중 {{n}}페이지",
+    "haveSvaraa": "Svaraa가 있습니다",
+    "explore": "제품 살펴보기",
+    "skip": "지금은 건너뛰기",
+    "story": {
+      "claim": {
+        "label": "등록",
+        "lead": "상자 안 코드를 스캔하세요",
+        "sub": "각 펜던트 상자 카드에 일회용 코드가 있습니다."
+      },
+      "pair": {
+        "label": "페어링",
+        "lead": "휴대폰과 페어링",
+        "sub": "금색 버튼을 누르고 Bluetooth로 1분 안에 연결하세요."
+      },
+      "contacts": {
+        "label": "연락처",
+        "lead": "긴급 연락처 추가",
+        "sub": "누구에게 어떤 순서로 알릴지 선택하세요. 앱이 없어도 됩니다."
+      },
+      "drill": {
+        "label": "테스트",
+        "lead": "빠른 SOS 테스트",
+        "sub": "의존하기 전에 알림이 연락처에 도착하는지 확인하세요."
+      }
+    }
+  },
+  "chat": {
+    "mock": {
+      "settings": {
+        "done": "Updated: {{changes}}.",
+        "scheme": {
+          "light": "display → light",
+          "dark": "display → dark",
+          "system": "display → system (follow the phone)"
+        },
+        "language": "language → {{code}}"
+      },
+      "displayName": "Updated your account name to {{name}}.",
+      "wearer": {
+        "done": "Updated wearer profile: {{changes}}.",
+        "name": "name → {{name}}",
+        "callAs": "Svaraa calls them → {{name}}",
+        "languages": "languages → {{list}}"
+      },
+      "contact": "Added {{name}} as an emergency contact ({{phone}})."
+    }
+  }
+}

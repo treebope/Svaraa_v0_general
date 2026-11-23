@@ -3,10 +3,11 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { openMyProfile } from '@/features/apps/openApp';
 import { useGreetingName } from '@/features/home/useGreetingName';
 import { usePendantStatus } from '@/features/pendant/store';
 import { useWearer } from '@/features/wearer/store';
-import { Logo, Text, useTheme } from '@/ui';
+import { glassStyle, Logo, Text, useTheme } from '@/ui';
 import { Avatar, DotPill, IconButton, NewChatButton, useMainPalette } from './palette';
 import { useNewChat } from './useNewChat';
 import { useWide } from './useWide';
@@ -43,17 +44,26 @@ function Bar({ children }: { children: ReactNode }) {
   const insets = useSafeAreaInsets();
   return (
     <View
-      style={{
-        height: 58 + insets.top,
-        paddingTop: insets.top,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: theme.space[3] + 2,
-        borderBottomWidth: 1,
-        borderBottomColor: p.line,
-        backgroundColor: p.bg1,
-      }}
+      style={[
+        glassStyle({
+          scheme: theme.scheme,
+          fill: theme.scheme === 'dark' ? 'rgba(37,28,33,0.55)' : 'rgba(243,228,235,0.45)',
+          border: p.line,
+          kind: 'chrome',
+        }),
+        {
+          height: 58 + insets.top,
+          paddingTop: insets.top,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 4,
+          paddingHorizontal: theme.space[3] + 2,
+          borderTopWidth: 0,
+          borderLeftWidth: 0,
+          borderRightWidth: 0,
+          borderRadius: 0,
+        },
+      ]}
     >
       {children}
     </View>
@@ -80,9 +90,7 @@ function useBarParts() {
     newChat,
     search: <IconButton icon="search" label={t('chat.search')} onPress={() => router.navigate('/chats')} />,
     bell: <IconButton icon="bell" label={t('main.alerts')} onPress={() => router.push('/alerts')} />,
-    avatar: (
-      <Avatar initial={initial} label={t('tabs.profile')} onPress={() => router.navigate('/profile')} />
-    ),
+    avatar: <Avatar initial={initial} label={t('tabs.profile')} onPress={() => openMyProfile(router)} />,
     wide,
   };
 }

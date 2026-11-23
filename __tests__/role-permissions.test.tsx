@@ -94,7 +94,8 @@ describe('B1 · Who are you?', () => {
   it('has no caregiver option: only wearer and not sure', async () => {
     await renderApp(<RoleChoice />);
     expect(screen.queryByRole('radio', { name: /caregiver/i })).toBeNull();
-    expect(screen.getAllByRole('radio')).toHaveLength(2);
+    // The Light/Dark switch is also a radio group, so count only the role options (they carry a label).
+    expect(screen.getAllByRole('radio').filter((r) => r.props.accessibilityLabel)).toHaveLength(2);
   });
 
   it('wearer: starts setup (the household is created at C1) and goes on to B2', async () => {
@@ -129,7 +130,8 @@ describe('B1 · Who are you?', () => {
     useSettings.setState({ themeMode: 'wearer' });
     await renderApp(<RoleChoice />);
     expect(screen.getByText('आप कौन हैं?')).toBeTruthy();
-    expect(screen.getAllByRole('radio')).toHaveLength(2);
+    // The Light/Dark switch is also a radio group, so count only the role options (they carry a label).
+    expect(screen.getAllByRole('radio').filter((r) => r.props.accessibilityLabel)).toHaveLength(2);
   });
 });
 

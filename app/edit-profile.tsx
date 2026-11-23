@@ -5,6 +5,7 @@ import { useErrorText } from '@/features/auth/useErrorText';
 import { useHousehold } from '@/features/household/store';
 import { ProfileFields, useProfileForm } from '@/features/wearer/ProfileFields';
 import { useWearer } from '@/features/wearer/store';
+import { safeBack } from '@/features/nav/safeBack';
 import { saveWearerProfile } from '@/services/household/wearerApi';
 import { Button, Screen, Text } from '@/ui';
 
@@ -26,7 +27,7 @@ export default function EditProfile() {
     try {
       const profile = await saveWearerProfile(householdId, form.payload);
       await useWearer.getState().save({ profile });
-      router.back();
+      safeBack(router);
     } catch (e) {
       setError(errorText(e));
     } finally {
@@ -45,11 +46,11 @@ export default function EditProfile() {
             loading={busy}
             fullWidth
           />
-          <Button label={t('common.cancel')} variant="tertiary" onPress={() => router.back()} fullWidth />
+          <Button label={t('common.cancel')} variant="tertiary" onPress={() => safeBack(router)} fullWidth />
         </>
       }
     >
-      <Button label={t('common.back')} variant="tertiary" onPress={() => router.back()} />
+      <Button label={t('common.back')} variant="tertiary" onPress={() => safeBack(router)} />
       <Text variant="title1" tone="heading" accessibilityRole="header">
         {t('profile.editTitle')}
       </Text>

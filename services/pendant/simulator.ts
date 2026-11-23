@@ -71,9 +71,18 @@ export class SimulatorTransport implements PendantTransport {
     return () => void this.eventListeners.delete(listener);
   }
 
-  /** Demo and tests only: act as if the wearer held the gold dot for three seconds. */
+  /** Demo and tests only: act as if the wearer pressed the gold button once (pairing window). */
+  simulatePairingPress() {
+    this.emit({ type: 'pairing_press' });
+  }
+
+  /** Demo and tests only: act as if the wearer pressed the gold button 3 times (SOS). */
   simulateSosPress() {
-    for (const l of this.eventListeners) l({ type: 'sos' });
+    this.emit({ type: 'sos' });
+  }
+
+  private emit(e: PendantEvent) {
+    for (const l of this.eventListeners) l(e);
   }
 
   private requireConnected() {

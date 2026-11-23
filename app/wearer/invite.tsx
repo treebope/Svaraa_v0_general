@@ -7,7 +7,8 @@ import { useHousehold } from '@/features/household/store';
 import { StepHeader } from '@/features/wearer/StepHeader';
 import type { InviteOut } from '@/services/api';
 import { createInvite, type InviteRole } from '@/services/household/wearerApi';
-import { Button, Option, Screen, Text, useTheme } from '@/ui';
+import { FlowShell } from '@/features/setup/FlowShell';
+import { Button, Option, Text, useTheme } from '@/ui';
 
 /**
  * C7 · Invite someone to help (optional). The owner picks Admin (sees status, edits settings) or Viewer (sees alerts
@@ -53,7 +54,7 @@ export default function InviteCaregiver() {
   };
 
   return (
-    <Screen
+    <FlowShell
       footer={
         <>
           <Button
@@ -108,6 +109,6 @@ export default function InviteCaregiver() {
           {error}
         </Text>
       ) : null}
-    </Screen>
+    </FlowShell>
   );
 }

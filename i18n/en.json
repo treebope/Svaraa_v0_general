@@ -8,6 +8,10 @@
     "language": "Language",
     "english": "English",
     "hindi": "हिन्दी",
+    "tamil": "தமிழ்",
+    "mandarin": "中文",
+    "korean": "한국어",
+    "japanese": "日本語",
     "save": "Save"
   },
   "demo": {
@@ -124,8 +128,8 @@
     "invalid_device_signature": "We could not confirm this is a genuine Svaraa pendant. Try pairing again.",
     "invite_role_invalid": "Choose Admin or Viewer for this invite.",
     "drill_not_found": "We could not find that drill. Start a new one.",
-    "pendant_not_found": "We could not find your pendant. Press the gold dot once and keep it close to the phone.",
-    "pendant_connect_failed": "The pendant did not connect. Press the gold dot once and try again.",
+    "pendant_not_found": "We could not find your pendant. Press the gold button once and keep it close to the phone.",
+    "pendant_connect_failed": "The pendant did not connect. Press the gold button once and try again.",
     "pendant_not_connected": "Your pendant is not connected. Keep it close to the phone and try again.",
     "drill_not_running": "This drill has already ended. Run a new one.",
     "reminder_time_required": "Pick a date and a time for the reminder.",
@@ -158,12 +162,28 @@
   },
   "auth": {
     "welcome": {
+      "kicker": "Introducing Svaraa",
       "line1": "A World of Care,",
       "line2": "Just a Word Away.",
+      "subtitle": "An AI-powered, voice-first companion for older adults and those who care for them.",
+      "body": "Bringing families and caregivers together in one thoughtful ecosystem of care and wellbeing.",
+      "signInTitle": "Sign in to continue",
+      "signInHint": "Use Google or your phone number to continue.",
+      "points": {
+        "recite": "Recite — prayer and calm, guided by voice",
+        "remind": "Remind — medicines and routines, spoken aloud",
+        "rescue": "Rescue — SOS that reaches your trusted family"
+      },
+      "scheme": "Display",
       "google": "Continue with Google",
       "phone": "Continue with phone number",
       "terms": "By continuing you accept the Terms and Privacy Policy.",
-      "logo": "Svaraa logo"
+      "logo": "Svaraa logo",
+      "googleModal": {
+        "title": "Continue with Google",
+        "subtitle": "Choose the Google account you use with Svaraa. We never post or see your password.",
+        "close": "Close"
+      }
     },
     "phone": {
       "title": "Verify your phone",
@@ -191,7 +211,7 @@
       "pair": {
         "label": "Pair",
         "lead": "Pair it with your phone",
-        "sub": "Press the gold dot and connect over Bluetooth in under a minute."
+        "sub": "Press the gold button once and connect over Bluetooth in under a minute."
       },
       "contacts": {
         "label": "Contacts",
@@ -222,8 +242,8 @@
     "buying": "Buying guide",
     "product": {
       "name": "Svaraa Fold",
-      "body": "An AI-powered, voice-first wearable for older adults and the families who care for them.",
-      "alt": "Svaraa Fold pendant worn on its braided cord"
+      "body": "An AI-powered, voice-first wearable for any and every use case you can imagine.",
+      "alt": "Svaraa Fold pendant on its gold cord, studio product view"
     }
   },
   "setup": {
@@ -247,6 +267,20 @@
     "display": "Display",
     "scheme": "Display",
     "language": "Language",
+    "displayScale": "Text and apps size",
+    "displayScaleHint": "1 is normal. 2 and 3 make text and app tiles a little larger if reading is hard. Buttons stay the same size to tap.",
+    "displayScaleOptions": {
+      "1": "1",
+      "2": "2",
+      "3": "3"
+    },
+    "background": "Home background",
+    "backgroundHint": "Placeholder looks for the Chat, Apps and Profile pages. Final art comes later.",
+    "backgroundOptions": {
+      "rose": "Soft rose",
+      "sand": "Warm sand",
+      "mist": "Cool mist"
+    },
     "dev": "Components demo",
     "signOut": "Sign out",
     "contacts": "Emergency (SOS) contacts",
@@ -392,6 +426,8 @@
       "codeLabel": "Code from the card",
       "codeHint": "Three groups of four letters or numbers.",
       "codePlaceholder": "SVRA-2041-7K3P",
+      "devHint": "Test mode: use {{code}}.",
+      "useDevCode": "Use {{code}}",
       "submit": "Claim pendant",
       "viewfinder": "Camera viewfinder. Point it at the code on the card.",
       "cameraAsk": "Svaraa needs the camera to scan the code.",
@@ -407,18 +443,22 @@
     },
     "pair": {
       "title": "Pair your pendant",
-      "step1": "Press the gold dot once",
+      "step1": "Press the gold button once",
       "step1Detail": "You feel one tick",
       "step2": "Look for Svaraa Fold Over",
       "step3": "Pair. The pendant says \"Connected\"",
-      "pressed": "I pressed the dot",
-      "retry": "Press the dot again and retry",
+      "pressed": "I pressed the button",
+      "retry": "Press the gold button again and retry",
       "scanning": "Looking for your pendant…",
       "nearby": "#{{serial}} · nearby",
+      "nearbyFound": "{{name}} · #{{serial}} nearby",
       "pair": "Pair",
       "pairing": "Pairing…",
       "confirms": "If your phone asks, tap Pair. The pendant confirms with one tick and a spoken \"Connected\".",
-      "charging": "Charging? Place the pendant on the magnetic puck."
+      "charging": "Charging? Place the pendant on the magnetic puck.",
+      "button": "Gold button",
+      "mockHint": "No pendant nearby? Press the gold button once to simulate.",
+      "mockPress": "Press the gold button once"
     },
     "check": {
       "title": "Check your pendant",
@@ -447,7 +487,7 @@
       "remove": "Remove contact",
       "howAlerted": "Svaraa decides how to alert them: a call, and a notification if they use the app.",
       "numberInvalid": "Enter a valid mobile number for this country.",
-      "numberInvalidIndia": "Enter a 10-digit Indian mobile number.",
+      "numberInvalidIndia": "Enter a 10-digit Indian mobile number starting with 6, 7, 8 or 9.",
       "ownNumber": "This is your own number. Add someone else who can help.",
       "duplicate": "This number is already in your contacts."
     },
@@ -468,9 +508,15 @@
     "drill": {
       "title": "Test your SOS",
       "dot": "Gold dot",
-      "how": "Hold the gold dot for three seconds, or tap the button below.",
+      "how": "Press the gold button 3 times to start the drill.",
+      "mockHint": "No pendant nearby? Press the gold button 3 times to simulate SOS.",
+      "mockPress": "Press the gold button 3 times",
+      "pressProgress": "{{current}} of {{total}}",
       "run": "Run SOS drill",
       "again": "Run the drill again",
+      "skip": "Skip to next contact",
+      "override": "Override SOS check",
+      "overrideHint": "Mark this drill as passed and continue without waiting for a contact.",
       "waiting": "Waiting for someone to answer… {{time}}",
       "marked": "Alerts are marked DRILL, so nobody worries.",
       "passed": "Your SOS works",
@@ -636,7 +682,33 @@
     "untitled": "Untitled chat",
     "deleteAll": "Delete all chats",
     "deleteAllSure": "Tap again to delete every chat",
-    "deleteFailed": "We could not delete your chats. Try again."
+    "deleteFailed": "We could not delete your chats. Try again.",
+    "mock": {
+      "settings": {
+        "done": "Updated: {{changes}}.",
+        "scheme": {
+          "light": "display → light",
+          "dark": "display → dark",
+          "system": "display → system (follow the phone)"
+        },
+        "language": "language → {{code}}",
+        "displayScale": "text and apps size → {{scale}}"
+      },
+      "displayName": "Updated your account name to {{name}}.",
+      "wearer": {
+        "done": "Updated wearer profile: {{changes}}.",
+        "name": "name → {{name}}",
+        "callAs": "Svaraa calls them → {{name}}",
+        "languages": "languages → {{list}}"
+      },
+      "contact": "Added {{name}} as an emergency contact ({{phone}}).",
+      "youtube": {
+        "playing": "Playing “{{title}}” on YouTube.",
+        "pause": "Paused YouTube.",
+        "stop": "Stopped YouTube.",
+        "next": "Playing the next YouTube video."
+      }
+    }
   },
   "apps": {
     "name": {
@@ -958,6 +1030,7 @@
     "play": "Play",
     "pause": "Pause",
     "stop": "Stop",
+    "seekLabel": "Song position",
     "notPlayable": "This song is not ready to play yet. Try another one.",
     "search": {
       "label": "Search songs",
@@ -978,8 +1051,23 @@
     "tabsLabel": "Music source",
     "tabSongs": "Songs",
     "tabSpotify": "Spotify",
+    "tabYouTube": "YouTube (beta)",
+    "youtube": {
+      "intro": "Tap a row to play it inline. Use the bar on the video to scrub.",
+      "collection": "Collection",
+      "playing": "Playing",
+      "tapToPlay": "Tap to play on YouTube",
+      "open": "Open {{title}} on YouTube",
+      "footer": "Playback stays in the list. Scroll the collection if it is long."
+    },
     "spotify": {
       "intro": "Connect Spotify to play your own music on this phone. Spotify Premium is needed to play.",
+      "introTitle": "Your Spotify, in Svaraa",
+      "introLead": "Link the same account you use in the Spotify app. Then play, pause and browse from here or by asking Svaraa.",
+      "pointLibrary": "Recent, liked songs and playlists",
+      "pointPhone": "Plays on this phone or a speaker you already use",
+      "pointChat": "Ask Svaraa for a song once you are connected",
+      "premiumNote": "Spotify Premium is required to play from Svaraa.",
       "connect": "Connect Spotify",
       "waiting": "Finish signing in to Spotify, then come back here.",
       "connected": "Connected",

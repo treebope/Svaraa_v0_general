@@ -10,9 +10,9 @@ export type PairingPhase = 'ready' | 'scanning' | 'found' | 'pairing' | 'paired'
 export const SCAN_TIMEOUT_MS = 20_000;
 
 /**
- * C3 · Pairing, step by step: scan for a pendant whose dot was pressed, connect (the OS shows a plain Pair prompt;
- * the pendant ticks and says "Connected"), then the silent check: the server sends a challenge, the pendant signs it,
- * and the server locks the claim to this household. This phone becomes the gateway.
+ * C3 · Pairing listens for a real pendant signal (`pairing_press` from Bluetooth / simulator), then scans,
+ * connects (OS Pair prompt; pendant ticks and says "Connected"), and completes the signed-challenge verify.
+ * Screens never talk to BLE directly — only through `pendant()`.
  */
 export function usePairing() {
   const [phase, setPhaseState] = useState<PairingPhase>('ready');
@@ -47,6 +47,15 @@ export function usePairing() {
       },
     );
   }, [setPhase]);
+
+  // Ready for BLE: a real gold-dot press (or the simulator mock) starts the scan.
+  useEffect(() => {
+    return pendant().onEvent((e) => {
+      if (e.type !== 'pairing_press') return;
+      if (phaseRef.current !== 'ready' && phaseRef.current !== 'failed') return;
+      scan();
+    });
+  }, [scan]);
 
   const pair = useCallback(
     async (p: FoundPendant) => {

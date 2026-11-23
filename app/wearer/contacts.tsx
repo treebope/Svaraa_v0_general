@@ -8,7 +8,8 @@ import { StepHeader } from '@/features/wearer/StepHeader';
 import { WEARER_STEP } from '@/features/wearer/steps';
 import { useWearer } from '@/features/wearer/store';
 import { MAX_SETUP_CONTACTS, saveContacts, toContactIn } from '@/services/household/wearerApi';
-import { Button, ListRow, Screen, Text, useTheme } from '@/ui';
+import { FlowShell } from '@/features/setup/FlowShell';
+import { Button, ListRow, Text, useTheme } from '@/ui';
 
 /**
  * C5 · Set up emergency contacts. If the wearer needs help, Svaraa alerts these people in this order.
@@ -41,7 +42,7 @@ export default function EmergencyContacts() {
   };
 
   return (
-    <Screen
+    <FlowShell
       footer={
         <Button
           label={t('common.continue')}
@@ -91,6 +92,6 @@ export default function EmergencyContacts() {
           {error}
         </Text>
       ) : null}
-    </Screen>
+    </FlowShell>
   );
 }

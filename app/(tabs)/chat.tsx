@@ -22,12 +22,14 @@ export default function Chat() {
   const [drawer, setDrawer] = useState(false);
   // Leaving the tab closes the drawer, so coming back always starts with the menu button working.
   useFocusEffect(useCallback(() => () => setDrawer(false), []));
-  const title =
-    useChat((s) => s.conversations.find((c) => c.id === s.currentId)?.title) ?? t('chat.emptyTitle');
+  const chat = useChat((s) => s.conversations.find((c) => c.id === s.currentId));
+  const title = chat?.title ?? t('chat.newTitle');
+  // Wide web: only show a title once there is a real chat — empty state is just the lotus, not "Svaraa".
+  const showWideTitle = wide && !!chat?.messages.length;
   return (
     <Scene>
       <MainTop kind="chat" title={title} onMenu={() => setDrawer(true)} />
-      {wide ? (
+      {showWideTitle ? (
         <View
           style={{
             width: '100%',

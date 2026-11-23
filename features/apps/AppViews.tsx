@@ -17,7 +17,7 @@ import { Button, Text, useTheme } from '@/ui';
 
 export type AppId = 'music' | 'reminders' | 'notes' | 'responses' | 'news' | 'games' | 'pendant' | 'contacts';
 
-/** Apps in the grid, in wireframe order. "My Profile" is the seventh tile and opens the Profile tab. */
+/** Apps in the grid, in wireframe order. "My Profile" is a separate tile that opens in this same pane. */
 export const APP_IDS: AppId[] = (
   ['music', 'reminders', 'notes', 'responses', 'news', 'games', 'pendant', 'contacts'] as AppId[]
 ).filter((id) => (id !== 'news' || flags.news) && (id !== 'notes' || flags.notes));

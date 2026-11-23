@@ -4,6 +4,8 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useErrorText } from '@/features/auth/useErrorText';
 import { useHousehold } from '@/features/household/store';
+import { safeBack } from '@/features/nav/safeBack';
+import { FlowShell } from '@/features/setup/FlowShell';
 import {
   getPermission,
   openSettings,
@@ -11,7 +13,7 @@ import {
   savePushToken,
   type PermissionStatus,
 } from '@/services/notifications/notificationsApi';
-import { Button, Card, Chip, Screen, Text, useTheme } from '@/ui';
+import { Button, Card, Chip, Text, useTheme } from '@/ui';
 
 /**
  * B3 · Permissions for caregivers: notifications only. Explain, ask, and if the person said no,
@@ -59,7 +61,7 @@ export default function CaregiverPermissions() {
 
   const denied = status === 'denied';
   return (
-    <Screen
+    <FlowShell
       footer={
         denied ? (
           <Button label={t('permissions.openSettings')} onPress={() => void openSettings()} fullWidth />
@@ -74,37 +76,42 @@ export default function CaregiverPermissions() {
         )
       }
     >
-      <Button label={t('common.back')} variant="tertiary" onPress={() => router.back()} />
-      <Text variant="title1" tone="heading" accessibilityRole="header">
-        {t('permissions.caregiver.title')}
-      </Text>
-      <Text tone="secondary">{t('permissions.caregiver.body')}</Text>
-      <Card>
-        <Text variant="heading">{t('permissions.notifications.title')}</Text>
-        <Text tone="secondary">{t('permissions.notifications.detail')}</Text>
-        <Chip
-          label={
-            status === 'granted'
-              ? t('permissions.state.granted')
-              : denied
-                ? t('permissions.state.denied')
-                : t('permissions.state.required')
-          }
-          tone={status === 'granted' ? 'good' : denied ? 'safety' : 'attention'}
-        />
-      </Card>
-      {denied ? (
-        <Card style={{ gap: theme.space[2] }}>
-          <Text variant="heading">{t('permissions.denied.title')}</Text>
-          <Text tone="secondary">{t('permissions.denied.body')}</Text>
-        </Card>
-      ) : null}
-      <Text tone="secondary">{t('permissions.caregiver.note')}</Text>
-      {error ? (
-        <Text tone="safety" accessibilityRole="alert">
-          {error}
+      <Card style={{ gap: theme.space[4], padding: theme.space[5] }}>
+        <Button label={t('common.back')} variant="tertiary" onPress={() => safeBack(router)} />
+        <Text variant="kicker" tone="spirit">
+          {t('auth.welcome.kicker')}
         </Text>
-      ) : null}
-    </Screen>
+        <Text variant="title1" tone="heading" accessibilityRole="header">
+          {t('permissions.caregiver.title')}
+        </Text>
+        <Text tone="secondary">{t('permissions.caregiver.body')}</Text>
+        <Card>
+          <Text variant="heading">{t('permissions.notifications.title')}</Text>
+          <Text tone="secondary">{t('permissions.notifications.detail')}</Text>
+          <Chip
+            label={
+              status === 'granted'
+                ? t('permissions.state.granted')
+                : denied
+                  ? t('permissions.state.denied')
+                  : t('permissions.state.required')
+            }
+            tone={status === 'granted' ? 'good' : denied ? 'safety' : 'attention'}
+          />
+        </Card>
+        {denied ? (
+          <Card style={{ gap: theme.space[2] }}>
+            <Text variant="heading">{t('permissions.denied.title')}</Text>
+            <Text tone="secondary">{t('permissions.denied.body')}</Text>
+          </Card>
+        ) : null}
+        <Text tone="secondary">{t('permissions.caregiver.note')}</Text>
+        {error ? (
+          <Text tone="safety" accessibilityRole="alert">
+            {error}
+          </Text>
+        ) : null}
+      </Card>
+    </FlowShell>
   );
 }

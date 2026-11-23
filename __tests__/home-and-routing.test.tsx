@@ -141,7 +141,7 @@ describe('Home (A4)', () => {
   it('shows the product (the pendant) and opens Explore', async () => {
     await renderApp(<Home />);
     expect(screen.getByText('Svaraa Fold')).toBeTruthy();
-    expect(screen.getByLabelText('Svaraa Fold pendant worn on its braided cord')).toBeTruthy();
+    expect(screen.getByLabelText('Svaraa Fold pendant on its gold cord, studio product view')).toBeTruthy();
     await fireEvent.press(screen.getByRole('button', { name: /Svaraa Fold\./ }));
     expect(mockPush).toHaveBeenCalledWith('/explore');
   });

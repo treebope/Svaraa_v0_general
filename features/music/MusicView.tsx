@@ -6,30 +6,38 @@ import { useErrorText } from '@/features/auth/useErrorText';
 import { InfoRow, Pill, useMainPalette } from '@/features/main/palette';
 import { listTracks, TRACK_CATEGORIES, type Track, type TrackCategory } from '@/services/music/musicApi';
 import { Button, Choice, Input, Tabs, Text, useTheme } from '@/ui';
+import { MusicScroll } from './MusicScroll';
+import { MusicSeekBar } from './MusicSeekBar';
 import { NotPlayable, useMusicPlayer } from './player';
 import { SpotifyView } from './SpotifyView';
+import { YouTubeView } from './YouTubeView';
+import { useYouTubePlayer } from './youtubePlayer';
 
 type Category = TrackCategory | 'all';
 const SEARCH_DELAY_MS = 500;
 
-type Source = 'songs' | 'spotify';
+type Source = 'songs' | 'spotify' | 'youtube';
 
-/** Music app: the Songs tab (the server's catalog) and the Spotify tab (connect Spotify, now playing, player). */
+/** Music app: Songs, Spotify, and curated YouTube embeds. */
 export function MusicView() {
   const { t } = useTranslation();
   const theme = useTheme();
-  const [source, setSource] = useState<Source>('songs');
+  const source = useYouTubePlayer((s) => s.source);
+  const setSource = useYouTubePlayer((s) => s.setSource);
   return (
     <View style={{ gap: theme.space[3] }}>
       <Tabs<Source>
         tabs={[
           { id: 'songs', label: t('music.tabSongs') },
           { id: 'spotify', label: t('music.tabSpotify') },
+          { id: 'youtube', label: t('music.tabYouTube') },
         ]}
         value={source}
         onChange={setSource}
       />
-      {source === 'songs' ? <SongsTab /> : <SpotifyView />}
+      {source === 'songs' ? <SongsTab /> : null}
+      {source === 'spotify' ? <SpotifyView /> : null}
+      {source === 'youtube' ? <YouTubeView /> : null}
     </View>
   );
 }
@@ -92,6 +100,7 @@ function SongsTab() {
           <Text variant="bodySm" style={{ color: p.muted }} accessibilityLiveRegion="polite">
             {t(`music.status.${status}`)}
           </Text>
+          <MusicSeekBar />
           <View style={{ flexDirection: 'row', gap: theme.space[2] }}>
             <View style={{ flex: 1 }}>
               <Button
@@ -157,24 +166,28 @@ function SongsTab() {
           {t('music.count', { n: tracks.data.length })}
         </Text>
       ) : null}
-      {tracks.data?.map((tr) => {
-        const playing = current?.id === tr.id && status !== 'idle';
-        return (
-          <InfoRow
-            key={tr.id}
-            title={titleOf(tr)}
-            detail={detailOf(tr)}
-            right={
-              playing ? (
-                <Pill label={t(`music.status.${status}`)} tone="plum" />
-              ) : !tr.stream_url ? (
-                <Pill label={t('music.soon')} />
-              ) : undefined
-            }
-            onPress={() => void play(tr)}
-          />
-        );
-      })}
+      {tracks.data?.length ? (
+        <MusicScroll maxHeight={240}>
+          {tracks.data.map((tr) => {
+            const playing = current?.id === tr.id && status !== 'idle';
+            return (
+              <InfoRow
+                key={tr.id}
+                title={titleOf(tr)}
+                detail={detailOf(tr)}
+                right={
+                  playing ? (
+                    <Pill label={t(`music.status.${status}`)} tone="plum" />
+                  ) : !tr.stream_url ? (
+                    <Pill label={t('music.soon')} />
+                  ) : undefined
+                }
+                onPress={() => void play(tr)}
+              />
+            );
+          })}
+        </MusicScroll>
+      ) : null}
       <Text variant="bodySm" style={{ color: p.muted }}>
         {t('music.onPhone')}
       </Text>

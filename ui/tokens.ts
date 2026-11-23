@@ -37,7 +37,7 @@ export type ColorSet = {
 
 export const lightColors: ColorSet = {
   canvas: '#FBF7F2',
-  surface: 'rgba(255,255,255,0.78)',
+  surface: 'rgba(255,255,255,0.55)',
   surfaceSolid: '#FFFFFF',
   sunken: 'rgba(111,29,71,0.06)',
   brand: '#4A1532',
@@ -52,8 +52,8 @@ export const lightColors: ColorSet = {
   accentSpirit: '#B88A44',
   accentItalic: '#C8505B',
   focus: '#6F1D47',
-  border: 'rgba(110,29,71,0.16)',
-  borderSubtle: 'rgba(110,29,71,0.08)',
+  border: 'rgba(255,255,255,0.65)',
+  borderSubtle: 'rgba(110,29,71,0.1)',
   good: '#167A41',
   goodTint: '#E5F6EC',
   attention: '#8F5A0F',
@@ -69,7 +69,7 @@ export const lightColors: ColorSet = {
 
 export const darkColors: ColorSet = {
   canvas: '#18171A',
-  surface: 'rgba(40,38,43,0.85)',
+  surface: 'rgba(40,38,43,0.48)',
   surfaceSolid: '#242227',
   sunken: 'rgba(0,0,0,0.28)',
   brand: '#4A1532',
@@ -85,7 +85,7 @@ export const darkColors: ColorSet = {
   accentItalic: '#E6BF74',
   focus: '#E2BD72',
   border: 'rgba(255,255,255,0.14)',
-  borderSubtle: 'rgba(255,255,255,0.07)',
+  borderSubtle: 'rgba(255,255,255,0.1)',
   good: '#4CCF80',
   goodTint: 'rgba(76,207,128,0.14)',
   attention: '#E8B34F',
@@ -102,7 +102,7 @@ export const darkColors: ColorSet = {
 /** Spacing steps: 4, 8, 12, 16, 24, 32, 48, 64. */
 export const space = { 1: 4, 2: 8, 3: 12, 4: 16, 5: 24, 6: 32, 7: 48, 8: 64 } as const;
 
-export const radius = { sm: 8, md: 12, lg: 16, xl: 24, xxl: 28, full: 999 } as const;
+export const radius = { sm: 10, md: 14, lg: 18, xl: 24, xxl: 32, full: 999 } as const;
 
 export type TypeVariant =
   'display' | 'title1' | 'title2' | 'heading' | 'bodyLg' | 'body' | 'bodySm' | 'label' | 'caption' | 'kicker';
@@ -139,16 +139,16 @@ export const motion = { quick: 120, standard: 200, gentle: 320 } as const;
 export const shadow = {
   card: {
     shadowColor: '#4A1532',
-    shadowOpacity: 0.12,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
     elevation: 2,
   },
   raised: {
     shadowColor: '#4A1532',
-    shadowOpacity: 0.2,
-    shadowRadius: 22,
-    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.16,
+    shadowRadius: 28,
+    shadowOffset: { width: 0, height: 14 },
     elevation: 6,
   },
 } as const;

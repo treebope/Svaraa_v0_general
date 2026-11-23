@@ -8,7 +8,10 @@ import { useErrorText } from '@/features/auth/useErrorText';
 import { useHousehold } from '@/features/household/store';
 import { useSession } from '@/services/auth/session';
 import { saveContacts, toContactIn } from '@/services/household/wearerApi';
-import { Button, Input, Screen, Select, Text } from '@/ui';
+import { openMyProfile } from '@/features/apps/openApp';
+import { safeBack } from '@/features/nav/safeBack';
+import { FlowShell } from '@/features/setup/FlowShell';
+import { Button, Input, Select, Text } from '@/ui';
 
 /**
  * C6 · Add (or change) an emergency contact. The number is checked for the chosen country; there is no code to
@@ -83,11 +86,19 @@ export default function AddContact() {
       setBusy(false);
     }
     await useWearer.getState().save({ contacts: list });
-    router.back();
+    leave();
+  };
+
+  const leave = () => {
+    if (fromProfile) {
+      openMyProfile(router);
+      return;
+    }
+    safeBack(router, '/wearer/contacts');
   };
 
   return (
-    <Screen
+    <FlowShell
       footer={
         <>
           <Button
@@ -103,7 +114,7 @@ export default function AddContact() {
         </>
       }
     >
-      <Button label={t('common.back')} variant="tertiary" onPress={() => router.back()} />
+      <Button label={t('common.back')} variant="tertiary" onPress={leave} />
       <Text variant="title1" tone="heading" accessibilityRole="header">
         {editing ? t('wearer.contact.editTitle') : t('wearer.contact.title')}
       </Text>
@@ -149,6 +160,6 @@ export default function AddContact() {
           {saveError}
         </Text>
       ) : null}
-    </Screen>
+    </FlowShell>
   );
 }

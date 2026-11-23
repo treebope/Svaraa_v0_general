@@ -1,0 +1,368 @@
+{
+  "common": {
+    "continue": "继续",
+    "back": "返回",
+    "cancel": "取消",
+    "done": "完成",
+    "close": "关闭",
+    "language": "语言",
+    "english": "English",
+    "hindi": "हिन्दी",
+    "tamil": "தமிழ்",
+    "mandarin": "中文",
+    "korean": "한국어",
+    "japanese": "日本語",
+    "save": "保存"
+  },
+  "auth": {
+    "welcome": {
+      "kicker": "认识 Svaraa",
+      "line1": "一片关怀的世界，",
+      "line2": "一句话的距离。",
+      "subtitle": "面向长者与照护者的语音优先 AI 伴侣。",
+      "body": "把家人与照护者连结在同一个体贴的照护生态中。",
+      "signInTitle": "登录以继续",
+      "signInHint": "使用 Google 或手机号码继续。",
+      "points": {
+        "recite": "Recite — 语音引导的祈祷与宁静",
+        "remind": "Remind — 用药与日常语音提醒",
+        "rescue": "Rescue — 送达可信家人的 SOS"
+      },
+      "scheme": "外观",
+      "google": "使用 Google 继续",
+      "phone": "使用手机号继续",
+      "terms": "继续即表示您接受条款与隐私政策。",
+      "logo": "Svaraa 标志",
+      "googleModal": {
+        "title": "使用 Google 继续",
+        "subtitle": "选择您用于 Svaraa 的 Google 账号。我们不会查看您的密码。",
+        "close": "关闭"
+      }
+    },
+    "phone": {
+      "title": "验证您的手机",
+      "subtitle": "我们将其用于 SOS 与账户恢复。",
+      "addTitle": "添加手机号",
+      "addSubtitle": "添加手机号以完成登录。我们将其用于 SOS 与账户恢复。",
+      "country": "国家/地区",
+      "mobile": "手机号码",
+      "sendOtp": "发送验证码",
+      "changeNumber": "更换号码",
+      "devHint": "测试模式：验证码为 0000。以 00 结尾的号码会登录为已有用户；以 11 结尾表示号码已被占用。"
+    }
+  },
+  "home": {
+    "greeting": "你好，{{name}}",
+    "greetingNoName": "你好",
+    "setup": {
+      "title": "完成设置 Svaraa",
+      "notStarted": "尚未开始",
+      "start": "开始",
+      "continue": "继续",
+      "saved": "已保存至第 {{current}} / {{total}} 步"
+    },
+    "haveSvaraa": "我已有 Svaraa",
+    "start": "开始",
+    "explore": "探索功能",
+    "buying": "购买指南",
+    "product": {
+      "name": "Svaraa Fold",
+      "body": "一款 AI 驱动、语音优先的可穿戴设备，适用于你能想象到的每一种场景。",
+      "alt": "金色绳带上的 Svaraa Fold 吊坠，棚拍产品图"
+    },
+    "settings": "设置"
+  },
+  "role": {
+    "title": "您是谁？",
+    "subtitle": "选择谁将佩戴 Svaraa。",
+    "wearer": {
+      "title": "我将佩戴 Svaraa",
+      "detail": "设置我自己的吊坠"
+    },
+    "unsure": {
+      "title": "还不确定 / 是礼物",
+      "detail": "保存，稍后再来"
+    }
+  },
+  "permissions": {
+    "allow": "允许",
+    "openSettings": "打开设置",
+    "caregiver": {
+      "title": "及时获知",
+      "body": "当您照护的人需要帮助时，立刻收到通知。",
+      "note": "蓝牙与位置仅在佩戴者手机上需要，此处不会询问。"
+    },
+    "notifications": {
+      "title": "通知",
+      "detail": "SOS 与状态提醒"
+    },
+    "state": {
+      "required": "必需",
+      "granted": "已允许",
+      "denied": "未允许",
+      "later": "稍后在手机上"
+    },
+    "denied": {
+      "title": "通知已关闭",
+      "body": "打开设置，为 Svaraa 开启通知，然后返回这里。"
+    }
+  },
+  "setup": {
+    "title": "设置 Svaraa",
+    "stubBody": "设置步骤将在后续版本提供。目前此屏仅用于测试保存与继续进度。",
+    "advance": "完成下一步（测试）",
+    "reset": "重新开始（测试）",
+    "done": "全部步骤完成。主页上的设置卡片已消失。"
+  },
+  "wearer": {
+    "claim": {
+      "title": "扫描盒内代码",
+      "submit": "认领吊坠",
+      "where": "在盒内吊坠下方的卡片上。",
+      "owner": "认领后您成为此吊坠的所有者，以后可以转移。",
+      "typeInstead": "改为输入代码",
+      "scanInstead": "改为扫描代码",
+      "codeLabel": "卡片上的代码",
+      "codeHint": "三组，每组四个字母或数字。",
+      "codePlaceholder": "SVRA-2041-7K3P",
+      "devHint": "测试模式：使用 {{code}}。",
+      "useDevCode": "使用 {{code}}",
+      "viewfinder": "相机取景。对准卡片上的代码。",
+      "cameraAsk": "扫描代码需要相机权限。",
+      "cameraDenied": "Svaraa 的相机已关闭。请改为输入代码，或在设置中允许相机。",
+      "allowCamera": "允许相机",
+      "taken": {
+        "title": "此吊坠已被认领",
+        "owner": "它属于 {{initial}}••• 拥有的家庭。",
+        "ownerUnknown": "它属于另一个家庭。",
+        "next": "请让所有者释放，或若为二手请联系 Svaraa 支持。",
+        "retry": "扫描另一个代码"
+      }
+    },
+    "optional": "可选",
+    "permissions": {
+      "title": "允许 Svaraa 所需权限",
+      "body": "手机连接吊坠并发送 SOS。现在请求以免打断设置。",
+      "allow": "允许并继续",
+      "why": "为何询问",
+      "whyTitle": "为何询问",
+      "whyBody": "手机是吊坠与家人之间的桥梁。蓝牙用于与吊坠通信。位置仅在 SOS 时分享。通知用于家庭提醒与 SOS 演练。",
+      "bluetooth": {
+        "title": "蓝牙",
+        "detail": "与吊坠通信"
+      },
+      "location": {
+        "title": "位置（始终）",
+        "detail": "SOS 时分享位置"
+      },
+      "notifications": {
+        "title": "通知",
+        "detail": "家庭提醒与演练"
+      },
+      "battery": {
+        "title": "电池优化豁免",
+        "detail": "建议开启。手机闲置时仍保持吊坠连接。",
+        "action": "打开"
+      },
+      "denied": {
+        "title": "有权限未开启",
+        "body": "打开设置，允许标为“未允许”的项，然后返回。"
+      },
+      "webNote": "浏览器无法授予蓝牙、位置或通知。您可先继续；在手机上配对前会再询问。",
+      "continueWeb": "继续"
+    },
+    "about": {
+      "title": "关于您",
+      "name": "您的姓名",
+      "dob": "出生日期",
+      "dobHint": "日、月、年，例如 05/07/1950。",
+      "dobPlaceholder": "DD/MM/YYYY",
+      "dobError": {
+        "incomplete": "请输入出生日期。",
+        "invalid": "该日期无效，请检查日和月。",
+        "future": "出生日期不能是未来。",
+        "tooOld": "请检查年份，已超过 120 年。"
+      },
+      "callAs": "Svaraa 应如何称呼您？（可选）",
+      "callAsHint": "仅改变语音助手对您的称呼。",
+      "languages": "偏好语言",
+      "notes": "健康备注（可选）",
+      "pacemaker": "我有起搏器或 ICD",
+      "consent": "我同意 Svaraa 的聆听与录音方式。",
+      "details": "详情"
+    },
+    "consent": {
+      "title": "Svaraa 如何聆听与录音",
+      "hearsTitle": "它听到什么",
+      "hears": "您对 Svaraa 说话时，内容会发送到可信 AI 服务以便理解并回复。",
+      "recordsTitle": "何时录音",
+      "records": "仅在您说“Svaraa”之后。吊坠会显示正在聆听。",
+      "seesTitle": "谁能看到什么",
+      "sees": "您邀请的人可看到状态与提醒，位置仅在 SOS 时可见。权限由您决定。"
+    },
+    "pair": {
+      "title": "配对吊坠",
+      "step1": "按一下金色按钮",
+      "step1Detail": "您会感到一下轻触反馈",
+      "step2": "查找 Svaraa Fold Over",
+      "step3": "配对。吊坠会说“Connected”",
+      "pressed": "我已按下按钮",
+      "retry": "再次按下金色按钮并重试",
+      "scanning": "正在查找吊坠…",
+      "nearby": "#{{serial}} · 附近",
+      "pair": "配对",
+      "pairing": "配对中…",
+      "confirms": "若手机询问请点配对。吊坠会以轻触和“Connected”确认。",
+      "charging": "充电？请放在磁吸充电座上。",
+      "mockHint": "附近没有吊坠？按一次金色按钮即可模拟。",
+      "mockPress": "按一次金色按钮",
+      "nearbyFound": "{{name}} · #{{serial}} 附近",
+      "button": "金色按钮"
+    },
+    "check": {
+      "title": "检查吊坠",
+      "body": "确认正常后勾选每一项。",
+      "touch": "我感到了轻触反馈",
+      "announce": "我听到了状态播报",
+      "mic": "我在麦克风听到了“Hello”",
+      "again": "再试",
+      "againFor": "再试：{{check}}",
+      "finish": "完成配对",
+      "repair": "重新配对"
+    },
+    "contacts": {
+      "title": "设置紧急联系人",
+      "body": "需要帮助时，Svaraa 按此顺序提醒这些人。",
+      "row": "{{n}} · {{name}}",
+      "add": "添加联系人",
+      "limit": "现在最多 {{max}} 人。之后可在“我的资料”中添加更多。"
+    },
+    "contact": {
+      "title": "添加联系人",
+      "editTitle": "修改联系人",
+      "name": "姓名",
+      "relationship": "关系（可选）",
+      "save": "保存联系人",
+      "remove": "移除联系人",
+      "howAlerted": "Svaraa 会以电话提醒；若对方使用应用也会收到通知。",
+      "numberInvalid": "请输入该国家/地区的有效手机号。",
+      "numberInvalidIndia": "请输入以 6、7、8 或 9 开头的 10 位印度手机号。",
+      "ownNumber": "这是您自己的号码。请添加能帮助您的其他人。",
+      "duplicate": "此号码已在联系人中。"
+    },
+    "invite": {
+      "title": "邀请他人协助",
+      "body": "他们会看到您的状态并收到提醒。权限由您决定。",
+      "admin": "管理员",
+      "adminDetail": "查看状态、编辑设置",
+      "viewer": "查看者",
+      "viewerDetail": "仅查看提醒",
+      "codeLabel": "邀请码 {{code}}",
+      "expires": "24 小时后过期。加入前需您批准。",
+      "share": "分享邀请链接",
+      "skip": "暂时跳过",
+      "sent": "邀请已分享。在您批准前显示为等待中。",
+      "message": "加入 Svaraa，查看我的状态并接收提醒。打开 {{url}} 或在应用中输入 {{code}}。"
+    },
+    "drill": {
+      "title": "测试您的 SOS",
+      "dot": "金色圆点",
+      "how": "按金色按钮 3 次以开始演练。",
+      "run": "运行 SOS 演练",
+      "again": "再运行一次演练",
+      "waiting": "等待有人接听… {{time}}",
+      "marked": "提醒会标记为 DRILL，不会引起惊慌。",
+      "passed": "您的 SOS 正常工作",
+      "answeredBy": "{{name}} 接听了演练。",
+      "answered": "有人接听了演练。",
+      "expired": "无人及时接听",
+      "expiredBody": "请核对紧急联系人号码，提前告知对方将进行演练，然后重试。",
+      "finish": "完成设置",
+      "mockHint": "附近没有吊坠？按金色按钮 3 次即可模拟 SOS。",
+      "mockPress": "按金色按钮 3 次",
+      "pressProgress": "{{current}} / {{total}}",
+      "skip": "跳到下一位联系人",
+      "override": "跳过 SOS 检查",
+      "overrideHint": "无需等待联系人应答，将本次演练标为通过并继续。"
+    }
+  },
+  "demo": {
+    "theme": {
+      "light": "浅色",
+      "dark": "深色",
+      "system": "系统"
+    }
+  },
+  "profile": {
+    "signOut": "退出登录",
+    "scheme": "外观",
+    "language": "语言",
+    "background": "主页背景",
+    "backgroundHint": "聊天、应用和资料页的占位外观。正式画面稍后提供。",
+    "backgroundOptions": {
+      "rose": "柔粉",
+      "sand": "暖沙",
+      "mist": "冷雾"
+    }
+  },
+  "otp": {
+    "label": "验证码",
+    "digit": "第 {{n}} 位，共 {{total}} 位",
+    "send": "发送验证码",
+    "verify": "验证",
+    "resend": "重新发送",
+    "resendIn": "{{time}} 后可重新发送",
+    "sent": "验证码已发送至 {{to}}",
+    "verified": "已验证",
+    "wrong": "验证码不正确，请重试。"
+  },
+  "intro": {
+    "page": "第 {{n}} 页，共 {{total}} 页",
+    "haveSvaraa": "我已有 Svaraa",
+    "explore": "了解产品",
+    "skip": "暂时跳过",
+    "story": {
+      "claim": {
+        "label": "认领",
+        "lead": "扫描盒内代码",
+        "sub": "每个吊坠盒内卡片上都有一次性代码。"
+      },
+      "pair": {
+        "label": "配对",
+        "lead": "与手机配对",
+        "sub": "按下金色按钮，通过蓝牙在一分钟内连接。"
+      },
+      "contacts": {
+        "label": "联系人",
+        "lead": "添加紧急联系人",
+        "sub": "选择 Svaraa 按什么顺序提醒谁。他们不必安装应用。"
+      },
+      "drill": {
+        "label": "测试",
+        "lead": "运行快速 SOS 测试",
+        "sub": "在真正依赖之前，确认警报能送达联系人。"
+      }
+    }
+  },
+  "chat": {
+    "mock": {
+      "settings": {
+        "done": "Updated: {{changes}}.",
+        "scheme": {
+          "light": "display → light",
+          "dark": "display → dark",
+          "system": "display → system (follow the phone)"
+        },
+        "language": "language → {{code}}"
+      },
+      "displayName": "Updated your account name to {{name}}.",
+      "wearer": {
+        "done": "Updated wearer profile: {{changes}}.",
+        "name": "name → {{name}}",
+        "callAs": "Svaraa calls them → {{name}}",
+        "languages": "languages → {{list}}"
+      },
+      "contact": "Added {{name}} as an emergency contact ({{phone}})."
+    }
+  }
+}

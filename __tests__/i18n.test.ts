@@ -24,4 +24,10 @@ describe('i18n', () => {
     expect(fontFamily('en', { face: 'display', weight: '400' })).toBe('Newsreader_400Regular');
     expect(fontFamily('en', { face: 'ui', weight: '600' })).toBe('Inter_600SemiBold');
   });
+  it('uses a script Noto face for Tamil, Mandarin, Korean and Japanese', () => {
+    expect(fontFamily('ta', { face: 'ui', weight: '500' })).toBe('NotoSansTamil_500Medium');
+    expect(fontFamily('zh', { face: 'ui', weight: '400' })).toBe('NotoSansSC_400Regular');
+    expect(fontFamily('ko', { face: 'ui', weight: '600' })).toBe('NotoSansKR_600SemiBold');
+    expect(fontFamily('ja', { face: 'display', weight: '400' })).toBe('NotoSansJP_400Regular');
+  });
 });

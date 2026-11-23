@@ -9,7 +9,8 @@ import { WEARER_STEP } from '@/features/wearer/steps';
 import { useWearer } from '@/features/wearer/store';
 import { ProfileFields, useProfileForm } from '@/features/wearer/ProfileFields';
 import { giveConsent, saveWearerProfile } from '@/services/household/wearerApi';
-import { Button, Checkbox, Screen, Sheet, Text } from '@/ui';
+import { FlowShell } from '@/features/setup/FlowShell';
+import { Button, Checkbox, Sheet, Text } from '@/ui';
 
 /**
  * C1 · About you + consent. Name, date of birth (required), an optional name for the voice assistant to use, languages, health notes and
@@ -50,7 +51,7 @@ export default function AboutYou() {
   };
 
   return (
-    <Screen
+    <FlowShell
       footer={
         <Button
           label={t('common.continue')}
@@ -85,6 +86,6 @@ export default function AboutYou() {
         <Text tone="secondary">{t('wearer.consent.sees')}</Text>
         <Button label={t('common.close')} variant="secondary" onPress={() => setDetails(false)} fullWidth />
       </Sheet>
-    </Screen>
+    </FlowShell>
   );
 }

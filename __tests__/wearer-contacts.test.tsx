@@ -60,7 +60,7 @@ describe('C6 · Add a contact', () => {
   it('checks the number for the country, and refuses the wearer’s own number', async () => {
     await renderApp(<AddContact />);
     await fill('Ravi', '12345');
-    expect(screen.getByText('Enter a 10-digit Indian mobile number.')).toBeTruthy();
+    expect(screen.getByText(/10-digit Indian mobile number starting with 6/)).toBeTruthy();
     await fill('Ravi', INDIA.mobile);
     expect(screen.getByText(/your own number/)).toBeTruthy();
     expect(useWearer.getState().contacts).toEqual([]);

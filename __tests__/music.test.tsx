@@ -13,7 +13,7 @@ beforeEach(async () => {
   await useMockBackend();
   // Like the server, the catalog needs sign-in.
   await verifyOtpAndSignIn(INDIA, DEMO_CODE);
-  useMusicPlayer.setState({ track: undefined, status: 'idle', error: null });
+  useMusicPlayer.setState({ track: undefined, status: 'idle', error: null, position: 0, duration: 0 });
 });
 
 describe('Music', () => {

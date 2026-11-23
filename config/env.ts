@@ -23,6 +23,8 @@ export const env = {
   googleWebClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? '',
   /** Google OAuth iOS client ID (bundle ai.svaraa). Public. app.config.ts also makes it the iOS URL scheme. */
   googleIosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? '',
+  /** Show "use this demo code" hints (OTP, claim). Never true in prod builds. */
+  showDevOtpHint: (process.env.EXPO_PUBLIC_SHOW_DEV_OTP_HINT ?? 'false') === 'true',
   appVersion: Constants.expoConfig?.version ?? '0.0.0',
 };
 

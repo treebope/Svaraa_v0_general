@@ -1,4 +1,4 @@
-# Svaraa Mobile
+# Svaraa Core
 
 Expo + TypeScript (strict) + Expo Router. iOS, Android, web (caregiver screens only).
 Rules for people and AI tools: [`CLAUDE.md`](CLAUDE.md). Plan: [`docs/frontend-plan.md`](docs/frontend-plan.md).

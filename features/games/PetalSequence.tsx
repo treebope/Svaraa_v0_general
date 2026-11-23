@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { GameButton, Stat, Step, useBest, useBoard, useG } from '@/features/games/kit';
+import { fitCell, GameButton, Stat, useBest, useBoard, useG, useGamePaneHeight } from '@/features/games/kit';
 import { checkTaps, growSequence, PETALS } from '@/features/games/logic';
-import Svg, { Circle, Ellipse } from 'react-native-svg';
 import { useWide } from '@/features/main/useWide';
+import Svg, { Circle, Ellipse } from 'react-native-svg';
 import { Text } from '@/ui';
 
 /** A five-petal flower drawn in the middle of a petal button, so it is centred exactly. */
@@ -27,19 +27,25 @@ function PetalMark({ size, opacity }: { size: number; opacity: number }) {
   );
 }
 
-const GAP = 14;
+const GAP = 10;
+const COLS = 2;
+const ROWS = 2;
 const PETAL_COLOURS = ['#F063AE', '#FFC857', '#4FCB9A', '#8F7BFF'];
 const SHOW_MS = 650;
 const GAP_MS = 850;
 
 type Phase = 'idle' | 'watch' | 'repeat' | 'ok' | 'lost';
 
-/** Petal Sequence: watch the petals light up, then tap them in the same order. Your own taps light up too. */
+/** Petal Sequence: watch the petals light up, then tap them in the same order. Fits Apps pane, no scroll. */
 export function PetalSequence() {
   const G = useG();
   const { t } = useTranslation();
   const wide = useWide();
-  const board = useBoard(wide ? 900 : 560, wide ? 4 : 2, GAP);
+  const paneH = useGamePaneHeight();
+  const board = useBoard(560, COLS, GAP);
+  const heightFactor = wide ? 1.05 : 0.85;
+  const cell = fitCell(board.cell, ROWS, GAP, Math.floor((paneH - 160) / heightFactor));
+  const petalH = Math.round(cell * heightFactor);
   const [seq, setSeq] = useState<number[]>([]);
   const [taps, setTaps] = useState<number[]>([]);
   const [lit, setLit] = useState<number | undefined>();
@@ -81,10 +87,11 @@ export function PetalSequence() {
     const r = checkTaps(seq, next);
     if (r === 'wrong') {
       setWrong(petal);
-      record('petals', round - 1);
       setPhase('lost');
-    } else if (r === 'done') {
-      record('petals', round);
+      record('petals', Math.max(0, round - 1));
+      return;
+    }
+    if (r === 'done') {
       setPhase('ok');
       later(() => begin(growSequence(seq)), 1300);
     }
@@ -102,69 +109,80 @@ export function PetalSequence() {
             : '';
 
   return (
-    <View style={{ alignItems: 'center' }} onLayout={board.onLayout}>
-      <View style={{ width: board.width, gap: 16 }}>
-        {phase === 'idle' ? (
-          <View
-            style={{
-              gap: 10,
-              padding: 16,
-              borderRadius: 20,
-              borderWidth: 1,
-              borderColor: G.line,
-              backgroundColor: G.card,
-            }}
-          >
-            <Text style={{ color: G.gold, fontWeight: '700', fontSize: 17 }}>{t('games.howTitle')}</Text>
-            <Step n={1}>{t('games.petals.step1')}</Step>
-            <Step n={2}>{t('games.petals.step2')}</Step>
-            <Step n={3}>{t('games.petals.step3')}</Step>
+    <View
+      style={{ height: paneH, alignSelf: 'stretch', width: '100%', overflow: 'hidden' }}
+      onLayout={board.onLayout}
+    >
+      <View
+        style={{
+          flex: 1,
+          width: board.width,
+          maxWidth: '100%',
+          alignSelf: 'center',
+          justifyContent: 'space-between',
+          gap: 8,
+        }}
+      >
+        <View style={{ gap: 6 }}>
+          {phase === 'idle' ? (
+            <>
+              <Text style={{ color: G.gold, fontWeight: '700', fontSize: 15 }}>{t('games.howTitle')}</Text>
+              <Text style={{ color: G.muted, fontSize: 13 }} numberOfLines={2}>
+                {t('games.petals.step1')} {t('games.petals.step2')}
+              </Text>
+            </>
+          ) : null}
+          <View style={{ flexDirection: 'row' }}>
+            <Stat label={t('games.petals.roundLabel')} value={phase === 'idle' ? 1 : round} />
+            <Stat label={t('games.bestLabel')} value={best} />
           </View>
-        ) : null}
-
-        <View style={{ flexDirection: 'row' }}>
-          <Stat label={t('games.petals.roundLabel')} value={phase === 'idle' ? 1 : round} />
-          <Stat label={t('games.bestLabel')} value={best} />
+          <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 8, minHeight: 16 }}>
+            {seq.map((_, i) => {
+              const on = phase === 'watch' ? i < shown : i < taps.length;
+              return (
+                <View
+                  key={i}
+                  style={{
+                    width: 14,
+                    height: 14,
+                    borderRadius: 7,
+                    borderWidth: 2,
+                    borderColor: wrong !== undefined && i === taps.length - 1 ? G.bad : G.gold,
+                    backgroundColor: on
+                      ? wrong !== undefined && i === taps.length - 1
+                        ? G.bad
+                        : G.gold
+                      : 'transparent',
+                  }}
+                />
+              );
+            })}
+          </View>
+          <Text
+            style={{
+              minHeight: 22,
+              textAlign: 'center',
+              fontSize: 16,
+              fontWeight: '600',
+              color: phase === 'lost' ? G.bad : phase === 'ok' ? G.good : G.ink,
+            }}
+            accessibilityLiveRegion="polite"
+            numberOfLines={1}
+          >
+            {message || ' '}
+          </Text>
         </View>
 
-        {/* One dot per petal in the pattern: filled as it is shown, then as you tap it. */}
-        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, minHeight: 20 }}>
-          {seq.map((_, i) => {
-            const on = phase === 'watch' ? i < shown : i < taps.length;
-            return (
-              <View
-                key={i}
-                style={{
-                  width: 18,
-                  height: 18,
-                  borderRadius: 9,
-                  borderWidth: 2,
-                  borderColor: wrong !== undefined && i === taps.length - 1 ? G.bad : G.gold,
-                  backgroundColor: on
-                    ? wrong !== undefined && i === taps.length - 1
-                      ? G.bad
-                      : G.gold
-                    : 'transparent',
-                }}
-              />
-            );
-          })}
-        </View>
-
-        <Text
+        <View
           style={{
-            minHeight: 48,
-            textAlign: 'center',
-            fontSize: 18,
-            fontWeight: '600',
-            color: phase === 'lost' ? G.bad : phase === 'ok' ? G.good : G.ink,
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            alignContent: 'center',
+            gap: GAP,
+            flexGrow: 1,
           }}
-          accessibilityLiveRegion="polite"
         >
-          {message}
-        </Text>
-
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: GAP }}>
           {Array.from({ length: PETALS }, (_, i) => {
             const on = lit === i;
             return (
@@ -176,33 +194,33 @@ export function PetalSequence() {
                 disabled={phase !== 'repeat'}
                 onPress={() => tap(i)}
                 style={{
-                  width: board.cell,
-                  height: Math.round(board.cell * (wide ? 1.05 : 0.85)),
-                  borderRadius: 30,
+                  width: cell,
+                  height: petalH,
+                  borderRadius: Math.max(18, Math.round(cell * 0.28)),
                   backgroundColor: PETAL_COLOURS[i],
                   opacity: on ? 1 : phase === 'repeat' ? 0.78 : 0.3,
-                  borderWidth: on ? 6 : 0,
+                  borderWidth: on ? 5 : 0,
                   borderColor: G.ring,
                   transform: [{ scale: on ? 1.06 : 1 }],
                   alignItems: 'center',
                   justifyContent: 'center',
-                  ...(on ? { shadowColor: PETAL_COLOURS[i], shadowOpacity: 1, shadowRadius: 24 } : null),
+                  ...(on ? { shadowColor: PETAL_COLOURS[i], shadowOpacity: 1, shadowRadius: 18 } : null),
                 }}
               >
-                <PetalMark size={Math.round(board.cell * 0.42)} opacity={on ? 0.95 : 0.4} />
+                <PetalMark size={Math.round(cell * 0.42)} opacity={on ? 0.95 : 0.4} />
               </Pressable>
             );
           })}
         </View>
 
-        {phase === 'idle' || phase === 'lost' ? (
-          <View style={{ alignItems: 'center' }}>
+        <View style={{ alignItems: 'center', minHeight: 48, justifyContent: 'center' }}>
+          {phase === 'idle' || phase === 'lost' ? (
             <GameButton
               label={phase === 'lost' ? t('games.again') : t('games.start')}
               onPress={() => begin(growSequence([]))}
             />
-          </View>
-        ) : null}
+          ) : null}
+        </View>
       </View>
     </View>
   );

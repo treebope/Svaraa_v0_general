@@ -9,7 +9,7 @@ import { pendant } from '@/services/pendant';
 export const DRILL_POLL_MS = 2000;
 
 /**
- * C8 · The SOS drill: start it from the button or by holding the gold dot (a pendant "sos" event), then follow it
+ * C8 · The SOS drill: start it by pressing the gold button 3 times (a pendant "sos" event), then follow it
  * until a contact answers (passed) or five minutes go by (expired). `secondsLeft` counts down to the deadline.
  */
 export function useDrill() {
@@ -62,7 +62,7 @@ export function useDrill() {
     }
   }, [householdId, drill, acknowledging, queryClient]);
 
-  // Holding the gold dot for three seconds starts the drill too.
+  // Pressing the gold button 3 times (pendant "sos") starts the drill too.
   useEffect(
     () =>
       pendant().onEvent((e) => {

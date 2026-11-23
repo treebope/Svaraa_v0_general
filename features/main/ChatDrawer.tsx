@@ -2,6 +2,7 @@ import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { openMyProfile } from '@/features/apps/openApp';
 import { ChatHistory } from '@/features/chat/ChatHistory';
 import { useChat } from '@/features/chat/store';
 import { Logo, useTheme } from '@/ui';
@@ -56,7 +57,7 @@ export function ChatDrawer({ open, onClose }: { open: boolean; onClose: () => vo
             })
           }
           onAll={() => done(() => router.navigate('/chats'))}
-          onUser={() => done(() => router.navigate('/profile'))}
+          onUser={() => done(() => openMyProfile(router))}
         />
       </View>
       <Pressable

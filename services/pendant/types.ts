@@ -19,10 +19,12 @@ export type PendantStatus = {
 /** The three checks on C4: touch tick, spoken status, microphone "Hello". */
 export type PendantCheck = 'touch' | 'announce' | 'mic';
 
-/** Things the pendant tells the app by itself. */
+/** Things the pendant tells the app by itself (BLE will emit these; the simulator mocks them). */
 export type PendantEvent =
-  /** The gold dot was held for three seconds: SOS (or the drill during setup). */
-  { type: 'sos' };
+  /** Gold dot pressed once: opens the short pairing window so the phone can find it. */
+  | { type: 'pairing_press' }
+  /** The gold button was pressed 3 times: SOS (or the drill during setup). */
+  | { type: 'sos' };
 
 export type PendantErrorCode =
   /** Nothing found while scanning: the dot was not pressed, or the pendant is out of range. */

@@ -3,8 +3,9 @@ import { AccessibilityInfo, FlatList, View, useWindowDimensions } from 'react-na
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { AUTO_ADVANCE_MS, SLIDE_SETTLE_MS, STORIES, STORY_IMAGE_RATIO } from '@/features/intro/stories';
+import { FlowShell } from '@/features/setup/FlowShell';
 import { useSession } from '@/services/auth/session';
-import { Button, Screen, Text, useTheme } from '@/ui';
+import { Button, Text, useTheme } from '@/ui';
 
 /** The stories, then the first again at the end (see the effect in Intro). */
 const LOOP = [...STORIES, STORIES[0]];
@@ -61,7 +62,7 @@ export default function Intro() {
   };
 
   return (
-    <Screen
+    <FlowShell
       footer={
         <>
           <Button label={t('intro.haveSvaraa')} onPress={() => leave(() => undefined)} fullWidth />
@@ -169,6 +170,6 @@ export default function Intro() {
           ))}
         </View>
       </View>
-    </Screen>
+    </FlowShell>
   );
 }

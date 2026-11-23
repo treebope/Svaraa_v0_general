@@ -1,5 +1,7 @@
 import i18n from '@/i18n';
 import type { components } from '@/services/api/schema';
+import { mockProfileChat } from './chatProfile';
+import { mockYoutubeChat } from './chatYoutube';
 import { newsFilters, sampleNewsPage } from './news';
 import * as reminders from './reminders';
 import * as music from './music';
@@ -41,8 +43,13 @@ export const DEMO_CODE = '0000';
 export const EXISTING_USER_SUFFIX = '00';
 /** Demo hook: a number ending in 11 already belongs to another account (409 mobile_number_taken). */
 export const TAKEN_NUMBER_SUFFIX = '11';
-/** Demo claim code, as printed on the card in the box. Any code in this shape works. */
+/** Demo claim code, as printed on the card in the box. Any code in this shape works against the mock backend. */
 export const DEMO_CLAIM_CODE = 'SVRA-2041-7K3P';
+/**
+ * Demo claim code for the real/staging server (any token starting with MOCK).
+ * Prefer this when `flags.household === 'real'`.
+ */
+export const DEMO_MOCK_CLAIM_CODE = 'MOCK-0000-0001';
 /** Demo hook: a claim code ending in -0000 belongs to another household (409 device_already_claimed). */
 export const CLAIMED_CODE_SUFFIX = '-0000';
 const CLAIM_CODE = /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
@@ -884,7 +891,8 @@ export const routes: MockRoute[] = [
       return { status: 200, body: newsFilters };
     },
   },
-  // Text chat (flags.ai). A fixed sample reply in the app's language. Like the real server, it needs sign-in.
+  // Text chat (flags.ai). Sample reply, or profile/settings events from phrase matching.
+  // PENDING BACKEND: real LLM tools (settings_tool / profile_tool) when flags.ai is real; mock mirrors their events.
   // The conversation history (/conversations) has no mock: with the 'mock' switch the app keeps its chats in memory.
   {
     method: 'POST',
@@ -899,11 +907,14 @@ export const routes: MockRoute[] = [
       if (typeof message !== 'string' || !message.trim())
         return fail(422, 'validation_error', 'Invalid request');
       const id = conversation_id || session_id || newId();
+      const youtube = mockYoutubeChat(message);
+      const profile = youtube ? null : mockProfileChat(message);
+      const matched = youtube ?? profile;
       const out: S['ChatResponse'] = {
         conversation_id: id,
         session_id: id,
-        response: i18n.t('chat.reply'),
-        events: [],
+        response: matched?.response ?? i18n.t('chat.reply'),
+        events: matched?.events ?? [],
       };
       return { status: 200, body: out };
     },

@@ -23,6 +23,10 @@ function flatten(tree: Tree, prefix = ''): Record<string, string> {
 const load = (file: string) => flatten(JSON.parse(readFileSync(join(root, 'i18n', file), 'utf8')) as Tree);
 const en = load('en.json');
 const hi = load('hi.json');
+/** Full parity with en (bilingual baseline). */
+const FULL = ['hi'] as const;
+/** First-draft overlays: keys must exist in en; missing keys fall back to English at runtime. */
+const PARTIAL = ['ta', 'zh', 'ko', 'ja'] as const;
 const errors: string[] = [];
 
 for (const key of Object.keys(en)) if (!(key in hi)) errors.push(`Missing in hi.json: ${key}`);
@@ -43,6 +47,17 @@ for (const key of Object.keys(en)) {
   if (key in hi && placeholders(en[key]) !== placeholders(hi[key]))
     errors.push(`Placeholders differ for ${key}`);
 }
+
+for (const lang of PARTIAL) {
+  const table = load(`${lang}.json`);
+  for (const key of Object.keys(table)) {
+    if (!(key in en)) errors.push(`Unknown key in ${lang}.json: ${key}`);
+    if (!table[key].trim()) errors.push(`Empty value in ${lang}.json: ${key}`);
+    if (key in en && placeholders(en[key]) !== placeholders(table[key]))
+      errors.push(`Placeholders differ for ${lang}.json ${key}`);
+  }
+}
+void FULL;
 
 function walk(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -85,4 +100,4 @@ if (errors.length) {
   console.error(`i18n:check found ${errors.length} problem(s):\n` + errors.map((e) => `  - ${e}`).join('\n'));
   process.exit(1);
 }
-console.log(`i18n:check OK (${Object.keys(en).length} keys, en and hi match)`);
+console.log(`i18n:check OK (${Object.keys(en).length} keys; en/hi full; ${PARTIAL.join('/')} overlays)`);

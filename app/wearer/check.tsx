@@ -9,7 +9,8 @@ import { StepHeader } from '@/features/wearer/StepHeader';
 import { WEARER_STEP } from '@/features/wearer/steps';
 import { useWearer } from '@/features/wearer/store';
 import { pendant, type PendantCheck } from '@/services/pendant';
-import { Button, Checkbox, Chip, Screen, Text, useTheme } from '@/ui';
+import { FlowShell } from '@/features/setup/FlowShell';
+import { Button, Checkbox, Chip, Text, useTheme } from '@/ui';
 
 const CHECKS: PendantCheck[] = ['touch', 'announce', 'mic'];
 
@@ -58,7 +59,7 @@ export default function CheckPendant() {
   };
 
   return (
-    <Screen
+    <FlowShell
       footer={
         <Button
           label={t('wearer.check.finish')}
@@ -113,6 +114,6 @@ export default function CheckPendant() {
       {!connected ? (
         <Button label={t('wearer.check.repair')} variant="secondary" onPress={() => void repair()} />
       ) : null}
-    </Screen>
+    </FlowShell>
   );
 }

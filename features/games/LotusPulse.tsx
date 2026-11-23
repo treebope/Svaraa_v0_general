@@ -87,11 +87,11 @@ export function LotusPulse() {
   const trail = useRef(0);
   const world = useRef(RUN.width);
 
-  // The height is known; the width starts as the window's and is corrected once the stage is measured.
+  // Fit the Apps pane (beside chat on web): height capped, width from onLayout only.
   const stageH = Math.round(
-    wide ? Math.max(460, win.height - 200) : Math.min(640, Math.max(420, win.height * 0.62)),
+    wide ? Math.min(440, Math.max(360, win.height * 0.48)) : Math.min(520, Math.max(360, win.height * 0.55)),
   );
-  const w = measured ?? Math.max(280, win.width - 32);
+  const w = measured && measured > 0 ? measured : 360;
   const u = Math.min(w / 70, stageH / 55);
   const vw = w / u;
   const vh = stageH / u;
@@ -266,8 +266,16 @@ export function LotusPulse() {
 
   return (
     <View
-      style={{ height: stageH, borderRadius: 24, overflow: 'hidden', borderWidth: 1, borderColor: G.line }}
-      onLayout={(e) => setMeasured(e.nativeEvent.layout.width)}
+      style={{
+        width: '100%',
+        alignSelf: 'stretch',
+        height: stageH,
+        borderRadius: 24,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: G.line,
+      }}
+      onLayout={(e) => setMeasured(Math.floor(e.nativeEvent.layout.width))}
     >
       <Pressable
         accessibilityRole="button"

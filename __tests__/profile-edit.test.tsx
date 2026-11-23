@@ -1,9 +1,9 @@
 import { act, fireEvent, screen } from '@testing-library/react-native';
 import i18n from '@/i18n';
-import Profile from '@/app/(tabs)/profile';
 import AddContact from '@/app/wearer/contact';
 import EditProfile from '@/app/edit-profile';
 import { useHousehold } from '@/features/household/store';
+import { ProfileView } from '@/features/profile/ProfileView';
 import { useSettings } from '@/features/settings/store';
 import { useWearer } from '@/features/wearer/store';
 import { verifyOtpAndSignIn } from '@/services/auth/authApi';
@@ -17,7 +17,13 @@ const mockPush = jest.fn();
 const mockBack = jest.fn();
 let mockParams: Record<string, string> = {};
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ replace: jest.fn(), push: mockPush, navigate: mockPush, back: mockBack }),
+  useRouter: () => ({
+    replace: jest.fn(),
+    push: mockPush,
+    navigate: mockPush,
+    back: mockBack,
+    canGoBack: () => true,
+  }),
   useLocalSearchParams: () => mockParams,
   useIsFocused: () => true,
   usePathname: () => '/profile',
@@ -52,7 +58,7 @@ beforeEach(async () => {
 
 describe('My Profile · edit', () => {
   it('has Edit for the details and a Change button for each contact', async () => {
-    await renderApp(<Profile />);
+    await renderApp(<ProfileView />);
     await fireEvent.press(screen.getByRole('button', { name: 'Edit' }));
     expect(mockPush).toHaveBeenCalledWith('/edit-profile');
     await fireEvent.press(screen.getAllByRole('button', { name: /^Change/ })[1]!);
@@ -99,7 +105,8 @@ describe('My Profile · contacts', () => {
       { name: 'Ravi Rao', relationship: null, country_code: '+91', mobile_number: '9912347821' },
     ]);
     expect(useWearer.getState().contacts[1]?.name).toBe('Ravi Rao');
-    expect(mockBack).toHaveBeenCalled();
+    // From My Profile the screen now returns to the Profile pane inside Apps (openMyProfile), not router.back().
+    expect(mockPush).toHaveBeenCalledWith('/apps');
   });
 
   it('adds a third contact and removes one', async () => {

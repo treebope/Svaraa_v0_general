@@ -11,7 +11,7 @@ export function StepList({ items }: { items: StepListItem[] }) {
   const { t } = useTranslation();
   const c = theme.colors;
   return (
-    <View style={{ gap: theme.space[3] }}>
+    <View style={{ gap: theme.space[4] }}>
       {items.map((s, i) => {
         const state = s.state === 'done' ? t('steps.done') : s.state === 'now' ? t('steps.current') : '';
         return (

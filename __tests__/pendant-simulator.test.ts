@@ -63,6 +63,14 @@ describe('SimulatorTransport', () => {
     });
   });
 
+  it('sends a pairing_press when the gold dot is pressed once', () => {
+    const t = new SimulatorTransport();
+    const listener = jest.fn();
+    t.onEvent(listener);
+    t.simulatePairingPress();
+    expect(listener).toHaveBeenCalledWith({ type: 'pairing_press' });
+  });
+
   it('sends an SOS event when the dot is held', () => {
     const t = new SimulatorTransport();
     const listener = jest.fn();

@@ -1,8 +1,10 @@
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { PhoneVerify } from '@/features/auth/PhoneVerify';
+import { safeBack } from '@/features/nav/safeBack';
+import { FlowShell } from '@/features/setup/FlowShell';
 import { requestOtp, verifyOtpAndSignIn } from '@/services/auth/authApi';
-import { Button, Screen, Text, useTheme } from '@/ui';
+import { Button, Card, Text, useTheme } from '@/ui';
 
 /** A2 · Phone and OTP (sign-in). */
 export default function PhoneSignIn() {
@@ -10,19 +12,22 @@ export default function PhoneSignIn() {
   const { t } = useTranslation();
   const router = useRouter();
   return (
-    <Screen>
-      <Button label={t('common.back')} variant="tertiary" onPress={() => router.back()} />
-      <Text variant="title1" tone="heading" accessibilityRole="header">
-        {t('auth.phone.title')}
-      </Text>
-      <Text tone="secondary" style={{ marginBottom: theme.space[2] }}>
-        {t('auth.phone.subtitle')}
-      </Text>
-      <PhoneVerify
-        onRequest={requestOtp}
-        onVerify={async (phone, code) => void (await verifyOtpAndSignIn(phone, code))}
-        onVerified={() => router.replace('/')}
-      />
-    </Screen>
+    <FlowShell>
+      <Card style={{ gap: theme.space[4], padding: theme.space[5] }}>
+        <Button label={t('common.back')} variant="tertiary" onPress={() => safeBack(router, '/welcome')} />
+        <Text variant="kicker" tone="spirit">
+          {t('auth.welcome.kicker')}
+        </Text>
+        <Text variant="title1" tone="heading" accessibilityRole="header">
+          {t('auth.phone.title')}
+        </Text>
+        <Text tone="secondary">{t('auth.phone.subtitle')}</Text>
+        <PhoneVerify
+          onRequest={requestOtp}
+          onVerify={async (phone, code) => void (await verifyOtpAndSignIn(phone, code))}
+          onVerified={() => router.replace('/')}
+        />
+      </Card>
+    </FlowShell>
   );
 }

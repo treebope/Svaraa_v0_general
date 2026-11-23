@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Animated, Easing, Platform, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { DrillOut } from '@/services/api';
-import { Card, Icon, Text, useTheme } from '@/ui';
+import { Button, Card, Icon, Text, useTheme } from '@/ui';
 
 type StepState = 'done' | 'active' | 'todo' | 'failed' | 'skipped';
 
@@ -54,23 +54,35 @@ export function DrillSteps({
   drill,
   contacts,
   secondsLeft,
+  onOverride,
+  overriding,
 }: {
   drill: DrillOut;
   contacts: { name: string; countryCode?: string; mobile?: string }[];
   secondsLeft: number;
+  /** Pass the drill without waiting for a contact (shown at the 112 / emergency stage). */
+  onOverride?: () => void;
+  overriding?: boolean;
 }) {
   const theme = useTheme();
   const { t } = useTranslation();
   const c = theme.colors;
   const { status } = drill;
+  /** Extra ring slots jumped by Skip (client-side; backend only knows waiting/passed/expired). */
+  // Keyed by drill id, so a new drill starts at 0 without setting state inside an effect.
+  const [skipState, setSkipState] = useState({ id: drill.id, count: 0 });
+  const skips = skipState.id === drill.id ? skipState.count : 0;
 
   const total = Math.max(1, Math.round((Date.parse(drill.expires_at) - Date.parse(drill.started_at)) / 1000));
-  const elapsed = Math.min(total, Math.max(0, total - secondsLeft));
-  const ringing = Math.floor(elapsed / RING_SECONDS); // contact being rung; >= length means 112
+  const clockElapsed = Math.min(total, Math.max(0, total - secondsLeft));
+  const rawElapsed = clockElapsed + skips * RING_SECONDS;
+  const elapsed = Math.min(total, rawElapsed);
+  const ringing = Math.floor(rawElapsed / RING_SECONDS); // contact being rung; >= length means 112
   const named = contacts.findIndex((p) => p.name === drill.acknowledged_by);
   const answeredAt = status === 'passed' ? (named >= 0 ? named : Math.min(ringing, contacts.length - 1)) : -1;
   const emergencyNow = status === 'waiting' && ringing >= contacts.length;
-  const nextIn = RING_SECONDS - (elapsed % RING_SECONDS);
+  const nextIn = RING_SECONDS - (rawElapsed % RING_SECONDS);
+  const canSkip = status === 'waiting' && ringing < contacts.length;
 
   type Row = { key: string; title: string; sub?: string; chip: string; state: StepState; glyph: string };
   const rows: Row[] = contacts.map((p, i) => {
@@ -213,6 +225,22 @@ export function DrillSteps({
               }}
             />
           </View>
+        ) : null}
+        {canSkip ? (
+          <Button
+            label={t('wearer.drill.skip')}
+            variant="secondary"
+            onPress={() => setSkipState({ id: drill.id, count: skips + 1 })}
+            fullWidth
+          />
+        ) : null}
+        {emergencyNow && onOverride ? (
+          <>
+            <Button label={t('wearer.drill.override')} onPress={onOverride} loading={overriding} fullWidth />
+            <Text variant="bodySm" tone="secondary" style={{ textAlign: 'center' }}>
+              {t('wearer.drill.overrideHint')}
+            </Text>
+          </>
         ) : null}
       </Card>
 

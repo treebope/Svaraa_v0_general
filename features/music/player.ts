@@ -7,20 +7,30 @@ interface Player {
   pause(): void;
   replace(source: string): void;
   remove(): void;
+  currentTime: number;
+  duration: number;
+  seekTo(seconds: number): Promise<void>;
   addListener(
     event: 'playbackStatusUpdate',
-    listener: (status: { didJustFinish?: boolean }) => void,
+    listener: (status: {
+      didJustFinish?: boolean;
+      currentTime?: number;
+      duration?: number;
+      playing?: boolean;
+    }) => void,
   ): {
     remove(): void;
   };
 }
 interface AudioApi {
-  createAudioPlayer(source: string): Player;
+  createAudioPlayer(source: string, options?: { updateInterval?: number }): Player;
   setAudioModeAsync(mode: { playsInSilentMode: boolean; shouldPlayInBackground?: boolean }): Promise<void>;
 }
 
 let api: AudioApi | null | undefined;
 let player: Player | undefined;
+let statusSub: { remove(): void } | undefined;
+let pollTimer: ReturnType<typeof setInterval> | undefined;
 
 function audio(): AudioApi | null {
   if (api !== undefined) return api;
@@ -37,17 +47,62 @@ function audio(): AudioApi | null {
   return api;
 }
 
+function clearPoll() {
+  if (pollTimer) {
+    clearInterval(pollTimer);
+    pollTimer = undefined;
+  }
+}
+
+function syncTimeFromPlayer() {
+  if (!player) return;
+  const position = Number.isFinite(player.currentTime) ? Math.max(0, player.currentTime) : 0;
+  const duration = Number.isFinite(player.duration) ? Math.max(0, player.duration) : 0;
+  const prev = useMusicPlayer.getState();
+  if (prev.position === position && prev.duration === duration) return;
+  useMusicPlayer.setState({ position, duration });
+}
+
+function startPoll() {
+  clearPoll();
+  pollTimer = setInterval(syncTimeFromPlayer, 250);
+}
+
+function attachPlayer(p: Player) {
+  statusSub?.remove();
+  statusSub = p.addListener('playbackStatusUpdate', (s) => {
+    if (s.didJustFinish) {
+      clearPoll();
+      useMusicPlayer.setState({ status: 'idle', position: 0 });
+      return;
+    }
+    const patch: Partial<State> = {};
+    if (typeof s.currentTime === 'number' && Number.isFinite(s.currentTime)) {
+      patch.position = Math.max(0, s.currentTime);
+    }
+    if (typeof s.duration === 'number' && Number.isFinite(s.duration)) {
+      patch.duration = Math.max(0, s.duration);
+    }
+    if (Object.keys(patch).length) useMusicPlayer.setState(patch);
+  });
+}
+
 export type PlayerStatus = 'idle' | 'loading' | 'playing' | 'paused';
 
 type State = {
   track?: Track;
   status: PlayerStatus;
+  /** Seconds into the current song. */
+  position: number;
+  /** Total length in seconds (0 until known). */
+  duration: number;
   /** 'unplayable' = the song has no audio yet; otherwise an error from the server or the player. */
   error: unknown;
   play(track: Track): Promise<void>;
   pause(): void;
   resume(): void;
   stop(): void;
+  seek(seconds: number): Promise<void>;
 };
 
 /** Error for a song the server has no audio for yet. */
@@ -65,9 +120,11 @@ export class NotPlayable extends Error {
  */
 export const useMusicPlayer = create<State>((set, get) => ({
   status: 'idle',
+  position: 0,
+  duration: 0,
   error: null,
   play: async (track) => {
-    set({ track, status: 'loading', error: null });
+    set({ track, status: 'loading', error: null, position: 0, duration: 0 });
     try {
       const fresh = await getTrack(track.id);
       if (get().track?.id !== track.id) return; // another song was picked meanwhile
@@ -76,28 +133,45 @@ export const useMusicPlayer = create<State>((set, get) => ({
       if (!a) throw new Error('Audio is not available in this build');
       if (player) player.replace(fresh.stream_url);
       else {
-        player = a.createAudioPlayer(fresh.stream_url);
-        player.addListener('playbackStatusUpdate', (s) => {
-          if (s.didJustFinish) set({ status: 'idle' });
-        });
+        player = a.createAudioPlayer(fresh.stream_url, { updateInterval: 250 });
+        attachPlayer(player);
       }
       player.play();
       set({ track: fresh, status: 'playing' });
+      startPoll();
+      syncTimeFromPlayer();
     } catch (error) {
-      if (get().track?.id === track.id) set({ status: 'idle', error });
+      clearPoll();
+      if (get().track?.id === track.id) set({ status: 'idle', error, position: 0, duration: 0 });
     }
   },
   pause: () => {
     player?.pause();
+    clearPoll();
+    syncTimeFromPlayer();
     if (get().status === 'playing') set({ status: 'paused' });
   },
   resume: () => {
     if (!player || get().status !== 'paused') return;
     player.play();
     set({ status: 'playing' });
+    startPoll();
   },
   stop: () => {
     player?.pause();
-    set({ track: undefined, status: 'idle', error: null });
+    clearPoll();
+    set({ track: undefined, status: 'idle', error: null, position: 0, duration: 0 });
+  },
+  seek: async (seconds) => {
+    if (!player) return;
+    const duration = get().duration || player.duration || 0;
+    const next = Math.max(0, duration > 0 ? Math.min(seconds, duration) : seconds);
+    set({ position: next });
+    try {
+      await player.seekTo(next);
+      syncTimeFromPlayer();
+    } catch {
+      /* seek unsupported in some test / silent builds */
+    }
   },
 }));
